@@ -382,6 +382,12 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
   .footer-grid { grid-template-columns: 1fr; gap: var(--space-2xl); }
   .hero-blob { display: none; }
 }
+@media (max-width: 560px) {
+  /* Compact header: crest only, no wordmark, so the CTA + burger keep breathing room */
+  .logo-text { display: none; }
+  .logo-mark { height: 38px; width: 38px; }
+  .nav-cta .btn { padding: 9px 16px; font-size: 0.76rem; }
+}
 @media (max-width: 480px) {
   .wrap { padding: 0 var(--space-md); }
   .hero-actions { flex-direction: column; }
