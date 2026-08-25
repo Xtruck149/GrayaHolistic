@@ -23,16 +23,16 @@
   --olive-dark:     #38431C;
 
   /* — Vivid food-coded palette — */
-  --mango:          #FFB627;
-  --mango-dark:     #E09A0E;
-  --tomato:         #FF5A3C;
-  --tomato-dark:    #E23F22;
-  --basil:          #4CAF6D;
-  --basil-dark:     #33884F;
-  --terracotta:     #E2653C;
-  --terracotta-dark:#BF4A26;
-  --plum:           #A6488C;
-  --teal:           #2CA6A4;
+  --mango:          #C9932A;
+  --mango-dark:     #A67418;
+  --tomato:         #C14E36;
+  --tomato-dark:    #9C3A22;
+  --basil:          #3D7D55;
+  --basil-dark:     #2A5F3C;
+  --terracotta:     #B5563A;
+  --terracotta-dark:#8F3B22;
+  --plum:           #7D4A6C;
+  --teal:           #2C7A78;
 
   --shadow-flat:    5px 5px 0 var(--ink);
   --shadow-flat-sm: 3px 3px 0 var(--ink);
@@ -121,6 +121,8 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 }
 .eyebrow--light { background: #fff; }
 .eyebrow--dark { background: var(--tomato); color: #fff; border-style: solid; }
+/* Prevent the eyebrow chip from blending into a same-color hero (e.g. hero--warm is mango) */
+.hero--warm .eyebrow:not(.eyebrow--light):not(.eyebrow--dark) { background: var(--ink); color: var(--mango); border-color: var(--ink); border-style: solid; }
 
 .section-header { max-width: 640px; margin-bottom: var(--space-2xl); }
 .section-header.centered { text-align: center; margin-left: auto; margin-right: auto; }
@@ -143,7 +145,10 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .btn:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--ink); }
 .btn-primary { background: var(--mango); }
 .btn-secondary { background: var(--basil); color: #fff; }
-.btn-outline { background: transparent; }
+/* btn-outline: for use on colored/dark hero backgrounds — must not default to dark-on-dark */
+.btn-outline { background: transparent; color: #fff; border-color: #fff; box-shadow: 0 5px 0 rgba(255,255,255,0.45); }
+.btn-outline:hover { box-shadow: 0 7px 0 rgba(255,255,255,0.45); }
+.btn-outline:active { box-shadow: 0 2px 0 rgba(255,255,255,0.45); }
 .btn-outline-dark { background: #fff; }
 .btn-coral { background: var(--tomato); color: #fff; }
 .btn-ghost { background: transparent; border-color: transparent; box-shadow: none; }
@@ -159,7 +164,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 }
 .nav { display: flex; align-items: center; justify-content: space-between; padding: 12px var(--space-lg); max-width: var(--max-w-wide); margin: 0 auto; }
 .logo { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; color: var(--ink); flex-shrink: 0; }
-.logo-mark { height: 48px; width: 48px; object-fit: contain; flex-shrink: 0; border-radius: 50%; background: #fff; border: 2.5px solid var(--ink); padding: 3px; }
+.logo-mark { height: 56px; width: 56px; object-fit: contain; flex-shrink: 0; }
 .logo-text span { color: var(--tomato); }
 .nav-links { display: flex; align-items: center; gap: 2px; font-family: var(--font-display); font-size: 0.86rem; font-weight: 600; }
 .nav-links li { position: relative; }
@@ -257,7 +262,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .site-footer { background: var(--ink); color: rgba(255,255,255,0.75); padding: var(--space-4xl) 0 0; border-top: 6px solid var(--mango); }
 .footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: var(--space-2xl); padding-bottom: var(--space-3xl); }
 .footer-logo { display: flex; align-items: center; gap: 12px; margin-bottom: var(--space-md); }
-.footer-logo-mark { height: 52px; width: 52px; object-fit: contain; border-radius: 50%; background: #fff; border: 2.5px solid var(--mango); padding: 3px; }
+.footer-logo-mark { height: 60px; width: 60px; object-fit: contain; }
 .footer-brand h4 { color: #fff; font-size: 1.15rem; }
 .footer-brand p { font-size: 0.9rem; max-width: 300px; color: rgba(255,255,255,0.62); }
 .footer-col h5 { color: var(--mango); font-family: var(--font-display); font-size: 0.78rem; font-weight: 700; margin-bottom: var(--space-lg); }
