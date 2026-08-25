@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://xtruck149.github.io/GrayaHolistic/sitemap.xml
