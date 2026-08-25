@@ -196,6 +196,8 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .hero-inner { position: relative; z-index: 2; max-width: 700px; }
 .hero h1 { color: inherit; margin-bottom: var(--space-lg); }
 .hero h1 em { font-style: normal; color: var(--mango); text-decoration: wavy underline; text-decoration-thickness: 3px; text-underline-offset: 6px; }
+/* Prevent em text from matching hero--warm's mango background (same bug as BMT's fix) */
+.hero--warm h1 em { color: var(--tomato); text-decoration-color: var(--ink); }
 .hero .lead { font-size: clamp(1.05rem, 1.5vw, 1.2rem); color: inherit; opacity: 0.95; max-width: 560px; margin-bottom: var(--space-2xl); }
 .hero--centered .hero .lead { margin-left: auto; margin-right: auto; }
 .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
