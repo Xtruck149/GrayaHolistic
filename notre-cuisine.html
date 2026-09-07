@@ -107,7 +107,14 @@
       <h2 class="text-white">Galerie gourmande</h2>
       <p class="text-white-muted">Un aperçu de l'univers gourmand Graya Holistic — saveurs, couleurs et gestes conscients.</p>
     </div>
-    <div class="gallery-grid" data-gallery></div>
+    <div class="gallery-filters" role="tablist" aria-label="Filtrer la galerie par type de plat">
+      <button type="button" class="gallery-filter active" data-filter="all" role="tab" aria-selected="true">Tout</button>
+      <button type="button" class="gallery-filter" data-filter="poulet" role="tab" aria-selected="false">Poulet</button>
+      <button type="button" class="gallery-filter" data-filter="boeuf" role="tab" aria-selected="false">Bœuf</button>
+      <button type="button" class="gallery-filter" data-filter="poisson-vege" role="tab" aria-selected="false">Poisson &amp; Végé</button>
+      <button type="button" class="gallery-filter" data-filter="autres" role="tab" aria-selected="false">Autres</button>
+    </div>
+    <div class="gallery-grid" data-gallery data-gallery-limit="0"></div>
   </div>
 </section>
 

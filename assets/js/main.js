@@ -52,11 +52,22 @@ document.addEventListener('DOMContentLoaded', () => {
   toTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
   document.body.appendChild(toTop);
 
+  /* ---- Persistent floating WhatsApp button ---- */
+  const waFab = document.createElement('a');
+  waFab.className = 'whatsapp-fab';
+  waFab.href = 'https://wa.me/2250101736812?text=' + encodeURIComponent("Bonjour Graya Holistic, j'ai une question.");
+  waFab.target = '_blank';
+  waFab.rel = 'noopener';
+  waFab.setAttribute('aria-label', 'Écrire sur WhatsApp');
+  waFab.innerHTML = '<svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.39 1.26 4.81L2 22l5.41-1.42a9.87 9.87 0 0 0 4.63 1.18h.01c5.46 0 9.9-4.45 9.9-9.91C21.95 6.45 17.5 2 12.04 2zm5.78 14.03c-.24.68-1.4 1.3-1.93 1.38-.5.08-1.12.11-1.81-.11-.42-.13-.96-.31-1.65-.61-2.9-1.25-4.79-4.17-4.94-4.36-.14-.19-1.18-1.57-1.18-3 0-1.42.75-2.12 1.02-2.41.26-.29.57-.36.76-.36.19 0 .38 0 .55.01.18.01.41-.07.64.49.24.58.81 2 .88 2.14.07.14.11.31.02.5-.09.19-.14.31-.27.48-.14.17-.29.37-.41.5-.14.14-.28.29-.12.57.16.28.71 1.17 1.52 1.9 1.05.94 1.93 1.23 2.21 1.37.28.14.44.12.6-.07.16-.19.68-.79.86-1.06.18-.27.36-.22.6-.13.24.09 1.53.72 1.79.85.26.13.43.19.5.3.07.11.07.62-.17 1.3z"/></svg>';
+  document.body.appendChild(waFab);
+
   const onScroll = () => {
     const h = document.documentElement;
     const pct = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
     progress.style.width = pct + '%';
     toTop.classList.toggle('visible', h.scrollTop > 600);
+    waFab.classList.toggle('visible', h.scrollTop > 300);
   };
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
@@ -312,7 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function galleryCardHTML(p, i) {
     const label = 'Agrandir la photo : ' + (p.caption || p.alt || 'photo');
     return `
-      <div class="gallery-card reveal-scale" data-index="${i}" role="button" tabindex="0" aria-label="${label}">
+      <div class="gallery-card reveal-scale" data-index="${i}" data-category="${p.category || 'autres'}" role="button" tabindex="0" aria-label="${label}">
         <picture>
           <source srcset="assets/img/gallery/${p.file}.webp" type="image/webp">
           <img src="assets/img/gallery/${p.file}.jpg" alt="${p.alt || ''}" loading="lazy" decoding="async">
@@ -369,6 +380,110 @@ document.addEventListener('DOMContentLoaded', () => {
       .catch(() => {
         grid.innerHTML = '<div class="gallery-empty">Photos à venir — bientôt notre galerie gourmande !</div>';
       });
+  });
+
+  /* ---- Confetti burst on the WhatsApp reservation buttons ---- */
+  if (!reducedMotion) {
+    const confettiColors = ['#C9932A', '#C14E36', '#3D7D55', '#7D4A6C', '#2C7A78'];
+    function burstConfetti(x, y) {
+      for (let i = 0; i < 14; i++) {
+        const piece = document.createElement('span');
+        piece.className = 'confetti-piece';
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 50 + Math.random() * 60;
+        piece.style.setProperty('--dx', (Math.cos(angle) * dist).toFixed(0) + 'px');
+        piece.style.setProperty('--dy', (Math.sin(angle) * dist - 30).toFixed(0) + 'px');
+        piece.style.setProperty('--rot', (Math.random() * 720 - 360).toFixed(0) + 'deg');
+        piece.style.background = confettiColors[i % confettiColors.length];
+        piece.style.left = x + 'px';
+        piece.style.top = y + 'px';
+        document.body.appendChild(piece);
+        piece.addEventListener('animationend', () => piece.remove());
+      }
+    }
+    document.querySelectorAll('a.btn-primary[href*="wa.me"], .whatsapp-fab').forEach(btn => {
+      btn.addEventListener('click', e => burstConfetti(e.clientX, e.clientY));
+    });
+  }
+
+  /* ---- "Surprends-moi" random dish picker ---- */
+  const surpriseBtn = document.getElementById('surprise-btn');
+  if (surpriseBtn) {
+    surpriseBtn.addEventListener('click', async () => {
+      const card = document.getElementById('surprise-card');
+      const img = document.getElementById('surprise-img');
+      const caption = document.getElementById('surprise-caption');
+      const cta = document.getElementById('surprise-cta');
+
+      surpriseBtn.disabled = true;
+      card.classList.remove('landed');
+      card.classList.add('spinning');
+      caption.textContent = 'On cherche…';
+
+      let photos;
+      try {
+        photos = await (await fetch('assets/img/gallery/manifest.json')).json();
+      } catch (e) {
+        photos = [];
+      }
+      if (!Array.isArray(photos) || !photos.length) {
+        caption.textContent = 'Galerie indisponible pour le moment';
+        card.classList.remove('spinning');
+        surpriseBtn.disabled = false;
+        return;
+      }
+
+      const tickDelay = reducedMotion ? 0 : 90;
+      const maxTicks = reducedMotion ? 1 : 16;
+      let ticks = 0;
+
+      await new Promise(resolve => {
+        const tick = () => {
+          const p = photos[Math.floor(Math.random() * photos.length)];
+          img.src = 'assets/img/gallery/' + p.file + '.jpg';
+          ticks++;
+          if (ticks >= maxTicks) { resolve(); return; }
+          setTimeout(tick, tickDelay);
+        };
+        tick();
+      });
+
+      const final = photos[Math.floor(Math.random() * photos.length)];
+      img.src = 'assets/img/gallery/' + final.file + '.jpg';
+      img.alt = final.alt || '';
+      const dishName = final.caption || final.alt || 'ce plat';
+      caption.textContent = dishName;
+      card.classList.remove('spinning');
+      card.classList.add('landed');
+
+      cta.href = 'https://wa.me/2250101736812?text=' + encodeURIComponent(
+        `Bonjour Graya Holistic, le hasard m'a proposé « ${dishName} » — je voudrais réserver une table pour y goûter !`
+      );
+      cta.hidden = false;
+      surpriseBtn.disabled = false;
+      surpriseBtn.textContent = '🎲 Rejouer';
+    });
+  }
+
+  /* ---- Gallery category filters ---- */
+  document.querySelectorAll('.gallery-filters').forEach(filterBar => {
+    const grid = filterBar.nextElementSibling;
+    if (!grid) return;
+    filterBar.addEventListener('click', e => {
+      const btn = e.target.closest('.gallery-filter');
+      if (!btn) return;
+      filterBar.querySelectorAll('.gallery-filter').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      const filter = btn.dataset.filter;
+      grid.querySelectorAll('.gallery-card').forEach(card => {
+        const match = filter === 'all' || card.dataset.category === filter;
+        card.hidden = !match;
+      });
+    });
   });
 
   /* ---- Active nav link based on current page ---- */
