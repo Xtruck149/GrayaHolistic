@@ -1,5 +1,29 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+  /* ---- Interactive wallpaper: ambient mesh nudged by pointer/touch + scroll ---- */
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const root = document.documentElement;
+    let rafId = null, latestX = null, latestY = null;
+    const applyMeshOffset = () => {
+      rafId = null;
+      if (latestX === null) return;
+      const nx = (latestX / window.innerWidth - 0.5) * 2;
+      const ny = (latestY / window.innerHeight - 0.5) * 2;
+      const scrollPull = Math.min(window.scrollY / 30, 24);
+      root.style.setProperty('--mesh-px', (nx * 16).toFixed(1));
+      root.style.setProperty('--mesh-py', (ny * 10 + scrollPull).toFixed(1));
+    };
+    const queueMeshUpdate = (x, y) => {
+      latestX = x; latestY = y;
+      if (rafId === null) rafId = requestAnimationFrame(applyMeshOffset);
+    };
+    window.addEventListener('pointermove', e => queueMeshUpdate(e.clientX, e.clientY), { passive: true });
+    window.addEventListener('scroll', () => {
+      if (latestX === null) { latestX = window.innerWidth / 2; latestY = window.innerHeight / 2; }
+      if (rafId === null) rafId = requestAnimationFrame(applyMeshOffset);
+    }, { passive: true });
+  }
+
   /* ---- Mobile navigation ---- */
   const burger = document.querySelector('.burger');
   const navLinks = document.querySelector('.nav-links');
