@@ -494,3 +494,8 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 @media (max-width: 560px) {
   .lightbox-prev { left: 6px; } .lightbox-next { right: 6px; } .lightbox-close { top: 10px; right: 10px; }
 }
+
+/* — Photo-backed sections (a textured backdrop behind a themed section) — */
+.section-photo { position: relative; background-size: cover; background-position: center; background-attachment: scroll; }
+.section-photo::before { content: ''; position: absolute; inset: 0; z-index: 0; background: var(--photo-overlay, rgba(56,67,28,0.88)); }
+.section-photo > .wrap { position: relative; z-index: 1; }
