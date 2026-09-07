@@ -530,6 +530,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const href = link.getAttribute('href').split('/').pop();
     if (href === currentPath) {
       link.classList.add('active');
+      link.setAttribute('aria-current', 'page');
     }
   });
 
