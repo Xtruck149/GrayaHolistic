@@ -238,17 +238,35 @@ document.addEventListener('DOMContentLoaded', () => {
     counters.forEach(el => cio.observe(el));
   }
 
-  /* ---- Contact form success feedback ---- */
-  if (window.location.search.includes('sent=1')) {
-    const form = document.querySelector('.contact-form');
-    if (form) {
-      const msg = document.createElement('div');
-      msg.className = 'form-success-msg';
-      msg.style.cssText = 'background:rgba(31,169,124,0.1);border:1px solid rgba(31,169,124,0.3);border-radius:var(--radius-sm);padding:16px 20px;margin-bottom:20px;font-weight:600;color:var(--primary-light);font-size:0.92rem;';
-      msg.textContent = 'Votre message a bien \u00e9t\u00e9 envoy\u00e9 ! Nous vous r\u00e9pondrons tr\u00e8s rapidement.';
-      form.parentNode.insertBefore(msg, form);
-      history.replaceState(null, '', window.location.pathname);
-    }
+  /* ---- Contact form: send via WhatsApp (site has no email backend) ---- */
+  const contactForm = document.querySelector('.contact-form');
+  if (contactForm) {
+    contactForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const name = contactForm.querySelector('#name').value.trim();
+      const email = contactForm.querySelector('#email').value.trim();
+      const subjectSelect = contactForm.querySelector('#subject');
+      const subject = subjectSelect.options[subjectSelect.selectedIndex]?.textContent || '';
+      const message = contactForm.querySelector('#message').value.trim();
+      const lines = [
+        'Bonjour Graya Holistic,',
+        `Nom : ${name}`,
+        `Email : ${email}`,
+        subject ? `Sujet : ${subject}` : '',
+        `Message : ${message}`
+      ].filter(Boolean).join('\n');
+      window.open('https://wa.me/2250101736812?text=' + encodeURIComponent(lines), '_blank', 'noopener');
+
+      let msg = contactForm.querySelector('.form-success-msg');
+      if (!msg) {
+        msg = document.createElement('div');
+        msg.className = 'form-success-msg';
+        msg.style.cssText = 'background:rgba(61,125,85,0.12);border:1px solid rgba(61,125,85,0.35);border-radius:var(--radius-sm);padding:16px 20px;margin-bottom:20px;font-weight:600;color:var(--olive-dark);font-size:0.92rem;';
+        contactForm.parentNode.insertBefore(msg, contactForm);
+      }
+      msg.textContent = 'Votre message est pr\u00eat sur WhatsApp \u2014 il ne reste qu\u2019\u00e0 l\u2019envoyer !';
+      contactForm.reset();
+    });
   }
 
   /* ---- Magnetic tilt on elevated cards (fine pointer + motion allowed only) ---- */
@@ -363,7 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="gallery-media">
           <picture>
             <source srcset="assets/img/gallery/${p.file}.webp" type="image/webp">
-            <img src="assets/img/gallery/${p.file}.jpg" alt="${p.alt || ''}">
+            <img src="assets/img/gallery/${p.file}.jpg" alt="${p.alt || ''}" decoding="async">
           </picture>
         </div>
         ${p.caption ? `<span class="gallery-caption">${p.caption}</span>` : ''}
