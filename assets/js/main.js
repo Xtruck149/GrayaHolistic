@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function openNav() {
     if (navLinks) navLinks.classList.add('open');
     if (burger) burger.setAttribute('aria-expanded', 'true');
-    if (overlay) { overlay.classList.add('visible'); overlay.style.display = 'block'; }
+    if (overlay) overlay.classList.add('visible');
     document.body.style.overflow = 'hidden';
   }
 
