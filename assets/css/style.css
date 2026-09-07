@@ -194,6 +194,28 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .hero--default { background: var(--olive); }
 .hero--centered .hero-inner { max-width: 800px; text-align: center; margin: 0 auto; }
 .hero-inner { position: relative; z-index: 2; max-width: 700px; }
+
+/* — Split hero: copy on one side, rotating photo panel on the other — */
+.hero-inner.hero-inner--split { max-width: none; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: var(--space-3xl); align-items: center; }
+.hero-photo-frame {
+  position: relative; aspect-ratio: 4/5; max-width: 380px; margin: 0 auto;
+  border-radius: var(--radius-lg); border: 3px solid var(--ink); box-shadow: var(--shadow-flat-lg);
+  overflow: hidden; transform: rotate(2deg); background: var(--cream-dark);
+}
+.hero-photo-frame picture { display: block; width: 100%; height: 100%; }
+.hero-photo-frame img { width: 100%; height: 100%; object-fit: cover; opacity: 1; transition: opacity 0.8s ease; }
+.hero-photo-frame img.fading { opacity: 0; }
+.hero-photo-caption {
+  position: absolute; left: 12px; bottom: 12px; background: var(--mango); color: var(--ink);
+  font-family: var(--font-display); font-weight: 600; font-size: 0.78rem; padding: 6px 14px;
+  border-radius: 100px; border: 2px solid var(--ink); opacity: 0; transition: opacity 0.8s ease;
+}
+.hero-photo-caption.visible { opacity: 1; }
+@media (max-width: 880px) {
+  .hero-inner.hero-inner--split { grid-template-columns: 1fr; text-align: center; }
+  .hero-photo-panel { order: -1; margin-bottom: var(--space-lg); }
+  .hero-photo-frame { max-width: 280px; }
+}
 .hero h1 { color: inherit; margin-bottom: var(--space-lg); }
 .hero h1 em { font-style: normal; color: var(--mango); text-decoration: wavy underline; text-decoration-thickness: 3px; text-underline-offset: 6px; }
 /* Prevent em text from matching hero--warm's mango background (same bug as BMT's fix) */

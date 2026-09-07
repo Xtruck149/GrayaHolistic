@@ -87,6 +87,40 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  /* ---- Hero photo rotator (homepage split hero) ---- */
+  const heroRotator = document.querySelector('[data-hero-rotator]');
+  if (heroRotator) {
+    const rotatorImg = document.getElementById('hero-rotator-img');
+    const rotatorCaption = document.getElementById('hero-rotator-caption');
+    fetch('assets/img/gallery/manifest.json')
+      .then(r => r.ok ? r.json() : [])
+      .then(photos => {
+        if (!Array.isArray(photos) || photos.length < 2) return;
+        const shuffled = photos.slice().sort(() => Math.random() - 0.5).slice(0, 8);
+        let idx = 0;
+        const show = i => {
+          const p = shuffled[i];
+          rotatorImg.classList.add('fading');
+          rotatorCaption.classList.remove('visible');
+          setTimeout(() => {
+            rotatorImg.src = 'assets/img/gallery/' + p.file + '.jpg';
+            rotatorImg.alt = p.alt || '';
+            rotatorCaption.textContent = p.caption || '';
+            rotatorImg.classList.remove('fading');
+            rotatorCaption.classList.add('visible');
+          }, 400);
+        };
+        show(idx);
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          setInterval(() => {
+            idx = (idx + 1) % shuffled.length;
+            show(idx);
+          }, 4500);
+        }
+      })
+      .catch(() => {});
+  }
+
   /* ---- Hero floating orbs (also on the 404 error page) ---- */
   const hero = document.querySelector('.hero, .error-page');
   if (hero && !hero.querySelector('.hero-orb')) {
