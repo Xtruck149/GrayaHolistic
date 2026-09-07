@@ -591,6 +591,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
   box-shadow: var(--shadow-flat-sm); overflow: hidden; cursor: zoom-in; display: flex; flex-direction: column;
   transition: transform var(--duration) var(--ease), box-shadow var(--duration) var(--ease);
 }
+.gallery-card[hidden] { display: none; }
 .gallery-card:nth-child(3n+1) { transform: rotate(-1.4deg); }
 .gallery-card:nth-child(3n+2) { transform: rotate(1deg); }
 .gallery-card:nth-child(3n+3) { transform: rotate(-0.6deg); }
