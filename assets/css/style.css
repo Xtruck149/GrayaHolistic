@@ -64,7 +64,7 @@
 
 /* ===================== RESET ===================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; scroll-padding-top: 96px; -webkit-text-size-adjust: 100%; }
+html { scroll-behavior: smooth; scroll-padding-top: 96px; -webkit-text-size-adjust: 100%; overflow-x: hidden; }
 body {
   font-family: var(--font-body);
   color: var(--text);
@@ -116,7 +116,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
   font-family: var(--font-display); font-size: 0.78rem; font-weight: 600;
   padding: 7px 18px; border-radius: 100px;
   background: var(--mango); color: var(--ink);
-  border: 2.5px dashed var(--ink);
+  border: 2.5px dotted var(--ink);
   margin-bottom: var(--space-md);
 }
 .eyebrow--light { background: #fff; }
@@ -314,13 +314,15 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 }
 .hero::after, .bg-primary::after, .bg-dark::after, .cta-band::after {
   background-image:
-    radial-gradient(circle at 25% 25%, rgba(255,255,255,0.10), transparent 40%),
-    radial-gradient(circle at 75% 75%, rgba(255,255,255,0.08), transparent 45%);
+    radial-gradient(circle at 22% 22%, rgba(201,147,42,0.18), transparent 42%),
+    radial-gradient(circle at 80% 28%, rgba(193,78,54,0.15), transparent 45%),
+    radial-gradient(circle at 55% 85%, rgba(255,255,255,0.09), transparent 40%);
 }
 .bg-cream::after, .bg-ivory::after, .bg-surface::after {
   background-image:
-    radial-gradient(circle at 20% 30%, rgba(76,90,40,0.05), transparent 42%),
-    radial-gradient(circle at 80% 70%, rgba(193,78,54,0.04), transparent 46%);
+    radial-gradient(circle at 18% 28%, rgba(76,90,40,0.07), transparent 42%),
+    radial-gradient(circle at 84% 74%, rgba(193,78,54,0.06), transparent 46%),
+    radial-gradient(circle at 50% 12%, rgba(61,125,85,0.05), transparent 38%);
 }
 @keyframes mesh-drift { 0% { transform: translate(0,0); } 100% { transform: translate(6%,8%); } }
 
@@ -418,7 +420,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .skip-link:focus { top: 0; }
 
 /* ===================== ACCRED BADGE ===================== */
-.accred-badge { display: inline-flex; gap: var(--space-md); align-items: center; background: #fff; color: var(--ink); border: 2.5px dashed var(--ink); border-radius: 100px; padding: 12px 26px; font-size: 0.85rem; box-shadow: var(--shadow-flat-sm); }
+.accred-badge { display: inline-flex; gap: var(--space-md); align-items: center; background: #fff; color: var(--ink); border: 2.5px dotted var(--ink); border-radius: 100px; padding: 12px 26px; font-size: 0.85rem; box-shadow: var(--shadow-flat-sm); }
 .accred-badge::before { content: ''; width: 64px; height: 64px; flex-shrink: 0; background-image: url('../img/logo-mark.png'); background-size: cover; background-repeat: no-repeat; background-position: center; border-radius: 50%; }
 .accred-badge strong { color: var(--olive-dark); }
 .accred-badge--light { background: var(--cream-dark); }
