@@ -465,6 +465,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
   font-family: var(--font-display); font-weight: 600; font-size: 0.72rem; padding: 5px 12px;
   border-radius: 100px; border: 2px solid var(--ink);
 }
+.gallery-more-btn { display: flex; margin: var(--space-2xl) auto 0; }
 .gallery-empty {
   grid-column: 1 / -1; text-align: center; padding: var(--space-3xl) var(--space-lg);
   border: 2.5px dashed var(--muted); border-radius: var(--radius); color: var(--muted);

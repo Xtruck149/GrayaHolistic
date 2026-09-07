@@ -278,8 +278,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     grid.querySelectorAll('.gallery-card').forEach(card => {
+      if (card.dataset.wired) return;
+      card.dataset.wired = '1';
       card.addEventListener('click', () => open(parseInt(card.dataset.index, 10)));
     });
+  }
+
+  function galleryCardHTML(p, i) {
+    return `
+      <div class="gallery-card reveal-scale" data-index="${i}">
+        <picture>
+          <source srcset="assets/img/gallery/${p.file}.webp" type="image/webp">
+          <img src="assets/img/gallery/${p.file}.jpg" alt="${p.alt || ''}" loading="lazy" decoding="async">
+        </picture>
+        ${p.caption ? `<span class="gallery-caption">${p.caption}</span>` : ''}
+      </div>
+    `;
+  }
+
+  function wireGalleryReveal(container) {
+    const els = container.querySelectorAll('.reveal-scale:not(.is-visible)');
+    if ('IntersectionObserver' in window) {
+      const galleryIo = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) { entry.target.classList.add('is-visible'); galleryIo.unobserve(entry.target); }
+        });
+      }, { threshold: 0.1 });
+      els.forEach(el => galleryIo.observe(el));
+    } else {
+      els.forEach(el => el.classList.add('is-visible'));
+    }
   }
 
   document.querySelectorAll('[data-gallery]').forEach(grid => {
@@ -290,26 +318,27 @@ document.addEventListener('DOMContentLoaded', () => {
           grid.innerHTML = '<div class="gallery-empty">Photos à venir — bientôt notre galerie gourmande !</div>';
           return;
         }
-        grid.innerHTML = photos.map((p, i) => `
-          <div class="gallery-card reveal-scale" data-index="${i}">
-            <picture>
-              <source srcset="assets/img/gallery/${p.file}.webp" type="image/webp">
-              <img src="assets/img/gallery/${p.file}.jpg" alt="${p.alt || ''}" loading="lazy" decoding="async">
-            </picture>
-            ${p.caption ? `<span class="gallery-caption">${p.caption}</span>` : ''}
-          </div>
-        `).join('');
-        if ('IntersectionObserver' in window) {
-          const galleryIo = new IntersectionObserver(entries => {
-            entries.forEach(entry => {
-              if (entry.isIntersecting) { entry.target.classList.add('is-visible'); galleryIo.unobserve(entry.target); }
-            });
-          }, { threshold: 0.1 });
-          grid.querySelectorAll('.reveal-scale').forEach(el => galleryIo.observe(el));
-        } else {
-          grid.querySelectorAll('.reveal-scale').forEach(el => el.classList.add('is-visible'));
-        }
+        const limit = parseInt(grid.dataset.galleryLimit || '8', 10);
+        const showAll = !limit || photos.length <= limit;
+        const initialCount = showAll ? photos.length : limit;
+
+        grid.innerHTML = photos.slice(0, initialCount).map((p, i) => galleryCardHTML(p, i)).join('');
+        wireGalleryReveal(grid);
         setupGallery(grid, photos);
+
+        if (!showAll) {
+          const moreBtn = document.createElement('button');
+          moreBtn.type = 'button';
+          moreBtn.className = 'btn btn-outline-dark gallery-more-btn';
+          moreBtn.textContent = `Voir ${photos.length - initialCount} photos de plus`;
+          moreBtn.addEventListener('click', () => {
+            grid.insertAdjacentHTML('beforeend', photos.slice(initialCount).map((p, i) => galleryCardHTML(p, i + initialCount)).join(''));
+            wireGalleryReveal(grid);
+            setupGallery(grid, photos);
+            moreBtn.remove();
+          });
+          grid.insertAdjacentElement('afterend', moreBtn);
+        }
       })
       .catch(() => {
         grid.innerHTML = '<div class="gallery-empty">Photos à venir — bientôt notre galerie gourmande !</div>';
