@@ -438,7 +438,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 }
 @media (max-width: 880px) {
   section { padding: var(--space-3xl) 0; }
-  .nav-links { position: fixed; top: 0; right: 0; width: min(320px,85vw); height: 100vh; background: var(--cream); border-left: 2.5px solid var(--ink); flex-direction: column; align-items: stretch; gap: 8px; padding: 90px var(--space-lg) var(--space-lg); transform: translateX(100%); transition: transform var(--duration) var(--ease); z-index: 150; overflow-y: auto; }
+  .nav-links { position: fixed; top: 0; right: 0; width: min(320px,85vw); height: 100vh; height: 100dvh; background: var(--cream); border-left: 2.5px solid var(--ink); flex-direction: column; align-items: stretch; gap: 8px; padding: 90px var(--space-lg) var(--space-lg); transform: translateX(100%); transition: transform var(--duration) var(--ease); z-index: 150; overflow-y: auto; }
   .nav-links.open { transform: translateX(0); }
   .nav-links a { padding: 14px 16px; }
   .burger { display: flex; }
