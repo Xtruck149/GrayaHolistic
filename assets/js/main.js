@@ -76,8 +76,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  /* ---- Hero floating orbs ---- */
-  const hero = document.querySelector('.hero');
+  /* ---- Hero floating orbs (also on the 404 error page) ---- */
+  const hero = document.querySelector('.hero, .error-page');
   if (hero && !hero.querySelector('.hero-orb')) {
     ['o1', 'o2', 'o3'].forEach(cls => {
       const orb = document.createElement('span');
