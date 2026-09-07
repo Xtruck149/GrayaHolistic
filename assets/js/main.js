@@ -219,6 +219,103 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  /* ---- Marquee: duplicate content once so the -50% loop is seamless ---- */
+  document.querySelectorAll('.marquee-track').forEach(track => {
+    if (!track.dataset.doubled) {
+      track.innerHTML += track.innerHTML;
+      track.dataset.doubled = 'true';
+    }
+  });
+
+  /* ---- Photo gallery, fed by assets/img/gallery/manifest.json ---- */
+  let lightboxWired = false;
+  let lightboxShow = null;
+
+  function buildLightbox() {
+    const box = document.createElement('div');
+    box.className = 'lightbox';
+    box.innerHTML = `
+      <button class="lightbox-close" aria-label="Fermer">&times;</button>
+      <button class="lightbox-prev" aria-label="Photo précédente">&#8249;</button>
+      <div>
+        <img src="" alt="">
+        <div class="lightbox-caption"></div>
+      </div>
+      <button class="lightbox-next" aria-label="Photo suivante">&#8250;</button>
+    `;
+    document.body.appendChild(box);
+    return box;
+  }
+
+  function setupGallery(grid, photos) {
+    const box = document.querySelector('.lightbox') || buildLightbox();
+    let current = 0;
+
+    function show(i) {
+      current = (i + photos.length) % photos.length;
+      const p = photos[current];
+      box.querySelector('img').src = 'assets/img/gallery/' + p.file + '.jpg';
+      box.querySelector('img').alt = p.alt || '';
+      box.querySelector('.lightbox-caption').textContent = p.caption || '';
+    }
+    function close() { box.classList.remove('open'); document.body.style.overflow = ''; }
+    function open(i) { show(i); box.classList.add('open'); document.body.style.overflow = 'hidden'; }
+
+    lightboxShow = show;
+
+    if (!lightboxWired) {
+      lightboxWired = true;
+      box.addEventListener('click', e => { if (e.target === box) close(); });
+      box.querySelector('.lightbox-close').addEventListener('click', close);
+      box.querySelector('.lightbox-prev').addEventListener('click', () => lightboxShow(current - 1));
+      box.querySelector('.lightbox-next').addEventListener('click', () => lightboxShow(current + 1));
+      document.addEventListener('keydown', e => {
+        if (!box.classList.contains('open')) return;
+        if (e.key === 'Escape') close();
+        if (e.key === 'ArrowRight') lightboxShow(current + 1);
+        if (e.key === 'ArrowLeft') lightboxShow(current - 1);
+      });
+    }
+
+    grid.querySelectorAll('.gallery-card').forEach(card => {
+      card.addEventListener('click', () => open(parseInt(card.dataset.index, 10)));
+    });
+  }
+
+  document.querySelectorAll('[data-gallery]').forEach(grid => {
+    fetch('assets/img/gallery/manifest.json')
+      .then(r => r.ok ? r.json() : [])
+      .then(photos => {
+        if (!Array.isArray(photos) || !photos.length) {
+          grid.innerHTML = '<div class="gallery-empty">Photos à venir — bientôt notre galerie gourmande !</div>';
+          return;
+        }
+        grid.innerHTML = photos.map((p, i) => `
+          <div class="gallery-card reveal-scale" data-index="${i}">
+            <picture>
+              <source srcset="assets/img/gallery/${p.file}.webp" type="image/webp">
+              <img src="assets/img/gallery/${p.file}.jpg" alt="${p.alt || ''}" loading="lazy" decoding="async">
+            </picture>
+            ${p.caption ? `<span class="gallery-caption">${p.caption}</span>` : ''}
+          </div>
+        `).join('');
+        if ('IntersectionObserver' in window) {
+          const galleryIo = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) { entry.target.classList.add('is-visible'); galleryIo.unobserve(entry.target); }
+            });
+          }, { threshold: 0.1 });
+          grid.querySelectorAll('.reveal-scale').forEach(el => galleryIo.observe(el));
+        } else {
+          grid.querySelectorAll('.reveal-scale').forEach(el => el.classList.add('is-visible'));
+        }
+        setupGallery(grid, photos);
+      })
+      .catch(() => {
+        grid.innerHTML = '<div class="gallery-empty">Photos à venir — bientôt notre galerie gourmande !</div>';
+      });
+  });
+
   /* ---- Active nav link based on current page ---- */
   const currentPath = window.location.pathname.split('/').pop() || 'index.html';
   document.querySelectorAll('.nav-links a').forEach(link => {
