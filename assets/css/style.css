@@ -303,7 +303,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 
 /* ===================== ACCRED BADGE ===================== */
 .accred-badge { display: inline-flex; gap: var(--space-md); align-items: center; background: #fff; border: 2.5px dashed var(--ink); border-radius: 100px; padding: 12px 26px; font-size: 0.85rem; box-shadow: var(--shadow-flat-sm); }
-.accred-badge::before { content: ''; width: 34px; height: 34px; flex-shrink: 0; background-image: url('../img/logo-mark.png'); background-size: cover; background-repeat: no-repeat; background-position: center; border-radius: 50%; border: 2px solid var(--ink); }
+.accred-badge::before { content: ''; width: 46px; height: 46px; flex-shrink: 0; background-image: url('../img/logo-mark.png'); background-size: cover; background-repeat: no-repeat; background-position: center; border-radius: 50%; border: 2.5px solid var(--ink); }
 .accred-badge strong { color: var(--olive-dark); }
 .accred-badge--light { background: var(--cream-dark); }
 
