@@ -164,7 +164,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 }
 .nav { display: flex; align-items: center; justify-content: space-between; padding: 12px var(--space-lg); max-width: var(--max-w-wide); margin: 0 auto; }
 .logo { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; color: var(--ink); flex-shrink: 0; }
-.logo-mark { height: 72px; width: 72px; object-fit: contain; flex-shrink: 0; }
+.logo-mark { height: 88px; width: 88px; object-fit: contain; flex-shrink: 0; }
 .logo-text span { color: var(--tomato); }
 .nav-links { display: flex; align-items: center; gap: 2px; font-family: var(--font-display); font-size: 0.86rem; font-weight: 600; }
 .nav-links li { position: relative; }
@@ -254,6 +254,46 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .bg-primary { background: var(--olive); color: #fff; }
 .bg-primary h2, .bg-primary h3, .bg-primary h4 { color: #fff; } .bg-primary p { color: rgba(255,255,255,0.85); }
 
+/* — Ambient gradient-mesh "wallpaper": a slow transform-driven drift, not
+   background-position (which repaints every frame) — cheap on mobile. — */
+.hero::after, .bg-primary::after, .bg-dark::after, .cta-band::after,
+.bg-cream::after, .bg-ivory::after, .bg-surface::after {
+  content: ''; position: absolute; z-index: 0; pointer-events: none;
+  top: -20%; left: -20%; width: 140%; height: 140%;
+  animation: mesh-drift 24s ease-in-out infinite alternate;
+}
+.hero::after, .bg-primary::after, .bg-dark::after, .cta-band::after {
+  background-image:
+    radial-gradient(circle at 25% 25%, rgba(255,255,255,0.10), transparent 40%),
+    radial-gradient(circle at 75% 75%, rgba(255,255,255,0.08), transparent 45%);
+}
+.bg-cream::after, .bg-ivory::after, .bg-surface::after {
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(76,90,40,0.05), transparent 42%),
+    radial-gradient(circle at 80% 70%, rgba(193,78,54,0.04), transparent 46%);
+}
+@keyframes mesh-drift { 0% { transform: translate(0,0); } 100% { transform: translate(6%,8%); } }
+
+.bg-primary > .wrap, .bg-dark > .wrap, .cta-band > .wrap,
+.bg-cream > .wrap, .bg-ivory > .wrap, .bg-surface > .wrap { position: relative; z-index: 1; }
+
+/* — Animated dot pattern (also transform-driven, on its own layer) — */
+.bg-pattern { position: relative; }
+.bg-pattern::before {
+  content: ''; position: absolute; z-index: 0; pointer-events: none;
+  top: -15%; left: -15%; width: 130%; height: 130%;
+  background-image: radial-gradient(var(--ink) 1.5px, transparent 1.5px);
+  background-size: 26px 26px;
+  animation: pattern-drift 50s linear infinite;
+}
+@keyframes pattern-drift { from { transform: translate(0,0); } to { transform: translate(-26px,-26px); } }
+
+@media (max-width: 640px) {
+  /* Skip the mesh drift on small screens — mobile GPUs, more sections in view per scroll */
+  .hero::after, .bg-primary::after, .bg-dark::after, .cta-band::after,
+  .bg-cream::after, .bg-ivory::after, .bg-surface::after, .bg-pattern::before { animation: none; }
+}
+
 /* ===================== BREADCRUMBS ===================== */
 .breadcrumbs { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 600; color: var(--muted); padding: var(--space-md) 0; }
 .breadcrumbs a { color: var(--muted); } .breadcrumbs a:hover { color: var(--ink); }
@@ -264,7 +304,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .site-footer { background: var(--ink); color: rgba(255,255,255,0.75); padding: var(--space-4xl) 0 0; border-top: 6px solid var(--mango); }
 .footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: var(--space-2xl); padding-bottom: var(--space-3xl); }
 .footer-logo { display: flex; align-items: center; gap: 12px; margin-bottom: var(--space-md); }
-.footer-logo-mark { height: 72px; width: 72px; object-fit: contain; }
+.footer-logo-mark { height: 88px; width: 88px; object-fit: contain; }
 .footer-brand h4 { color: #fff; font-size: 1.15rem; }
 .footer-brand p { font-size: 0.9rem; max-width: 300px; color: rgba(255,255,255,0.62); }
 .footer-col h5 { color: var(--mango); font-family: var(--font-display); font-size: 0.78rem; font-weight: 700; margin-bottom: var(--space-lg); }
@@ -329,7 +369,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 
 /* ===================== ACCRED BADGE ===================== */
 .accred-badge { display: inline-flex; gap: var(--space-md); align-items: center; background: #fff; border: 2.5px dashed var(--ink); border-radius: 100px; padding: 12px 26px; font-size: 0.85rem; box-shadow: var(--shadow-flat-sm); }
-.accred-badge::before { content: ''; width: 46px; height: 46px; flex-shrink: 0; background-image: url('../img/logo-mark.png'); background-size: cover; background-repeat: no-repeat; background-position: center; border-radius: 50%; border: 2.5px solid var(--ink); }
+.accred-badge::before { content: ''; width: 64px; height: 64px; flex-shrink: 0; background-image: url('../img/logo-mark.png'); background-size: cover; background-repeat: no-repeat; background-position: center; border-radius: 50%; }
 .accred-badge strong { color: var(--olive-dark); }
 .accred-badge--light { background: var(--cream-dark); }
 
@@ -387,7 +427,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .card-tag--green { background: var(--basil); color: #fff; border-style: solid; }
 .card-tag--gold { background: var(--mango); border-style: solid; }
 .card-tag--coral { background: var(--tomato); color: #fff; border-style: solid; }
-.bg-pattern { background-image: radial-gradient(var(--ink) 1.5px, transparent 1.5px); background-size: 26px 26px; background-color: var(--cream); }
+.bg-pattern { background-color: var(--cream); }
 
 /* ===================== RESPONSIVE ===================== */
 @media (max-width: 1024px) {
@@ -413,7 +453,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 @media (max-width: 560px) {
   /* Compact header: crest only, no wordmark, so the CTA + burger keep breathing room */
   .logo-text { display: none; }
-  .logo-mark { height: 46px; width: 46px; }
+  .logo-mark { height: 56px; width: 56px; }
   .nav-cta .btn { padding: 9px 16px; font-size: 0.76rem; }
 }
 @media (max-width: 480px) {
@@ -503,7 +543,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .gallery-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-lg); }
 .gallery-card {
   position: relative; background: #fff; border: 2.5px solid var(--ink); border-radius: var(--radius);
-  box-shadow: var(--shadow-flat-sm); overflow: hidden; aspect-ratio: 4/5; cursor: zoom-in;
+  box-shadow: var(--shadow-flat-sm); overflow: hidden; cursor: zoom-in; display: flex; flex-direction: column;
   transition: transform var(--duration) var(--ease), box-shadow var(--duration) var(--ease);
 }
 .gallery-card:nth-child(3n+1) { transform: rotate(-1.4deg); }
@@ -511,13 +551,14 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .gallery-card:nth-child(3n+3) { transform: rotate(-0.6deg); }
 .gallery-card:hover { transform: scale(1.04) rotate(0deg); box-shadow: var(--shadow-flat); z-index: 2; }
 .gallery-card:focus-visible { outline: 3px solid var(--tomato); outline-offset: 3px; transform: scale(1.04) rotate(0deg); z-index: 2; }
+.gallery-card .gallery-media { aspect-ratio: 4/5; overflow: hidden; }
 .gallery-card picture { display: block; width: 100%; height: 100%; }
 .gallery-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s var(--ease); }
 .gallery-card:hover img { transform: scale(1.08); }
 .gallery-card .gallery-caption {
-  position: absolute; left: 10px; bottom: 10px; background: var(--mango); color: var(--ink);
-  font-family: var(--font-display); font-weight: 600; font-size: 0.72rem; padding: 5px 12px;
-  border-radius: 100px; border: 2px solid var(--ink);
+  display: block; background: var(--mango); color: var(--ink); border-top: 2.5px solid var(--ink);
+  font-family: var(--font-display); font-weight: 600; font-size: 0.78rem; text-align: center;
+  padding: 9px 10px;
 }
 .gallery-more-btn { display: flex; margin: var(--space-2xl) auto 0; }
 .gallery-empty {

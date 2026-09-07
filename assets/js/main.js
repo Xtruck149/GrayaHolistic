@@ -324,10 +324,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const label = 'Agrandir la photo : ' + (p.caption || p.alt || 'photo');
     return `
       <div class="gallery-card reveal-scale" data-index="${i}" data-category="${p.category || 'autres'}" role="button" tabindex="0" aria-label="${label}">
-        <picture>
-          <source srcset="assets/img/gallery/${p.file}.webp" type="image/webp">
-          <img src="assets/img/gallery/${p.file}.jpg" alt="${p.alt || ''}" loading="lazy" decoding="async">
-        </picture>
+        <div class="gallery-media">
+          <picture>
+            <source srcset="assets/img/gallery/${p.file}.webp" type="image/webp">
+            <img src="assets/img/gallery/${p.file}.jpg" alt="${p.alt || ''}" loading="lazy" decoding="async">
+          </picture>
+        </div>
         ${p.caption ? `<span class="gallery-caption">${p.caption}</span>` : ''}
       </div>
     `;
