@@ -91,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const heroRotator = document.querySelector('[data-hero-rotator]');
   if (heroRotator) {
     const rotatorImg = document.getElementById('hero-rotator-img');
+    const rotatorSource = heroRotator.querySelector('source');
     const rotatorCaption = document.getElementById('hero-rotator-caption');
     fetch('assets/img/gallery/manifest.json')
       .then(r => r.ok ? r.json() : [])
@@ -103,6 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
           rotatorImg.classList.add('fading');
           rotatorCaption.classList.remove('visible');
           setTimeout(() => {
+            if (rotatorSource) rotatorSource.srcset = 'assets/img/gallery/' + p.file + '.webp';
             rotatorImg.src = 'assets/img/gallery/' + p.file + '.jpg';
             rotatorImg.alt = p.alt || '';
             rotatorCaption.textContent = p.caption || '';
