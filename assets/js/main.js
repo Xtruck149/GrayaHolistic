@@ -230,10 +230,15 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ---- Photo gallery, fed by assets/img/gallery/manifest.json ---- */
   let lightboxWired = false;
   let lightboxShow = null;
+  let lightboxClose = null;
+  let lightboxLastFocused = null;
 
   function buildLightbox() {
     const box = document.createElement('div');
     box.className = 'lightbox';
+    box.setAttribute('role', 'dialog');
+    box.setAttribute('aria-modal', 'true');
+    box.setAttribute('aria-label', 'Galerie photo');
     box.innerHTML = `
       <button class="lightbox-close" aria-label="Fermer">&times;</button>
       <button class="lightbox-prev" aria-label="Photo précédente">&#8249;</button>
@@ -258,35 +263,56 @@ document.addEventListener('DOMContentLoaded', () => {
       box.querySelector('img').alt = p.alt || '';
       box.querySelector('.lightbox-caption').textContent = p.caption || '';
     }
-    function close() { box.classList.remove('open'); document.body.style.overflow = ''; }
-    function open(i) { show(i); box.classList.add('open'); document.body.style.overflow = 'hidden'; }
+    function close() {
+      box.classList.remove('open');
+      document.body.style.overflow = '';
+      if (lightboxLastFocused) { lightboxLastFocused.focus(); lightboxLastFocused = null; }
+    }
+    function open(i, triggerEl) {
+      lightboxLastFocused = triggerEl || document.activeElement;
+      show(i);
+      box.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      box.querySelector('.lightbox-close').focus();
+    }
 
     lightboxShow = show;
+    lightboxClose = close;
 
     if (!lightboxWired) {
       lightboxWired = true;
-      box.addEventListener('click', e => { if (e.target === box) close(); });
-      box.querySelector('.lightbox-close').addEventListener('click', close);
+      box.addEventListener('click', e => { if (e.target === box) lightboxClose(); });
+      box.querySelector('.lightbox-close').addEventListener('click', () => lightboxClose());
       box.querySelector('.lightbox-prev').addEventListener('click', () => lightboxShow(current - 1));
       box.querySelector('.lightbox-next').addEventListener('click', () => lightboxShow(current + 1));
       document.addEventListener('keydown', e => {
         if (!box.classList.contains('open')) return;
-        if (e.key === 'Escape') close();
-        if (e.key === 'ArrowRight') lightboxShow(current + 1);
-        if (e.key === 'ArrowLeft') lightboxShow(current - 1);
+        if (e.key === 'Escape') { lightboxClose(); return; }
+        if (e.key === 'ArrowRight') { lightboxShow(current + 1); return; }
+        if (e.key === 'ArrowLeft') { lightboxShow(current - 1); return; }
+        if (e.key === 'Tab') {
+          const focusables = Array.from(box.querySelectorAll('button'));
+          const first = focusables[0], last = focusables[focusables.length - 1];
+          if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+          else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
       });
     }
 
     grid.querySelectorAll('.gallery-card').forEach(card => {
       if (card.dataset.wired) return;
       card.dataset.wired = '1';
-      card.addEventListener('click', () => open(parseInt(card.dataset.index, 10)));
+      card.addEventListener('click', () => open(parseInt(card.dataset.index, 10), card));
+      card.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(parseInt(card.dataset.index, 10), card); }
+      });
     });
   }
 
   function galleryCardHTML(p, i) {
+    const label = 'Agrandir la photo : ' + (p.caption || p.alt || 'photo');
     return `
-      <div class="gallery-card reveal-scale" data-index="${i}">
+      <div class="gallery-card reveal-scale" data-index="${i}" role="button" tabindex="0" aria-label="${label}">
         <picture>
           <source srcset="assets/img/gallery/${p.file}.webp" type="image/webp">
           <img src="assets/img/gallery/${p.file}.jpg" alt="${p.alt || ''}" loading="lazy" decoding="async">
