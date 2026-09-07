@@ -363,7 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="gallery-media">
           <picture>
             <source srcset="assets/img/gallery/${p.file}.webp" type="image/webp">
-            <img src="assets/img/gallery/${p.file}.jpg" alt="${p.alt || ''}" loading="lazy" decoding="async">
+            <img src="assets/img/gallery/${p.file}.jpg" alt="${p.alt || ''}">
           </picture>
         </div>
         ${p.caption ? `<span class="gallery-caption">${p.caption}</span>` : ''}

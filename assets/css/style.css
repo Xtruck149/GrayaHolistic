@@ -158,7 +158,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 
 /* ===================== HEADER / NAV ===================== */
 .site-header {
-  position: sticky; top: 0; z-index: 100;
+  position: sticky; top: 0; z-index: 160;
   background: var(--cream);
   box-shadow: 0 4px 0 var(--olive);
 }
