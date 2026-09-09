@@ -546,6 +546,24 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 }
 @media (prefers-reduced-motion: reduce) { .hero-orb { animation: none; } }
 
+/* — Decorative bamboo stalks (JS-injected into every .hero/.error-page corner, see main.js) — */
+.bamboo-deco {
+  position: absolute; z-index: 0; pointer-events: none; bottom: 0;
+  width: 92px; opacity: 0.22; transform-origin: bottom center;
+  animation: bamboo-sway 7s ease-in-out infinite;
+}
+.bamboo-deco svg { display: block; width: 100%; height: auto; }
+.bamboo-stalk rect:not(.bamboo-node) { fill: #fff; }
+.bamboo-node { fill: rgba(43,27,14,0.35); }
+.bamboo-leaves path { fill: #fff; }
+.bamboo-deco--bl { left: -8px; }
+.bamboo-deco--tr { top: 0; bottom: auto; right: -8px; left: auto; transform: scaleY(-1); transform-origin: center; animation-name: bamboo-sway-top; }
+.bamboo-deco--br { right: -8px; left: auto; }
+@keyframes bamboo-sway { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2.5deg); } }
+@keyframes bamboo-sway-top { 0%, 100% { transform: scaleY(-1) rotate(-2deg); } 50% { transform: scaleY(-1) rotate(2.5deg); } }
+@media (max-width: 880px) { .bamboo-deco { width: 60px; opacity: 0.18; } }
+@media (prefers-reduced-motion: reduce) { .bamboo-deco { animation: none; } }
+
 /* — Marquee ticker strip (sits under the header) — */
 .marquee-strip { background: var(--ink); overflow: hidden; white-space: nowrap; border-bottom: 3px solid var(--mango); }
 .marquee-track {
