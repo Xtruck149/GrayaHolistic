@@ -45,6 +45,15 @@
   --shadow-flat-sm: 0 4px 14px rgba(30,39,33,0.12);
   --shadow-flat-lg: 0 20px 50px rgba(30,39,33,0.18);
 
+  /* — Aliases matching the client's exact spec naming (same values as above) — */
+  --color-primary:    var(--olive);
+  --color-secondary:  var(--basil);
+  --color-accent:     var(--mango);
+  --color-bg-light:   var(--cream);
+  --color-wood:       var(--terracotta);
+  --color-text-dark:  var(--ink);
+  --color-surface:    rgba(255,255,255,0.85); /* glass surface — distinct from opaque --surface */
+
   /* — Typography: serif for headings, clean sans everywhere else — */
   --font-serif:     'Playfair Display', Georgia, serif;
   --font-display:   'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -499,25 +508,38 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .form-field input:focus, .form-field select:focus, .form-field textarea:focus { box-shadow: var(--shadow-flat-sm); }
 .form-field textarea { resize: vertical; min-height: 130px; }
 
-/* ===================== DELIVERY ZONE CHECKER ===================== */
-.delivery-checker {
-  background: #fff; border: 2.5px solid var(--ink); border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-flat); padding: var(--space-xl); max-width: 480px; margin: 0 auto;
+/* ===================== BAMBOO GLASS CARD & ÉCO BMT BADGE ===================== */
+.bamboo-card {
+  background: var(--color-surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(212, 163, 89, 0.25);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(43, 68, 54, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative; overflow: hidden;
 }
-.delivery-checker label { display: block; font-family: var(--font-display); font-weight: 600; font-size: 0.9rem; margin-bottom: var(--space-xs); }
-.delivery-zone-select {
-  width: 100%; padding: 14px 18px; border: 2.5px solid var(--ink); border-radius: var(--radius-sm);
-  font-size: 16px; font-family: var(--font-body); background: var(--surface-alt); outline: none;
+.bamboo-card:hover { transform: translateY(-6px); box-shadow: 0 16px 36px rgba(43, 68, 54, 0.14); }
+
+.eco-bmt-badge {
+  background-color: var(--color-primary);
+  color: var(--color-bg-light);
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 50px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
-.delivery-zone-select:focus { box-shadow: var(--shadow-flat-sm); }
-.delivery-empty { margin-top: var(--space-md); color: var(--muted); font-size: 0.9rem; }
-.delivery-result { margin-top: var(--space-lg); }
-.delivery-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-sm); margin-bottom: var(--space-md); }
-.delivery-stat { background: var(--cream); border: 2px solid var(--ink); border-radius: var(--radius-sm); padding: var(--space-sm); text-align: center; }
-.delivery-stat-label { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); margin-bottom: 4px; }
-.delivery-stat-value { display: block; font-family: var(--font-display); font-weight: 700; font-size: 1rem; color: var(--olive); }
-.delivery-result .btn { width: 100%; }
-@media (max-width: 560px) { .delivery-stats { grid-template-columns: 1fr; } }
+
+/* Subtle SVG bamboo leaf watermark — tuck into a card/section-header corner */
+.leaf-watermark {
+  position: absolute; top: -10px; right: -10px; width: 72px; height: 72px;
+  opacity: 0.08; pointer-events: none; z-index: 0;
+}
+.section-header { position: relative; }
 
 /* ===================== COVERAGE MAP (contact.html) ===================== */
 .map-frame {

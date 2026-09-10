@@ -1,46 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-  /* ---- Delivery zone & lead-time checker (index.html + services.html) ----
-     Placeholder figures — adjust to real logistics before launch.
-     The kitchen is based in Bingerville, so times/minimums scale with
-     actual distance from there, not from a generic Abidjan center. */
-  const DELIVERY_ZONES = {
-    bingerville:{ label: 'Bingerville', time: '15–20 min', cutoff: '21h30', min: '2 000 FCFA' },
-    riviera:    { label: 'Riviera',     time: '20–30 min', cutoff: '21h00', min: '3 000 FCFA' },
-    cocody:     { label: 'Cocody',      time: '30–40 min', cutoff: '21h00', min: '4 000 FCFA' },
-    plateau:    { label: 'Plateau',     time: '35–50 min', cutoff: '20h30', min: '5 000 FCFA' },
-    marcory:    { label: 'Marcory',     time: '40–55 min', cutoff: '20h30', min: '6 000 FCFA' },
-    treichville:{ label: 'Treichville', time: '40–55 min', cutoff: '20h30', min: '6 000 FCFA' },
-    zone4:      { label: 'Zone 4',      time: '40–55 min', cutoff: '20h30', min: '6 000 FCFA' },
-    bassam:     { label: 'Grand-Bassam',time: '45–65 min', cutoff: '20h00', min: '6 000 FCFA' },
-    yopougon:   { label: 'Yopougon',    time: '60–90 min', cutoff: '19h30', min: '8 000 FCFA' }
-  };
-  document.querySelectorAll('.delivery-checker').forEach(widget => {
-    const select = widget.querySelector('.delivery-zone-select');
-    const result = widget.querySelector('.delivery-result');
-    const emptyMsg = widget.querySelector('.delivery-empty');
-    if (!select || !result) return;
-    select.addEventListener('change', () => {
-      const zone = DELIVERY_ZONES[select.value];
-      if (!zone) {
-        result.hidden = true;
-        if (emptyMsg) emptyMsg.hidden = false;
-        return;
-      }
-      if (emptyMsg) emptyMsg.hidden = true;
-      result.querySelector('.js-delivery-time').textContent = zone.time;
-      result.querySelector('.js-delivery-cutoff').textContent = zone.cutoff;
-      result.querySelector('.js-delivery-min').textContent = zone.min;
-      const cta = result.querySelector('.js-delivery-cta');
-      if (cta) {
-        cta.href = 'https://wa.me/2250101736812?text=' + encodeURIComponent(
-          `Bonjour Graya Holistic, je suis à ${zone.label} et je souhaite passer une commande.`
-        );
-      }
-      result.hidden = false;
-    });
-  });
-
   /* ---- Order builder: "+ Ajouter" on priced menu rows -> WhatsApp cart (menu.html) ---- */
   (() => {
     const priceRows = Array.from(document.querySelectorAll('.menu-row')).filter(row => row.querySelector('.menu-price'));
