@@ -713,3 +713,23 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .section-photo { position: relative; background-size: cover; background-position: center; background-attachment: scroll; }
 .section-photo::before { content: ''; position: absolute; inset: 0; z-index: 0; background: var(--photo-overlay, rgba(56,67,28,0.88)); }
 .section-photo > .wrap { position: relative; z-index: 1; }
+
+/* — Bamboo photo frame: two illustrated stalks flanking a centered message —
+   the source photos have a plain white backdrop, so multiply blends it into
+   any light section background instead of showing a white box. Light
+   sections only — multiply would muddy a dark background. — */
+.bamboo-frame-layout { display: flex; align-items: center; justify-content: center; gap: var(--space-2xl); }
+.bamboo-frame-img { width: 130px; height: auto; flex-shrink: 0; mix-blend-mode: multiply; }
+.bamboo-frame-content { max-width: 560px; }
+@media (max-width: 768px) { .bamboo-frame-img { display: none; } }
+
+/* — A single illustrated stalk beside a text block (asymmetric, not the symmetric frame above) — */
+.bamboo-side-img { max-width: 230px; width: 100%; margin: 0 auto; display: block; mix-blend-mode: multiply; }
+
+/* — A large illustration bleeding off one corner of a section, behind the content — */
+.bamboo-corner-accent { position: absolute; bottom: -30px; right: -30px; width: 240px; opacity: 0.95; mix-blend-mode: multiply; pointer-events: none; z-index: 0; }
+@media (max-width: 768px) { .bamboo-corner-accent { width: 140px; bottom: -15px; right: -15px; } }
+
+/* — Bamboo-segment rule: a small decorative divider between menu categories — */
+.bamboo-rule { width: 120px; margin: var(--space-2xl) auto; }
+.bamboo-rule svg { display: block; width: 100%; height: auto; }
