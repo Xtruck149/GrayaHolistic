@@ -1,5 +1,42 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+  /* ---- Delivery zone & lead-time checker (index.html + services.html) ----
+     Placeholder figures — adjust to real logistics before launch. */
+  const DELIVERY_ZONES = {
+    plateau:    { label: 'Plateau',     time: '20–30 min', cutoff: '21h30', min: '3 000 FCFA' },
+    zone4:      { label: 'Zone 4',      time: '20–30 min', cutoff: '21h30', min: '3 000 FCFA' },
+    marcory:    { label: 'Marcory',     time: '30–45 min', cutoff: '21h00', min: '5 000 FCFA' },
+    cocody:     { label: 'Cocody',      time: '30–45 min', cutoff: '21h00', min: '5 000 FCFA' },
+    treichville:{ label: 'Treichville', time: '25–35 min', cutoff: '21h00', min: '5 000 FCFA' },
+    riviera:    { label: 'Riviera',     time: '40–60 min', cutoff: '20h30', min: '7 000 FCFA' },
+    yopougon:   { label: 'Yopougon',    time: '45–60 min', cutoff: '20h00', min: '7 000 FCFA' }
+  };
+  document.querySelectorAll('.delivery-checker').forEach(widget => {
+    const select = widget.querySelector('.delivery-zone-select');
+    const result = widget.querySelector('.delivery-result');
+    const emptyMsg = widget.querySelector('.delivery-empty');
+    if (!select || !result) return;
+    select.addEventListener('change', () => {
+      const zone = DELIVERY_ZONES[select.value];
+      if (!zone) {
+        result.hidden = true;
+        if (emptyMsg) emptyMsg.hidden = false;
+        return;
+      }
+      if (emptyMsg) emptyMsg.hidden = true;
+      result.querySelector('.js-delivery-time').textContent = zone.time;
+      result.querySelector('.js-delivery-cutoff').textContent = zone.cutoff;
+      result.querySelector('.js-delivery-min').textContent = zone.min;
+      const cta = result.querySelector('.js-delivery-cta');
+      if (cta) {
+        cta.href = 'https://wa.me/2250101736812?text=' + encodeURIComponent(
+          `Bonjour Graya Holistic, je suis à ${zone.label} et je souhaite passer une commande.`
+        );
+      }
+      result.hidden = false;
+    });
+  });
+
   /* ---- Interactive wallpaper: ambient mesh nudged by pointer/touch + scroll ---- */
   if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     const root = document.documentElement;
@@ -647,7 +684,7 @@ document.addEventListener('DOMContentLoaded', () => {
       card.classList.add('landed');
 
       cta.href = 'https://wa.me/2250101736812?text=' + encodeURIComponent(
-        `Bonjour Graya Holistic, le hasard m'a proposé « ${dishName} » — je voudrais réserver une table pour y goûter !`
+        `Bonjour Graya Holistic, le hasard m'a proposé « ${dishName} » — je voudrais le commander !`
       );
       cta.hidden = false;
       surpriseBtn.disabled = false;
