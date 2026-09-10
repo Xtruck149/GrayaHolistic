@@ -511,6 +511,17 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
   .menu-price { align-self: flex-start; }
 }
 
+/* — Accompagnement cards: branded photo cards with name/price baked into the image — */
+.accomp-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-lg); }
+.accomp-card { display: block; border: 2.5px solid var(--ink); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-flat-sm); transition: transform var(--duration) var(--ease), box-shadow var(--duration) var(--ease); }
+.accomp-card:hover { transform: translate(-2px,-3px); box-shadow: var(--shadow-flat); }
+.accomp-card img { display: block; width: 100%; height: auto; }
+.accomp-card:last-child:nth-child(odd) { grid-column: 1 / -1; max-width: calc(50% - var(--space-lg) / 2); margin: 0 auto; }
+@media (max-width: 640px) {
+  .accomp-grid { grid-template-columns: 1fr; }
+  .accomp-card:last-child:nth-child(odd) { max-width: none; }
+}
+
 /* ===================== CTA BAND ===================== */
 .cta-band { position: relative; background: var(--tomato); color: #fff; padding: var(--space-4xl) 0; text-align: center; border-top: 4px dashed var(--ink); border-bottom: 4px dashed var(--ink); }
 .cta-band h2 { color: #fff; margin-bottom: var(--space-md); }
