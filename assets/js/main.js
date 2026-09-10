@@ -37,6 +37,143 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  /* ---- Order builder: "+ Ajouter" on priced menu rows -> WhatsApp cart (menu.html) ---- */
+  (() => {
+    const priceRows = Array.from(document.querySelectorAll('.menu-row')).filter(row => row.querySelector('.menu-price'));
+    if (!priceRows.length) return;
+
+    let cart = [];
+    try { cart = JSON.parse(localStorage.getItem('graya-cart') || '[]'); } catch (e) { cart = []; }
+
+    const bar = document.createElement('div');
+    bar.className = 'cart-bar';
+    bar.hidden = true;
+    bar.innerHTML = `
+      <span class="cart-bar-summary"><span id="cart-count">0</span> article(s) — <span id="cart-total">0</span> FCFA</span>
+      <button type="button" class="btn btn-primary btn-sm" id="cart-open-btn">Voir ma commande</button>
+    `;
+    document.body.appendChild(bar);
+
+    const modal = document.createElement('div');
+    modal.className = 'cart-modal';
+    modal.innerHTML = `
+      <div class="cart-modal-inner">
+        <button type="button" class="cart-modal-close" aria-label="Fermer">&times;</button>
+        <h3>Votre commande</h3>
+        <div class="cart-items" id="cart-items"></div>
+        <div class="cart-total-row">Total : <strong id="cart-modal-total">0 FCFA</strong></div>
+        <div class="form-field">
+          <label for="cart-date">Date de livraison souhaitée</label>
+          <input type="date" id="cart-date">
+        </div>
+        <div class="form-field">
+          <label for="cart-time">Créneau horaire</label>
+          <select id="cart-time">
+            <option value="Dès que possible">Dès que possible</option>
+            <option value="12h - 14h">12h – 14h</option>
+            <option value="19h - 21h">19h – 21h</option>
+          </select>
+        </div>
+        <a href="#" class="btn btn-primary" id="cart-send-btn" target="_blank" rel="noopener">Envoyer la commande via WhatsApp</a>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    const countEl = bar.querySelector('#cart-count');
+    const totalEl = bar.querySelector('#cart-total');
+    const itemsEl = modal.querySelector('#cart-items');
+    const modalTotalEl = modal.querySelector('#cart-modal-total');
+    const sendBtn = modal.querySelector('#cart-send-btn');
+
+    function save() { localStorage.setItem('graya-cart', JSON.stringify(cart)); }
+    function total() { return cart.reduce((sum, i) => sum + i.price * i.qty, 0); }
+    function fmt(n) { return n.toLocaleString('fr-FR'); }
+
+    function render() {
+      const count = cart.reduce((sum, i) => sum + i.qty, 0);
+      countEl.textContent = count;
+      totalEl.textContent = fmt(total());
+      bar.hidden = count === 0;
+
+      itemsEl.innerHTML = cart.map((item, i) => `
+        <div class="cart-item">
+          <span class="cart-item-name">${item.name}</span>
+          <div class="cart-item-qty">
+            <button type="button" class="cart-qty-btn" data-action="dec" data-i="${i}" aria-label="Retirer un">−</button>
+            <span>${item.qty}</span>
+            <button type="button" class="cart-qty-btn" data-action="inc" data-i="${i}" aria-label="Ajouter un">+</button>
+          </div>
+          <span class="cart-item-price">${fmt(item.price * item.qty)} FCFA</span>
+        </div>
+      `).join('') || '<p class="text-muted">Votre commande est vide.</p>';
+      modalTotalEl.textContent = fmt(total()) + ' FCFA';
+      save();
+    }
+
+    priceRows.forEach(row => {
+      const h4 = row.querySelector('h4');
+      const priceEl = row.querySelector('.menu-price');
+      if (!h4 || !priceEl) return;
+      const name = h4.childNodes[0] ? h4.childNodes[0].textContent.trim() : h4.textContent.trim();
+      const price = parseInt(priceEl.textContent.replace(/[^\d]/g, ''), 10);
+      if (!name || !price) return;
+
+      const addBtn = document.createElement('button');
+      addBtn.type = 'button';
+      addBtn.className = 'menu-add-btn';
+      addBtn.setAttribute('aria-label', 'Ajouter ' + name + ' à la commande');
+      addBtn.textContent = '+ Ajouter';
+      addBtn.addEventListener('click', () => {
+        const existing = cart.find(i => i.name === name);
+        if (existing) existing.qty++; else cart.push({ name, price, qty: 1 });
+        render();
+        addBtn.textContent = 'Ajouté ✓';
+        setTimeout(() => { addBtn.textContent = '+ Ajouter'; }, 1200);
+      });
+      const actions = document.createElement('div');
+      actions.className = 'menu-row-actions';
+      row.insertBefore(actions, priceEl);
+      actions.appendChild(priceEl);
+      actions.appendChild(addBtn);
+    });
+
+    modal.querySelectorAll('.cart-qty-btn, .cart-item').length; // no-op, delegate below
+    itemsEl.addEventListener('click', e => {
+      const btn = e.target.closest('.cart-qty-btn');
+      if (!btn) return;
+      const i = parseInt(btn.dataset.i, 10);
+      if (btn.dataset.action === 'inc') cart[i].qty++;
+      else { cart[i].qty--; if (cart[i].qty <= 0) cart.splice(i, 1); }
+      render();
+    });
+
+    function openModal() { modal.classList.add('open'); document.body.style.overflow = 'hidden'; }
+    function closeModal() { modal.classList.remove('open'); document.body.style.overflow = ''; }
+    bar.querySelector('#cart-open-btn').addEventListener('click', openModal);
+    modal.querySelector('.cart-modal-close').addEventListener('click', closeModal);
+    modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+    sendBtn.addEventListener('click', e => {
+      e.preventDefault();
+      if (!cart.length) return;
+      const date = modal.querySelector('#cart-date').value;
+      const time = modal.querySelector('#cart-time').value;
+      const lines = [
+        'Bonjour Graya Holistic, je souhaite commander :',
+        ...cart.map(i => `• ${i.qty} × ${i.name} — ${fmt(i.price * i.qty)} FCFA`),
+        `Total : ${fmt(total())} FCFA`,
+        date ? `Date souhaitée : ${date}` : '',
+        `Créneau : ${time}`
+      ].filter(Boolean).join('\n');
+      window.open('https://wa.me/2250101736812?text=' + encodeURIComponent(lines), '_blank', 'noopener');
+      cart = [];
+      render();
+      closeModal();
+    });
+
+    render();
+  })();
+
   /* ---- Interactive wallpaper: ambient mesh nudged by pointer/touch + scroll ---- */
   if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     const root = document.documentElement;
