@@ -359,7 +359,8 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .hero .breadcrumbs, .hero .breadcrumbs a, .hero .breadcrumbs .current { color: rgba(255,255,255,0.85); }
 
 /* ===================== FOOTER ===================== */
-.site-footer { background: var(--ink); color: rgba(255,255,255,0.75); padding: var(--space-4xl) 0 0; border-top: 6px solid var(--mango); }
+.site-footer { position: relative; overflow: hidden; background: var(--ink); color: rgba(255,255,255,0.75); padding: var(--space-4xl) 0 0; border-top: 6px solid var(--mango); }
+.site-footer > .wrap { position: relative; z-index: 1; }
 .footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: var(--space-2xl); padding-bottom: var(--space-3xl); }
 .footer-logo { display: flex; align-items: center; gap: 12px; margin-bottom: var(--space-md); }
 .footer-logo-mark { height: 88px; width: 88px; object-fit: contain; }
@@ -449,6 +450,20 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .feature-item { display: flex; align-items: flex-start; gap: var(--space-md); background: #fff; border: 2.5px solid var(--ink); border-radius: var(--radius); padding: var(--space-lg); box-shadow: var(--shadow-flat-sm); }
 .feature-icon { width: 48px; height: 48px; border-radius: 50%; background: var(--cream-dark); border: 2.5px solid var(--ink); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
 .feature-text h5 { margin-bottom: 2px; } .feature-text p { font-size: 0.9rem; }
+
+/* ===================== MENU (dish rows, ticket style) ===================== */
+.menu-list { display: flex; flex-direction: column; gap: var(--space-md); }
+.menu-row { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-lg); background: #fff; border: 2.5px solid var(--ink); border-radius: var(--radius); padding: var(--space-lg) var(--space-xl); box-shadow: var(--shadow-flat-sm); transition: transform var(--duration) var(--ease), box-shadow var(--duration) var(--ease); }
+.menu-row:hover { transform: translate(-2px,-3px); box-shadow: var(--shadow-flat); }
+.menu-row-info h4 { margin-bottom: 4px; }
+.menu-row-info h4 .text-muted { font-family: var(--font-body); font-weight: 500; font-size: 0.8em; }
+.menu-row-info p { font-size: 0.9rem; margin: 0; }
+.menu-price { flex-shrink: 0; font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; padding: 8px 18px; border-radius: 100px; border: 2px dashed var(--ink); background: var(--cream-dark); white-space: nowrap; }
+.menu-price-note { display: flex; gap: var(--space-md); flex-wrap: wrap; justify-content: center; margin-bottom: var(--space-xl); }
+@media (max-width: 560px) {
+  .menu-row { flex-direction: column; gap: var(--space-sm); }
+  .menu-price { align-self: flex-start; }
+}
 
 /* ===================== CTA BAND ===================== */
 .cta-band { position: relative; background: var(--tomato); color: #fff; padding: var(--space-4xl) 0; text-align: center; border-top: 4px dashed var(--ink); border-bottom: 4px dashed var(--ink); }
@@ -546,7 +561,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 }
 @media (prefers-reduced-motion: reduce) { .hero-orb { animation: none; } }
 
-/* — Decorative bamboo stalks (JS-injected into every .hero/.error-page corner, see main.js) — */
+/* — Decorative bamboo stalks (JS-injected into hero/error-page corners, CTA bands and the footer, see main.js) — */
 .bamboo-deco {
   position: absolute; z-index: 0; pointer-events: none; bottom: 0;
   width: 92px; opacity: 0.22; transform-origin: bottom center;
@@ -559,6 +574,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .bamboo-deco--bl { left: -8px; }
 .bamboo-deco--tr { top: 0; bottom: auto; right: -8px; left: auto; transform: scaleY(-1); transform-origin: center; animation-name: bamboo-sway-top; }
 .bamboo-deco--br { right: -8px; left: auto; }
+.bamboo-deco--tl { top: 0; bottom: auto; left: -8px; transform: scaleY(-1); transform-origin: center; animation-name: bamboo-sway-top; }
 @keyframes bamboo-sway { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2.5deg); } }
 @keyframes bamboo-sway-top { 0%, 100% { transform: scaleY(-1) rotate(-2deg); } 50% { transform: scaleY(-1) rotate(2.5deg); } }
 @media (max-width: 880px) { .bamboo-deco { width: 60px; opacity: 0.18; } }

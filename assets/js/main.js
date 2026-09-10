@@ -157,49 +157,69 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* ---- Decorative bamboo stalks in the hero corners (also on the 404 page) ---- */
-  if (hero && !hero.querySelector('.bamboo-deco')) {
-    const bambooSVG = `
-      <svg viewBox="0 0 130 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <g class="bamboo-stalk" transform="translate(18,0)">
-          <rect x="-8" y="30" width="16" height="190" rx="8"/>
-          <rect x="-11" y="62" width="22" height="6" rx="3" class="bamboo-node"/>
-          <rect x="-11" y="104" width="22" height="6" rx="3" class="bamboo-node"/>
-          <rect x="-11" y="146" width="22" height="6" rx="3" class="bamboo-node"/>
-          <rect x="-11" y="188" width="22" height="6" rx="3" class="bamboo-node"/>
-        </g>
-        <g class="bamboo-stalk" transform="translate(58,0) rotate(-4)">
-          <rect x="-9" y="0" width="18" height="220" rx="9"/>
-          <rect x="-12" y="36" width="24" height="6" rx="3" class="bamboo-node"/>
-          <rect x="-12" y="82" width="24" height="6" rx="3" class="bamboo-node"/>
-          <rect x="-12" y="128" width="24" height="6" rx="3" class="bamboo-node"/>
-          <rect x="-12" y="174" width="24" height="6" rx="3" class="bamboo-node"/>
-        </g>
-        <g class="bamboo-stalk" transform="translate(96,0) rotate(3)">
-          <rect x="-7" y="52" width="14" height="168" rx="7"/>
-          <rect x="-10" y="80" width="20" height="6" rx="3" class="bamboo-node"/>
-          <rect x="-10" y="120" width="20" height="6" rx="3" class="bamboo-node"/>
-          <rect x="-10" y="160" width="20" height="6" rx="3" class="bamboo-node"/>
-        </g>
-        <g class="bamboo-leaves" transform="translate(58,34)">
-          <path d="M0,0 Q-34,-14 -54,-46 Q-20,-38 0,0 Z" transform="rotate(-18)"/>
-          <path d="M0,0 Q-30,-22 -34,-58 Q-6,-42 0,0 Z" transform="rotate(6)"/>
-          <path d="M0,0 Q26,-16 44,-48 Q14,-38 0,0 Z" transform="rotate(14)"/>
-          <path d="M0,0 Q30,-24 30,-60 Q4,-42 0,0 Z" transform="rotate(-8)"/>
-        </g>
-        <g class="bamboo-leaves" transform="translate(18,28)">
-          <path d="M0,0 Q-22,-10 -36,-34 Q-12,-26 0,0 Z" transform="rotate(-20)"/>
-          <path d="M0,0 Q20,-12 30,-36 Q8,-26 0,0 Z" transform="rotate(16)"/>
-        </g>
-      </svg>`;
-    const bambooCorners = hero.classList.contains('error-page') ? ['br'] : ['bl', 'tr'];
-    bambooCorners.forEach(pos => {
+  /* ---- Decorative bamboo stalks — hero corners, CTA bands, footer ---- */
+  const bambooSVG = `
+    <svg viewBox="0 0 130 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <g class="bamboo-stalk" transform="translate(18,0)">
+        <rect x="-8" y="30" width="16" height="190" rx="8"/>
+        <rect x="-11" y="62" width="22" height="6" rx="3" class="bamboo-node"/>
+        <rect x="-11" y="104" width="22" height="6" rx="3" class="bamboo-node"/>
+        <rect x="-11" y="146" width="22" height="6" rx="3" class="bamboo-node"/>
+        <rect x="-11" y="188" width="22" height="6" rx="3" class="bamboo-node"/>
+      </g>
+      <g class="bamboo-stalk" transform="translate(58,0) rotate(-4)">
+        <rect x="-9" y="0" width="18" height="220" rx="9"/>
+        <rect x="-12" y="36" width="24" height="6" rx="3" class="bamboo-node"/>
+        <rect x="-12" y="82" width="24" height="6" rx="3" class="bamboo-node"/>
+        <rect x="-12" y="128" width="24" height="6" rx="3" class="bamboo-node"/>
+        <rect x="-12" y="174" width="24" height="6" rx="3" class="bamboo-node"/>
+      </g>
+      <g class="bamboo-stalk" transform="translate(78,0) rotate(2)">
+        <rect x="-6" y="66" width="12" height="154" rx="6"/>
+        <rect x="-9" y="90" width="18" height="5" rx="2.5" class="bamboo-node"/>
+        <rect x="-9" y="126" width="18" height="5" rx="2.5" class="bamboo-node"/>
+        <rect x="-9" y="162" width="18" height="5" rx="2.5" class="bamboo-node"/>
+      </g>
+      <g class="bamboo-stalk" transform="translate(96,0) rotate(3)">
+        <rect x="-7" y="52" width="14" height="168" rx="7"/>
+        <rect x="-10" y="80" width="20" height="6" rx="3" class="bamboo-node"/>
+        <rect x="-10" y="120" width="20" height="6" rx="3" class="bamboo-node"/>
+        <rect x="-10" y="160" width="20" height="6" rx="3" class="bamboo-node"/>
+      </g>
+      <g class="bamboo-leaves" transform="translate(58,34)">
+        <path d="M0,0 Q-34,-14 -54,-46 Q-20,-38 0,0 Z" transform="rotate(-18)"/>
+        <path d="M0,0 Q-30,-22 -34,-58 Q-6,-42 0,0 Z" transform="rotate(6)"/>
+        <path d="M0,0 Q26,-16 44,-48 Q14,-38 0,0 Z" transform="rotate(14)"/>
+        <path d="M0,0 Q30,-24 30,-60 Q4,-42 0,0 Z" transform="rotate(-8)"/>
+        <path d="M0,0 Q10,-30 6,-64 Q-8,-46 0,0 Z" transform="rotate(2)"/>
+      </g>
+      <g class="bamboo-leaves" transform="translate(18,28)">
+        <path d="M0,0 Q-22,-10 -36,-34 Q-12,-26 0,0 Z" transform="rotate(-20)"/>
+        <path d="M0,0 Q20,-12 30,-36 Q8,-26 0,0 Z" transform="rotate(16)"/>
+        <path d="M0,0 Q-8,-24 -4,-42 Q6,-30 0,0 Z" transform="rotate(-4)"/>
+      </g>
+      <g class="bamboo-leaves" transform="translate(78,62)">
+        <path d="M0,0 Q-18,-8 -30,-28 Q-10,-22 0,0 Z" transform="rotate(-14)"/>
+        <path d="M0,0 Q16,-10 24,-30 Q6,-22 0,0 Z" transform="rotate(12)"/>
+      </g>
+    </svg>`;
+
+  function addBambooDeco(container, corners) {
+    if (!container || container.querySelector('.bamboo-deco')) return;
+    corners.forEach(pos => {
       const wrap = document.createElement('div');
       wrap.className = 'bamboo-deco bamboo-deco--' + pos;
       wrap.innerHTML = bambooSVG;
-      hero.appendChild(wrap);
+      container.appendChild(wrap);
     });
   }
+
+  if (hero) {
+    addBambooDeco(hero, hero.classList.contains('error-page') ? ['br'] : ['bl', 'tr']);
+  }
+  document.querySelectorAll('.cta-band').forEach(band => addBambooDeco(band, ['bl', 'br']));
+  const siteFooter = document.querySelector('.site-footer');
+  if (siteFooter) addBambooDeco(siteFooter, ['bl', 'tr']);
 
   /* ---- Pole-block accordion ---- */
   document.querySelectorAll('.pole-block-head').forEach(head => {
