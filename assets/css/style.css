@@ -590,6 +590,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 }
 .menu-add-btn:hover { transform: translateY(-1px); }
 .accomp-card-actions { display: flex; align-items: center; justify-content: flex-end; padding: 10px 14px; background: var(--surface); border-top: 2.5px solid var(--ink); }
+.jus-brand-logo { width: 120px; height: auto; display: block; margin: 0 auto var(--space-sm); mix-blend-mode: multiply; }
 @media (max-width: 640px) { .menu-row-actions { flex-direction: row; align-self: flex-start; } }
 
 .cart-bar {
