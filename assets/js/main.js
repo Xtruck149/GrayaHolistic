@@ -136,6 +136,36 @@ document.addEventListener('DOMContentLoaded', () => {
       actions.appendChild(addBtn);
     });
 
+    /* Photo-card menu items (accompagnements, brochettes, soupes): name/price
+       aren't in separate DOM nodes like a .menu-row, they're baked into the
+       image — read them back out of the descriptive alt text instead. */
+    document.querySelectorAll('.accomp-card').forEach(card => {
+      if (card.querySelector('.accomp-card-actions')) return;
+      const img = card.querySelector('img');
+      const alt = img ? img.getAttribute('alt') || '' : '';
+      const name = alt.split('—')[0].trim();
+      const priceMatch = alt.match(/([\d\s]+)\s*FCFA/);
+      const price = priceMatch ? parseInt(priceMatch[1].replace(/\s/g, ''), 10) : NaN;
+      if (!name || !price) return;
+
+      const addBtn = document.createElement('button');
+      addBtn.type = 'button';
+      addBtn.className = 'menu-add-btn';
+      addBtn.setAttribute('aria-label', 'Ajouter ' + name + ' à la commande');
+      addBtn.textContent = '+ Ajouter';
+      addBtn.addEventListener('click', () => {
+        const existing = cart.find(i => i.name === name);
+        if (existing) existing.qty++; else cart.push({ name, price, qty: 1 });
+        render();
+        addBtn.textContent = 'Ajouté ✓';
+        setTimeout(() => { addBtn.textContent = '+ Ajouter'; }, 1200);
+      });
+      const actions = document.createElement('div');
+      actions.className = 'accomp-card-actions';
+      actions.appendChild(addBtn);
+      card.appendChild(actions);
+    });
+
     modal.querySelectorAll('.cart-qty-btn, .cart-item').length; // no-op, delegate below
     itemsEl.addEventListener('click', e => {
       const btn = e.target.closest('.cart-qty-btn');
