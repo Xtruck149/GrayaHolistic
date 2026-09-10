@@ -603,6 +603,13 @@ document.addEventListener('DOMContentLoaded', () => {
       card.classList.add('spinning');
       caption.textContent = 'On cherche…';
 
+      const panda = document.getElementById('panda-mascot');
+      if (panda) {
+        panda.classList.remove('excited');
+        void panda.offsetWidth;
+        panda.classList.add('excited');
+      }
+
       let photos;
       try {
         photos = await (await fetch('assets/img/gallery/manifest.json')).json();

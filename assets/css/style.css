@@ -642,7 +642,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 }
 
 /* — "Surprends-moi" random dish picker — */
-.surprise-widget { max-width: 340px; margin: 0 auto; }
+.surprise-widget { position: relative; max-width: 340px; margin: 0 auto; }
 .surprise-card {
   position: relative; aspect-ratio: 4/5; border-radius: var(--radius-lg); border: 3px solid var(--ink);
   box-shadow: var(--shadow-flat); overflow: hidden; background: var(--cream-dark);
@@ -656,6 +656,28 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
   color: #fff; font-family: var(--font-display); font-weight: 600; text-align: center;
 }
 #surprise-btn:disabled { opacity: 0.7; cursor: wait; }
+
+/* — Panda mascot: an original character (not the reference site's), peeking off
+   the surprise card and nibbling a bamboo leaf; bounces when you click the button — */
+.panda-mascot { position: absolute; top: -30px; left: -26px; width: 84px; z-index: 3; pointer-events: none; animation: panda-bob 3.2s ease-in-out infinite; }
+.panda-mascot svg { display: block; width: 100%; height: auto; overflow: visible; }
+.panda-body, .panda-head { fill: #fff; stroke: var(--ink); stroke-width: 3; }
+.panda-ear, .panda-patch, .panda-eye, .panda-nose { fill: var(--ink); }
+.panda-mouth { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; }
+.panda-arm { fill: var(--ink); }
+.panda-leaf { fill: var(--basil); stroke: var(--basil-dark); stroke-width: 1.5; }
+#panda-leaf-arm { transform-box: fill-box; transform-origin: 70% 65%; animation: panda-nibble 1.6s ease-in-out infinite; }
+@keyframes panda-bob { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-6px) rotate(2deg); } }
+@keyframes panda-nibble { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-10deg); } }
+.panda-mascot.excited { animation: panda-excited 0.7s ease; }
+@keyframes panda-excited {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  25% { transform: translateY(-16px) rotate(-10deg); }
+  50% { transform: translateY(0) rotate(8deg); }
+  75% { transform: translateY(-9px) rotate(-6deg); }
+}
+@media (max-width: 480px) { .panda-mascot { width: 64px; top: -22px; left: -18px; } }
+@media (prefers-reduced-motion: reduce) { .panda-mascot, #panda-leaf-arm { animation: none; } }
 
 /* — Gallery category filter tabs — */
 .gallery-filters { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: var(--space-2xl); }
