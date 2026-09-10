@@ -893,6 +893,16 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .section-photo::before { content: ''; position: absolute; inset: 0; z-index: 0; background: var(--photo-overlay, rgba(56,67,28,0.88)); }
 .section-photo > .wrap { position: relative; z-index: 1; }
 
+/* WebP-first backgrounds via @supports (not a duplicate background-image
+   declaration) so unsupporting browsers never fetch the webp, and supporting
+   ones never fetch the jpg. */
+.bg-photo-sunlit-path { background-image: url('../img/bamboo/bamboo-sunlit-path.jpg'); }
+.bg-photo-grove-golden { background-image: url('../img/bamboo/bamboo-grove-golden.jpg'); }
+@supports (background-image: image-set(url('a.jpg') type('image/jpeg'))) {
+  .bg-photo-sunlit-path { background-image: image-set(url('../img/bamboo/bamboo-sunlit-path.webp') type('image/webp'), url('../img/bamboo/bamboo-sunlit-path.jpg') type('image/jpeg')); }
+  .bg-photo-grove-golden { background-image: image-set(url('../img/bamboo/bamboo-grove-golden.webp') type('image/webp'), url('../img/bamboo/bamboo-grove-golden.jpg') type('image/jpeg')); }
+}
+
 /* — Bamboo photo frame: two illustrated stalks flanking a centered message —
    the source photos have a plain white backdrop, so multiply blends it into
    any light section background instead of showing a white box. Light
@@ -900,11 +910,19 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .bamboo-frame-layout { display: flex; align-items: center; justify-content: center; gap: var(--space-2xl); }
 .bamboo-frame-content { max-width: 560px; }
 
-/* — Real bamboo photography, framed like the site's other photo cards (bordered,
-   tilted, no blend-mode — that trick only works on the white-bg illustrations). — */
+/* — Real bamboo photography, blended into the page like a soft wallpaper rather
+   than a bordered card: no border/shadow/rotation, edges faded via mask so the
+   photo dissolves into the surrounding section background. — */
 .bamboo-frame-photo { width: 160px; max-width: 160px; flex-shrink: 0; }
 @media (max-width: 768px) { .bamboo-frame-photo { display: none; } }
 .bamboo-photo-frame { width: 100%; max-width: 320px; margin: 0; }
+.bamboo-wallpaper-photo {
+  position: relative; aspect-ratio: 4/5; overflow: hidden;
+  -webkit-mask-image: radial-gradient(ellipse 78% 82% at center, black 52%, transparent 100%);
+  mask-image: radial-gradient(ellipse 78% 82% at center, black 52%, transparent 100%);
+}
+.bamboo-wallpaper-photo picture { position: absolute; inset: 0; display: block; }
+.bamboo-wallpaper-photo img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; }
 
 /* — A large illustration bleeding off one corner of a section, behind the content — */
 .bamboo-corner-accent { position: absolute; bottom: -30px; right: -30px; width: 240px; opacity: 0.95; mix-blend-mode: multiply; pointer-events: none; z-index: 0; }
