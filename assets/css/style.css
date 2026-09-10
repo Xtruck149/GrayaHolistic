@@ -732,6 +732,21 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 @media (max-width: 880px) { .bamboo-deco { width: 76px; opacity: 0.85; } }
 @media (prefers-reduced-motion: reduce) { .bamboo-deco { animation: none; } }
 
+/* — Full-height flanking bamboo wallpaper for the homepage hero (JS-injected,
+   see main.js) — a continuous stalk with alternating leaf clusters, tiled
+   vertically so it always fills the hero regardless of viewport height. — */
+.hero-bamboo-edge {
+  position: absolute; top: 0; bottom: 0; width: 140px; z-index: 0; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 140 280'%3E%3Crect x='62' y='0' width='16' height='280' rx='8' fill='%239BC24A'/%3E%3Crect x='58' y='86' width='24' height='7' rx='3.5' fill='%234E7A28'/%3E%3Crect x='58' y='196' width='24' height='7' rx='3.5' fill='%234E7A28'/%3E%3Cg transform='translate(70,58)'%3E%3Cpath d='M0,0 Q-34,-14 -54,-46 Q-20,-38 0,0 Z' fill='%238FBF5A' transform='rotate(-18)'/%3E%3Cpath d='M0,0 Q-30,-22 -34,-58 Q-6,-42 0,0 Z' fill='%233D7D55' transform='rotate(6)'/%3E%3Cpath d='M0,0 Q-20,-12 -32,-34 Q-10,-26 0,0 Z' fill='%238FBF5A' transform='rotate(-32)'/%3E%3C/g%3E%3Cg transform='translate(70,208) scale(-1,1)'%3E%3Cpath d='M0,0 Q-34,-14 -54,-46 Q-20,-38 0,0 Z' fill='%233D7D55' transform='rotate(-18)'/%3E%3Cpath d='M0,0 Q-30,-22 -34,-58 Q-6,-42 0,0 Z' fill='%238FBF5A' transform='rotate(6)'/%3E%3Cpath d='M0,0 Q-20,-12 -32,-34 Q-10,-26 0,0 Z' fill='%233D7D55' transform='rotate(-32)'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat-y; background-position: top center; background-size: 140px 280px;
+  opacity: 0.9; filter: drop-shadow(0 4px 10px rgba(20,30,10,0.3));
+}
+.hero-bamboo-edge--left { left: -20px; }
+.hero-bamboo-edge--right { right: -20px; transform: scaleX(-1); }
+@media (max-width: 880px) {
+  .hero-bamboo-edge { width: 90px; background-size: 90px 180px; opacity: 0.75; }
+}
+
 /* — Marquee ticker strip (sits under the header) — */
 .marquee-strip { background: var(--ink); overflow: hidden; white-space: nowrap; border-bottom: 3px solid var(--mango); }
 .marquee-track {
