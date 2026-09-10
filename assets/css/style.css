@@ -81,7 +81,7 @@
 
 /* ===================== RESET ===================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; scroll-padding-top: 96px; -webkit-text-size-adjust: 100%; overflow-x: hidden; }
+html { scroll-behavior: smooth; scroll-padding-top: 190px; -webkit-text-size-adjust: 100%; overflow-x: hidden; }
 body {
   font-family: var(--font-body);
   color: var(--text);
@@ -175,18 +175,27 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 
 /* ===================== HEADER / NAV ===================== */
 .site-header {
-  position: sticky; top: 0; z-index: 160;
-  background: var(--cream);
-  box-shadow: 0 4px 0 var(--olive);
+  position: fixed; top: 0; left: 0; right: 0; width: 100%; z-index: 160;
+  background: transparent; box-shadow: none;
+  transition: background var(--duration) var(--ease), box-shadow var(--duration) var(--ease);
 }
+.site-header.scrolled { background: var(--cream); box-shadow: 0 4px 0 var(--olive); }
 .nav { display: flex; align-items: center; justify-content: space-between; padding: 12px var(--space-lg); max-width: var(--max-w-wide); margin: 0 auto; }
-.logo { display: flex; align-items: center; gap: 10px; font-family: var(--font-serif); font-weight: 700; font-size: 1.3rem; color: var(--ink); flex-shrink: 0; }
+.logo { display: flex; align-items: center; gap: 10px; font-family: var(--font-serif); font-weight: 700; font-size: 1.3rem; color: var(--ink); flex-shrink: 0; transition: color var(--duration) var(--ease); }
 .logo-mark { height: 156px; width: 156px; object-fit: contain; flex-shrink: 0; transition: transform var(--duration) var(--ease); }
 .logo:hover .logo-mark, .logo:focus-visible .logo-mark { transform: scale(1.08) rotate(-4deg); }
-.logo-text span { color: var(--tomato); }
+.logo-text span { color: var(--tomato); transition: color var(--duration) var(--ease); }
+/* — Transparent (pre-scroll) header floats over the hero: swap ink text for
+   white + a shadow so it stays legible over any hero color, then swap back
+   once .scrolled restores the solid cream bar. — */
+.site-header:not(.scrolled) .logo,
+.site-header:not(.scrolled) .nav-links a {
+  color: #fff; text-shadow: 0 1px 5px rgba(0,0,0,0.4);
+}
+.site-header:not(.scrolled) .logo-text span { color: #fff; }
 .nav-links { display: flex; align-items: center; gap: 2px; font-family: var(--font-display); font-size: 0.86rem; font-weight: 600; }
 .nav-links li { position: relative; }
-.nav-links a { display: block; padding: 9px 15px; border-radius: 12px; color: var(--ink); position: relative; }
+.nav-links a { display: block; padding: 9px 15px; border-radius: 12px; color: var(--ink); position: relative; transition: color var(--duration) var(--ease); }
 .nav-links a::after { content:''; position:absolute; left:15px; right:15px; bottom:2px; height:3px; background:var(--tomato); border-radius:3px; transform:scaleX(0); transition:transform var(--duration) var(--ease); }
 .nav-links a:hover::after, .nav-links a.active::after { transform: scaleX(1); }
 .nav-links a.active { background: var(--cream-dark); }
@@ -217,8 +226,9 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 
 /* ===================== HERO ===================== */
 .hero { position: relative; padding: 90px 0 90px; min-height: 540px; display: flex; align-items: center; background: var(--olive); color: #fff; }
-.hero--tall { min-height: 620px; }
-.hero--short { min-height: 360px; padding: 70px 0 70px; }
+.hero--tall { min-height: 620px; padding-top: 220px; }
+.hero--short { min-height: 360px; padding: 190px 0 70px; }
+.hero-inner > .breadcrumbs { margin-bottom: var(--space-lg); }
 .hero--dark { background: var(--ink); }
 .hero--warm { background: var(--mango); color: var(--ink); }
 .hero--coral { background: var(--tomato); }
@@ -589,9 +599,9 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
   cursor: pointer; white-space: nowrap; transition: transform var(--duration-fast) var(--ease);
 }
 .menu-add-btn:hover { transform: translateY(-1px); }
+@media (max-width: 640px) { .menu-row-actions { flex-direction: row; align-self: flex-start; } }
 .accomp-card-actions { display: flex; align-items: center; justify-content: flex-end; padding: 10px 14px; background: var(--surface); border-top: 2.5px solid var(--ink); }
 .jus-brand-logo { width: 120px; height: auto; display: block; margin: 0 auto var(--space-sm); mix-blend-mode: multiply; }
-@media (max-width: 640px) { .menu-row-actions { flex-direction: row; align-self: flex-start; } }
 
 .cart-bar {
   position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 180;
@@ -633,7 +643,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .cart-modal .btn { width: 100%; }
 
 /* ===================== 404 ===================== */
-.error-page { min-height: 60vh; display: flex; align-items: center; justify-content: center; text-align: center; background: var(--plum); color: #fff; }
+.error-page { min-height: 60vh; padding-top: 180px; display: flex; align-items: center; justify-content: center; text-align: center; background: var(--plum); color: #fff; }
 .error-page h1 { font-size: clamp(5rem, 12vw, 10rem); color: #fff; -webkit-text-stroke: 4px var(--ink); }
 
 /* ===================== STATS ===================== */
@@ -665,7 +675,9 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
   .nav-links a { padding: 14px 16px; }
   .burger { display: flex; }
   .hero { min-height: auto; padding: 60px 0 50px; }
-  .hero--tall { min-height: auto; padding: 60px 0 50px; }
+  .hero--tall { min-height: auto; padding: 190px 0 50px; }
+  .hero--short { padding-top: 170px; }
+  .error-page { padding-top: 160px; }
   .hero h1 { font-size: clamp(1.9rem, 6vw, 2.4rem); }
   .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
   .stats-row { grid-template-columns: 1fr 1fr; }
