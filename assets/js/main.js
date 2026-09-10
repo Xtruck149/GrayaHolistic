@@ -1,17 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
 
   /* ---- Delivery zone & lead-time checker (index.html + services.html) ----
-     Placeholder figures — adjust to real logistics before launch. */
+     Placeholder figures — adjust to real logistics before launch.
+     The kitchen is based in Bingerville, so times/minimums scale with
+     actual distance from there, not from a generic Abidjan center. */
   const DELIVERY_ZONES = {
-    plateau:    { label: 'Plateau',     time: '20–30 min', cutoff: '21h30', min: '3 000 FCFA' },
-    zone4:      { label: 'Zone 4',      time: '20–30 min', cutoff: '21h30', min: '3 000 FCFA' },
-    marcory:    { label: 'Marcory',     time: '30–45 min', cutoff: '21h00', min: '5 000 FCFA' },
-    cocody:     { label: 'Cocody',      time: '30–45 min', cutoff: '21h00', min: '5 000 FCFA' },
-    treichville:{ label: 'Treichville', time: '25–35 min', cutoff: '21h00', min: '5 000 FCFA' },
-    riviera:    { label: 'Riviera',     time: '40–60 min', cutoff: '20h30', min: '7 000 FCFA' },
-    yopougon:   { label: 'Yopougon',    time: '45–60 min', cutoff: '20h00', min: '7 000 FCFA' },
-    bingerville:{ label: 'Bingerville', time: '60–90 min', cutoff: '19h00', min: '10 000 FCFA' },
-    bassam:     { label: 'Grand-Bassam',time: '60–90 min', cutoff: '19h00', min: '10 000 FCFA' }
+    bingerville:{ label: 'Bingerville', time: '15–20 min', cutoff: '21h30', min: '2 000 FCFA' },
+    riviera:    { label: 'Riviera',     time: '20–30 min', cutoff: '21h00', min: '3 000 FCFA' },
+    cocody:     { label: 'Cocody',      time: '30–40 min', cutoff: '21h00', min: '4 000 FCFA' },
+    plateau:    { label: 'Plateau',     time: '35–50 min', cutoff: '20h30', min: '5 000 FCFA' },
+    marcory:    { label: 'Marcory',     time: '40–55 min', cutoff: '20h30', min: '6 000 FCFA' },
+    treichville:{ label: 'Treichville', time: '40–55 min', cutoff: '20h30', min: '6 000 FCFA' },
+    zone4:      { label: 'Zone 4',      time: '40–55 min', cutoff: '20h30', min: '6 000 FCFA' },
+    bassam:     { label: 'Grand-Bassam',time: '45–65 min', cutoff: '20h00', min: '6 000 FCFA' },
+    yopougon:   { label: 'Yopougon',    time: '60–90 min', cutoff: '19h30', min: '8 000 FCFA' }
   };
   document.querySelectorAll('.delivery-checker').forEach(widget => {
     const select = widget.querySelector('.delivery-zone-select');
