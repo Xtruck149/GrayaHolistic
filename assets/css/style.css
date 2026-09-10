@@ -1,46 +1,47 @@
 /* ============================================================
-   GRAYA HOLISTIC — Design System v2 "Menu Ticket Playful"
-   Flat, warm, food-coded colors — scalloped plates & ticket cards
+   GRAYA HOLISTIC — Design System v3 "Bamboo & Conscious Nature"
+   Organic luxury: deep forest greens, warm amber, soft shadows
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Mulish:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 /* ===================== DESIGN TOKENS ===================== */
 :root {
   /* — Ink & surfaces — */
-  --ink:            #2B1B0E;
-  --ink-soft:       #4A3423;
-  --cream:          #FFF3E0;
-  --cream-dark:     #FBE3BE;
+  --ink:            #1E2721;
+  --ink-soft:       #3A4A3F;
+  --cream:          #F7F5EE;
+  --cream-dark:     #ECE6D6;
   --surface:        #FFFFFF;
-  --surface-alt:    #FDF6EC;
-  --text:           #2B1B0E;
-  --text-secondary: #5B4433;
-  --muted:          #7A6552;
+  --surface-alt:    #FBFAF4;
+  --text:           #1E2721;
+  --text-secondary: #4E5A52;
+  --muted:          #7C8579;
 
-  /* — Brand anchor (from the real logo) — */
-  --olive:          #4C5A28;
-  --olive-dark:     #38431C;
+  /* — Brand anchor (deep bamboo forest green) — */
+  --olive:          #2B4436;
+  --olive-dark:     #1C2D23;
 
-  /* — Vivid food-coded palette — */
-  --mango:          #C9932A;
-  --mango-dark:     #A67418;
-  --tomato:         #C14E36;
-  --tomato-dark:    #9C3A22;
-  --basil:          #3D7D55;
-  --basil-dark:     #2A5F3C;
-  --terracotta:     #B5563A;
-  --terracotta-dark:#8F3B22;
-  --plum:           #7D4A6C;
-  --teal:           #2C7A78;
+  /* — Organic accent palette — */
+  --mango:          #D4A359;
+  --mango-dark:     #B8863E;
+  --tomato:         #A65A3C;
+  --tomato-dark:    #7D4429;
+  --basil:          #708238;
+  --basil-dark:     #566226;
+  --terracotta:     #C8A97E;
+  --terracotta-dark:#A88A62;
+  --plum:           #4A3B47;
+  --teal:           #355E56;
 
-  --shadow-flat:    5px 5px 0 var(--ink);
-  --shadow-flat-sm: 3px 3px 0 var(--ink);
-  --shadow-flat-lg: 8px 8px 0 var(--ink);
+  --shadow-flat:    0 10px 30px rgba(30,39,33,0.14);
+  --shadow-flat-sm: 0 4px 14px rgba(30,39,33,0.12);
+  --shadow-flat-lg: 0 20px 50px rgba(30,39,33,0.18);
 
-  /* — Typography — */
-  --font-display:   'Fredoka', 'Mulish', sans-serif;
-  --font-body:      'Mulish', -apple-system, BlinkMacSystemFont, sans-serif;
+  /* — Typography: serif for headings, clean sans everywhere else — */
+  --font-serif:     'Playfair Display', Georgia, serif;
+  --font-display:   'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body:      'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 
   /* — Spacing — */
   --space-2xs: 4px; --space-xs: 8px; --space-sm: 12px; --space-md: 16px;
@@ -82,7 +83,7 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
 ::selection { background: var(--mango); color: var(--ink); }
 
 /* ===================== TYPOGRAPHY ===================== */
-h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); color: var(--ink); line-height: 1.15; font-weight: 600; text-wrap: balance; }
+h1, h2, h3, h4, h5, h6 { font-family: var(--font-serif); color: var(--ink); line-height: 1.15; font-weight: 600; text-wrap: balance; }
 h1 { font-size: clamp(2.3rem, 5.4vw, 4.1rem); font-weight: 700; }
 h2 { font-size: clamp(1.85rem, 3.4vw, 2.6rem); }
 h3 { font-size: clamp(1.3rem, 2vw, 1.6rem); }
@@ -163,7 +164,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
   box-shadow: 0 4px 0 var(--olive);
 }
 .nav { display: flex; align-items: center; justify-content: space-between; padding: 12px var(--space-lg); max-width: var(--max-w-wide); margin: 0 auto; }
-.logo { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; color: var(--ink); flex-shrink: 0; }
+.logo { display: flex; align-items: center; gap: 10px; font-family: var(--font-serif); font-weight: 700; font-size: 1.3rem; color: var(--ink); flex-shrink: 0; }
 .logo-mark { height: 88px; width: 88px; object-fit: contain; flex-shrink: 0; transition: transform var(--duration) var(--ease); }
 .logo:hover .logo-mark, .logo:focus-visible .logo-mark { transform: scale(1.08) rotate(-4deg); }
 .logo-text span { color: var(--tomato); }
