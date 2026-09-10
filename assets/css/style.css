@@ -181,7 +181,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 }
 .nav { display: flex; align-items: center; justify-content: space-between; padding: 12px var(--space-lg); max-width: var(--max-w-wide); margin: 0 auto; }
 .logo { display: flex; align-items: center; gap: 10px; font-family: var(--font-serif); font-weight: 700; font-size: 1.3rem; color: var(--ink); flex-shrink: 0; }
-.logo-mark { height: 110px; width: 110px; object-fit: contain; flex-shrink: 0; transition: transform var(--duration) var(--ease); }
+.logo-mark { height: 156px; width: 156px; object-fit: contain; flex-shrink: 0; transition: transform var(--duration) var(--ease); }
 .logo:hover .logo-mark, .logo:focus-visible .logo-mark { transform: scale(1.08) rotate(-4deg); }
 .logo-text span { color: var(--tomato); }
 .nav-links { display: flex; align-items: center; gap: 2px; font-family: var(--font-display); font-size: 0.86rem; font-weight: 600; }
@@ -388,7 +388,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .site-footer > .wrap { position: relative; z-index: 1; }
 .footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: var(--space-2xl); padding-bottom: var(--space-3xl); }
 .footer-logo { display: flex; align-items: center; gap: 12px; margin-bottom: var(--space-md); }
-.footer-logo-mark { height: 120px; width: 120px; object-fit: contain; }
+.footer-logo-mark { height: 160px; width: 160px; object-fit: contain; }
 .footer-brand h4 { color: #fff; font-size: 1.15rem; }
 .footer-brand p { font-size: 0.9rem; max-width: 300px; color: rgba(255,255,255,0.62); }
 .footer-col h5 { color: var(--mango); font-family: var(--font-display); font-size: 0.78rem; font-weight: 700; margin-bottom: var(--space-lg); }
@@ -674,7 +674,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 @media (max-width: 560px) {
   /* Compact header: crest only, no wordmark, so the CTA + burger keep breathing room */
   .logo-text { display: none; }
-  .logo-mark { height: 88px; width: 88px; }
+  .logo-mark { height: 120px; width: 120px; }
   .nav-cta .btn { padding: 9px 16px; font-size: 0.76rem; }
 }
 @media (max-width: 480px) {
