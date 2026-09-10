@@ -9,7 +9,9 @@ document.addEventListener('DOMContentLoaded', () => {
     cocody:     { label: 'Cocody',      time: '30–45 min', cutoff: '21h00', min: '5 000 FCFA' },
     treichville:{ label: 'Treichville', time: '25–35 min', cutoff: '21h00', min: '5 000 FCFA' },
     riviera:    { label: 'Riviera',     time: '40–60 min', cutoff: '20h30', min: '7 000 FCFA' },
-    yopougon:   { label: 'Yopougon',    time: '45–60 min', cutoff: '20h00', min: '7 000 FCFA' }
+    yopougon:   { label: 'Yopougon',    time: '45–60 min', cutoff: '20h00', min: '7 000 FCFA' },
+    bingerville:{ label: 'Bingerville', time: '60–90 min', cutoff: '19h00', min: '10 000 FCFA' },
+    bassam:     { label: 'Grand-Bassam',time: '60–90 min', cutoff: '19h00', min: '10 000 FCFA' }
   };
   document.querySelectorAll('.delivery-checker').forEach(widget => {
     const select = widget.querySelector('.delivery-zone-select');
