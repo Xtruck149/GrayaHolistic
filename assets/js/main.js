@@ -187,20 +187,30 @@ document.addEventListener('DOMContentLoaded', () => {
         <rect x="-10" y="160" width="20" height="6" rx="3" class="bamboo-node"/>
       </g>
       <g class="bamboo-leaves" transform="translate(58,34)">
-        <path d="M0,0 Q-34,-14 -54,-46 Q-20,-38 0,0 Z" transform="rotate(-18)"/>
-        <path d="M0,0 Q-30,-22 -34,-58 Q-6,-42 0,0 Z" transform="rotate(6)"/>
-        <path d="M0,0 Q26,-16 44,-48 Q14,-38 0,0 Z" transform="rotate(14)"/>
-        <path d="M0,0 Q30,-24 30,-60 Q4,-42 0,0 Z" transform="rotate(-8)"/>
-        <path d="M0,0 Q10,-30 6,-64 Q-8,-46 0,0 Z" transform="rotate(2)"/>
+        <path class="bamboo-leaf--light" d="M0,0 Q-34,-14 -54,-46 Q-20,-38 0,0 Z" transform="rotate(-18)"/>
+        <path class="bamboo-vein" d="M0,0 Q-30,-24 -40,-42" transform="rotate(-18)"/>
+        <path class="bamboo-leaf" d="M0,0 Q-30,-22 -34,-58 Q-6,-42 0,0 Z" transform="rotate(6)"/>
+        <path class="bamboo-vein" d="M0,0 Q-20,-34 -22,-52" transform="rotate(6)"/>
+        <path class="bamboo-leaf--light" d="M0,0 Q26,-16 44,-48 Q14,-38 0,0 Z" transform="rotate(14)"/>
+        <path class="bamboo-vein" d="M0,0 Q22,-26 30,-44" transform="rotate(14)"/>
+        <path class="bamboo-leaf" d="M0,0 Q30,-24 30,-60 Q4,-42 0,0 Z" transform="rotate(-8)"/>
+        <path class="bamboo-vein" d="M0,0 Q16,-34 18,-54" transform="rotate(-8)"/>
+        <path class="bamboo-leaf--light" d="M0,0 Q10,-30 6,-64 Q-8,-46 0,0 Z" transform="rotate(2)"/>
+        <path class="bamboo-vein" d="M0,0 Q2,-38 -1,-58" transform="rotate(2)"/>
       </g>
       <g class="bamboo-leaves" transform="translate(18,28)">
-        <path d="M0,0 Q-22,-10 -36,-34 Q-12,-26 0,0 Z" transform="rotate(-20)"/>
-        <path d="M0,0 Q20,-12 30,-36 Q8,-26 0,0 Z" transform="rotate(16)"/>
-        <path d="M0,0 Q-8,-24 -4,-42 Q6,-30 0,0 Z" transform="rotate(-4)"/>
+        <path class="bamboo-leaf" d="M0,0 Q-22,-10 -36,-34 Q-12,-26 0,0 Z" transform="rotate(-20)"/>
+        <path class="bamboo-vein" d="M0,0 Q-18,-18 -24,-32" transform="rotate(-20)"/>
+        <path class="bamboo-leaf--light" d="M0,0 Q20,-12 30,-36 Q8,-26 0,0 Z" transform="rotate(16)"/>
+        <path class="bamboo-vein" d="M0,0 Q14,-20 18,-33" transform="rotate(16)"/>
+        <path class="bamboo-leaf" d="M0,0 Q-8,-24 -4,-42 Q6,-30 0,0 Z" transform="rotate(-4)"/>
+        <path class="bamboo-vein" d="M0,0 Q0,-24 0,-38" transform="rotate(-4)"/>
       </g>
       <g class="bamboo-leaves" transform="translate(78,62)">
-        <path d="M0,0 Q-18,-8 -30,-28 Q-10,-22 0,0 Z" transform="rotate(-14)"/>
-        <path d="M0,0 Q16,-10 24,-30 Q6,-22 0,0 Z" transform="rotate(12)"/>
+        <path class="bamboo-leaf--light" d="M0,0 Q-18,-8 -30,-28 Q-10,-22 0,0 Z" transform="rotate(-14)"/>
+        <path class="bamboo-vein" d="M0,0 Q-14,-16 -19,-26" transform="rotate(-14)"/>
+        <path class="bamboo-leaf" d="M0,0 Q16,-10 24,-30 Q6,-22 0,0 Z" transform="rotate(12)"/>
+        <path class="bamboo-vein" d="M0,0 Q11,-17 14,-27" transform="rotate(12)"/>
       </g>
     </svg>`;
 

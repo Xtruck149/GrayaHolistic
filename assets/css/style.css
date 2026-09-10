@@ -34,6 +34,13 @@
   --plum:           #7D4A6C;
   --teal:           #2C7A78;
 
+  /* — Bamboo decoration (culms, nodes, foliage) — */
+  --bamboo-culm:      #9BC24A;
+  --bamboo-culm-dark: #4E7A28;
+  --bamboo-leaf:      #3D7D55;
+  --bamboo-leaf-light:#8FBF5A;
+  --bamboo-vein:      #E4F2C8;
+
   --shadow-flat:    5px 5px 0 var(--ink);
   --shadow-flat-sm: 3px 3px 0 var(--ink);
   --shadow-flat-lg: 8px 8px 0 var(--ink);
@@ -564,20 +571,23 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 /* — Decorative bamboo stalks (JS-injected into hero/error-page corners, CTA bands and the footer, see main.js) — */
 .bamboo-deco {
   position: absolute; z-index: 0; pointer-events: none; bottom: 0;
-  width: 92px; opacity: 0.22; transform-origin: bottom center;
+  width: 112px; opacity: 0.92; transform-origin: bottom center;
   animation: bamboo-sway 7s ease-in-out infinite;
+  filter: drop-shadow(0 4px 8px rgba(20,30,10,0.35));
 }
 .bamboo-deco svg { display: block; width: 100%; height: auto; }
-.bamboo-stalk rect:not(.bamboo-node) { fill: #fff; }
-.bamboo-node { fill: rgba(43,27,14,0.35); }
-.bamboo-leaves path { fill: #fff; }
+.bamboo-stalk rect:not(.bamboo-node) { fill: var(--bamboo-culm); }
+.bamboo-stalk .bamboo-node { fill: var(--bamboo-culm-dark); }
+.bamboo-leaf { fill: var(--bamboo-leaf); }
+.bamboo-leaf--light { fill: var(--bamboo-leaf-light); }
+.bamboo-vein { fill: none; stroke: var(--bamboo-vein); stroke-width: 1.1; stroke-linecap: round; opacity: 0.75; }
 .bamboo-deco--bl { left: -8px; }
 .bamboo-deco--tr { top: 0; bottom: auto; right: -8px; left: auto; transform: scaleY(-1); transform-origin: center; animation-name: bamboo-sway-top; }
 .bamboo-deco--br { right: -8px; left: auto; }
 .bamboo-deco--tl { top: 0; bottom: auto; left: -8px; transform: scaleY(-1); transform-origin: center; animation-name: bamboo-sway-top; }
 @keyframes bamboo-sway { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2.5deg); } }
 @keyframes bamboo-sway-top { 0%, 100% { transform: scaleY(-1) rotate(-2deg); } 50% { transform: scaleY(-1) rotate(2.5deg); } }
-@media (max-width: 880px) { .bamboo-deco { width: 60px; opacity: 0.18; } }
+@media (max-width: 880px) { .bamboo-deco { width: 76px; opacity: 0.85; } }
 @media (prefers-reduced-motion: reduce) { .bamboo-deco { animation: none; } }
 
 /* — Marquee ticker strip (sits under the header) — */
