@@ -422,6 +422,27 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .whatsapp-fab:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 @media (max-width: 560px) { .whatsapp-fab { width: 50px; height: 50px; left: 16px; } }
 
+/* ===================== STICKY MOBILE ACTION BAR ===================== */
+.mobile-action-bar {
+  display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 190;
+  background: var(--color-primary); border-top: 2.5px solid var(--ink);
+  padding: 8px max(8px, env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-right));
+  box-shadow: 0 -8px 24px rgba(30,39,33,0.18);
+}
+.mobile-action-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  background: none; border: none; color: #fff; font-family: var(--font-display);
+  font-size: 0.68rem; font-weight: 600; padding: 6px 4px; cursor: pointer;
+}
+.mobile-action-btn span:first-child { font-size: 1.25rem; line-height: 1; }
+.mobile-action-btn:active { opacity: 0.7; }
+@media (max-width: 880px) {
+  .mobile-action-bar { display: flex; }
+  .whatsapp-fab { display: none; }
+  .to-top { bottom: calc(76px + env(safe-area-inset-bottom)); }
+  .cart-bar { bottom: calc(76px + env(safe-area-inset-bottom)); }
+}
+
 /* — Confetti burst (WhatsApp CTA click) — */
 .confetti-piece {
   position: fixed; width: 8px; height: 8px; border-radius: 2px; pointer-events: none; z-index: 400;
@@ -483,7 +504,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .menu-row-info h4 { margin-bottom: 4px; }
 .menu-row-info h4 .text-muted { font-family: var(--font-body); font-weight: 500; font-size: 0.8em; }
 .menu-row-info p { font-size: 0.9rem; margin: 0; }
-.menu-price { flex-shrink: 0; font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; padding: 8px 18px; border-radius: 100px; border: 2px dashed var(--ink); background: var(--cream-dark); white-space: nowrap; }
+.menu-price { flex-shrink: 0; font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; padding: 8px 18px; border-radius: 100px; border: 2px solid var(--color-accent); background: var(--color-accent); color: var(--color-text-dark); white-space: nowrap; }
 .menu-price-note { display: flex; gap: var(--space-md); flex-wrap: wrap; justify-content: center; margin-bottom: var(--space-xl); }
 @media (max-width: 560px) {
   .menu-row { flex-direction: column; gap: var(--space-sm); }
@@ -575,7 +596,8 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 }
 .cart-modal.open { opacity: 1; pointer-events: auto; }
 .cart-modal-inner {
-  background: #fff; border-radius: var(--radius-lg); border: 2.5px solid var(--ink);
+  background: var(--color-surface); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-radius: var(--radius-lg); border: 2.5px solid var(--ink);
   box-shadow: var(--shadow-flat-lg); padding: var(--space-xl); max-width: 460px; width: 100%;
   max-height: 85vh; overflow-y: auto; position: relative;
 }

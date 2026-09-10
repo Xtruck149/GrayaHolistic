@@ -223,6 +223,29 @@ document.addEventListener('DOMContentLoaded', () => {
   waFab.innerHTML = '<svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.39 1.26 4.81L2 22l5.41-1.42a9.87 9.87 0 0 0 4.63 1.18h.01c5.46 0 9.9-4.45 9.9-9.91C21.95 6.45 17.5 2 12.04 2zm5.78 14.03c-.24.68-1.4 1.3-1.93 1.38-.5.08-1.12.11-1.81-.11-.42-.13-.96-.31-1.65-.61-2.9-1.25-4.79-4.17-4.94-4.36-.14-.19-1.18-1.57-1.18-3 0-1.42.75-2.12 1.02-2.41.26-.29.57-.36.76-.36.19 0 .38 0 .55.01.18.01.41-.07.64.49.24.58.81 2 .88 2.14.07.14.11.31.02.5-.09.19-.14.31-.27.48-.14.17-.29.37-.41.5-.14.14-.28.29-.12.57.16.28.71 1.17 1.52 1.9 1.05.94 1.93 1.23 2.21 1.37.28.14.44.12.6-.07.16-.19.68-.79.86-1.06.18-.27.36-.22.6-.13.24.09 1.53.72 1.79.85.26.13.43.19.5.3.07.11.07.62-.17 1.3z"/></svg>';
   document.body.appendChild(waFab);
 
+  /* ---- Sticky mobile action bar: Commander / Voir le panier / WhatsApp direct ----
+     Replaces the floating WhatsApp FAB on small screens (hidden there via CSS) so
+     mobile visitors get one consolidated bottom bar instead of stacked floating buttons. */
+  const mobileBar = document.createElement('div');
+  mobileBar.className = 'mobile-action-bar';
+  mobileBar.innerHTML = `
+    <a href="menu.html" class="mobile-action-btn">
+      <span aria-hidden="true">📋</span><span>Commander</span>
+    </a>
+    <button type="button" class="mobile-action-btn" id="mobile-cart-btn">
+      <span aria-hidden="true">🛒</span><span>Panier</span>
+    </button>
+    <a href="https://wa.me/2250101736812?text=${encodeURIComponent("Bonjour Graya Holistic, j'ai une question.")}" class="mobile-action-btn" target="_blank" rel="noopener">
+      <span aria-hidden="true">💬</span><span>WhatsApp</span>
+    </a>
+  `;
+  document.body.appendChild(mobileBar);
+  mobileBar.querySelector('#mobile-cart-btn').addEventListener('click', () => {
+    const cartOpenBtn = document.getElementById('cart-open-btn');
+    if (cartOpenBtn) cartOpenBtn.click();
+    else window.location.href = 'menu.html';
+  });
+
   const onScroll = () => {
     const h = document.documentElement;
     const pct = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
@@ -283,6 +306,13 @@ document.addEventListener('DOMContentLoaded', () => {
       })
       .catch(() => {});
   }
+
+  /* ---- Bamboo leaf watermark: tucked into section-header and bamboo-card corners ---- */
+  const LEAF_WATERMARK_SVG = '<svg viewBox="0 0 100 100" class="leaf-watermark" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M50 8 C18 24, 12 56, 50 92 C88 56, 82 24, 50 8 Z" fill="var(--color-primary)"/></svg>';
+  document.querySelectorAll('.section-header, .bamboo-card, .cart-modal-inner').forEach(el => {
+    if (el.querySelector(':scope > .leaf-watermark')) return;
+    el.insertAdjacentHTML('beforeend', LEAF_WATERMARK_SVG);
+  });
 
   /* ---- Hero floating orbs (also on the 404 error page) ---- */
   const hero = document.querySelector('.hero, .error-page');
