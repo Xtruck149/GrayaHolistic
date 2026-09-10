@@ -616,6 +616,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 }
 .cart-item-price { font-family: var(--font-display); font-weight: 700; white-space: nowrap; }
 .cart-total-row { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; border-top: 2px dashed var(--ink); padding-top: var(--space-md); margin-bottom: var(--space-lg); display: flex; justify-content: space-between; }
+.cart-total-row--sub { font-weight: 500; font-size: 0.85rem; border-top: none; padding-top: 0; margin-bottom: 4px; color: var(--muted); }
 .cart-modal .btn { width: 100%; }
 
 /* ===================== 404 ===================== */

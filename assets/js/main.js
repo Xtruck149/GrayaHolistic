@@ -8,6 +8,21 @@ document.addEventListener('DOMContentLoaded', () => {
     let cart = [];
     try { cart = JSON.parse(localStorage.getItem('graya-cart') || '[]'); } catch (e) { cart = []; }
 
+    /* Delivery fee by zone — the kitchen is based in Bingerville, so fees scale
+       with real distance from there. Placeholder figures, adjust before launch. */
+    const DELIVERY_ZONES = [
+      { name: 'Bingerville', fee: 500 },
+      { name: 'Riviera', fee: 1000 },
+      { name: 'Cocody', fee: 1500 },
+      { name: 'Plateau', fee: 2000 },
+      { name: 'Marcory', fee: 2000 },
+      { name: 'Treichville', fee: 2000 },
+      { name: 'Zone 4', fee: 2000 },
+      { name: 'Grand-Bassam', fee: 2500 },
+      { name: 'Yopougon', fee: 3000 },
+      { name: 'Autre zone (à préciser)', fee: 0 }
+    ];
+
     const bar = document.createElement('div');
     bar.className = 'cart-bar';
     bar.hidden = true;
@@ -24,6 +39,14 @@ document.addEventListener('DOMContentLoaded', () => {
         <button type="button" class="cart-modal-close" aria-label="Fermer">&times;</button>
         <h3>Votre commande</h3>
         <div class="cart-items" id="cart-items"></div>
+        <div class="form-field">
+          <label for="cart-zone">Zone de livraison</label>
+          <select id="cart-zone">
+            ${DELIVERY_ZONES.map((z, i) => `<option value="${i}">${z.name}${z.fee ? ' (+' + z.fee.toLocaleString('fr-FR') + ' FCFA)' : ''}</option>`).join('')}
+          </select>
+        </div>
+        <div class="cart-total-row cart-total-row--sub">Sous-total : <span id="cart-subtotal">0 FCFA</span></div>
+        <div class="cart-total-row cart-total-row--sub">Livraison : <span id="cart-delivery-fee">0 FCFA</span></div>
         <div class="cart-total-row">Total : <strong id="cart-modal-total">0 FCFA</strong></div>
         <div class="form-field">
           <label for="cart-date">Date de livraison souhaitée</label>
@@ -37,6 +60,10 @@ document.addEventListener('DOMContentLoaded', () => {
             <option value="19h - 21h">19h – 21h</option>
           </select>
         </div>
+        <div class="form-field">
+          <label for="cart-notes">Remarques (optionnel)</label>
+          <input type="text" id="cart-notes" placeholder="Ex : sans piment, appartement 3e étage...">
+        </div>
         <a href="#" class="btn btn-primary" id="cart-send-btn" target="_blank" rel="noopener">Envoyer la commande via WhatsApp</a>
       </div>
     `;
@@ -46,17 +73,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalEl = bar.querySelector('#cart-total');
     const itemsEl = modal.querySelector('#cart-items');
     const modalTotalEl = modal.querySelector('#cart-modal-total');
+    const subtotalEl = modal.querySelector('#cart-subtotal');
+    const deliveryFeeEl = modal.querySelector('#cart-delivery-fee');
+    const zoneSelect = modal.querySelector('#cart-zone');
     const sendBtn = modal.querySelector('#cart-send-btn');
 
     function save() { localStorage.setItem('graya-cart', JSON.stringify(cart)); }
-    function total() { return cart.reduce((sum, i) => sum + i.price * i.qty, 0); }
+    function subtotal() { return cart.reduce((sum, i) => sum + i.price * i.qty, 0); }
+    function currentZone() { return DELIVERY_ZONES[parseInt(zoneSelect.value, 10)] || DELIVERY_ZONES[0]; }
+    function total() { return subtotal() + currentZone().fee; }
     function fmt(n) { return n.toLocaleString('fr-FR'); }
+
+    zoneSelect.addEventListener('change', render);
 
     function render() {
       const count = cart.reduce((sum, i) => sum + i.qty, 0);
       countEl.textContent = count;
       totalEl.textContent = fmt(total());
       bar.hidden = count === 0;
+      subtotalEl.textContent = fmt(subtotal()) + ' FCFA';
+      deliveryFeeEl.textContent = fmt(currentZone().fee) + ' FCFA';
 
       itemsEl.innerHTML = cart.map((item, i) => `
         <div class="cart-item">
@@ -121,12 +157,17 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!cart.length) return;
       const date = modal.querySelector('#cart-date').value;
       const time = modal.querySelector('#cart-time').value;
+      const notes = modal.querySelector('#cart-notes').value.trim();
+      const zone = currentZone();
       const lines = [
         'Bonjour Graya Holistic, je souhaite commander :',
         ...cart.map(i => `• ${i.qty} × ${i.name} — ${fmt(i.price * i.qty)} FCFA`),
+        `Sous-total : ${fmt(subtotal())} FCFA`,
+        `Zone de livraison : ${zone.name}${zone.fee ? ' (+' + fmt(zone.fee) + ' FCFA)' : ''}`,
         `Total : ${fmt(total())} FCFA`,
         date ? `Date souhaitée : ${date}` : '',
-        `Créneau : ${time}`
+        `Créneau : ${time}`,
+        notes ? `Remarques : ${notes}` : ''
       ].filter(Boolean).join('\n');
       window.open('https://wa.me/2250101736812?text=' + encodeURIComponent(lines), '_blank', 'noopener');
       cart = [];
