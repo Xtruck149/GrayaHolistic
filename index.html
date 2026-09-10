@@ -35,6 +35,8 @@
   "logo": "https://xtruck149.github.io/GrayaHolistic/assets/img/logo-mark.png",
   "description": "Graya Holistic est une initiative pionnière en Côte d'Ivoire qui transforme l'alimentation en un acte de soin, de conscience et de dignité.",
   "servesCuisine": "Cuisine holistique consciente, ivoirienne et africaine",
+  "hasMenu": "https://xtruck149.github.io/GrayaHolistic/menu.html",
+  "priceRange": "500 FCFA - 5 000 FCFA",
   "address": {
     "@type": "PostalAddress",
     "addressLocality": "Abidjan",
@@ -55,6 +57,7 @@
     <ul class="nav-links">
       <li><a href="a-propos.html">Qui sommes-nous</a></li>
       <li><a href="notre-cuisine.html">Notre Cuisine</a></li>
+      <li><a href="menu.html">Menu</a></li>
       <li><a href="services.html">Nos Services</a></li>
       <li><a href="engagement.html">Engagement</a></li>
       <li><a href="contact.html">Contact</a></li>
@@ -184,6 +187,14 @@
     </div>
 </section>
 
+<section class="section-photo text-center" style="background-image:url('assets/img/bamboo/bamboo-texture.jpg'); --photo-overlay: rgba(43,27,14,0.82);">
+  <div class="wrap">
+    <span class="eyebrow eyebrow--light">Cultivé en harmonie</span>
+    <h2 class="text-white">Enraciné dans la nature</h2>
+    <p class="max-w-md text-white-muted">Comme le bambou, notre cuisine grandit avec patience, s'enracine dans la terre ivoirienne et se renouvelle à chaque saison.</p>
+  </div>
+</section>
+
 <section class="bg-cream bg-pattern" id="cuisine">
   <div class="wrap">
     <div class="section-header centered">
@@ -217,6 +228,7 @@
     </div>
     <div class="text-center mt-2xl">
       <a href="notre-cuisine.html" class="btn btn-secondary">Voir toute notre cuisine</a>
+      <a href="menu.html" class="btn btn-ghost">Voir le menu &amp; les prix</a>
     </div>
   </div>
 </section>
@@ -238,6 +250,25 @@
     <h2>Laissez le hasard choisir pour vous</h2>
     <p class="max-w-md" style="margin-left:auto;margin-right:auto;">Un clic, une surprise gourmande — et une table réservée en un message.</p>
     <div class="surprise-widget mt-2xl">
+      <div class="panda-mascot" id="panda-mascot" aria-hidden="true">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <ellipse class="panda-body" cx="50" cy="78" rx="26" ry="20"/>
+          <circle class="panda-ear" cx="26" cy="22" r="11"/>
+          <circle class="panda-ear" cx="74" cy="22" r="11"/>
+          <circle class="panda-head" cx="50" cy="42" r="32"/>
+          <ellipse class="panda-patch" cx="34" cy="42" rx="10" ry="13" transform="rotate(-12 34 42)"/>
+          <ellipse class="panda-patch" cx="66" cy="42" rx="10" ry="13" transform="rotate(12 66 42)"/>
+          <circle class="panda-eye" cx="35" cy="44" r="3.4"/>
+          <circle class="panda-eye" cx="65" cy="44" r="3.4"/>
+          <ellipse class="panda-nose" cx="50" cy="54" rx="5" ry="3.6"/>
+          <path class="panda-mouth" d="M50,58 q0,5 -6,6 M50,58 q0,5 6,6"/>
+          <ellipse class="panda-arm" cx="24" cy="66" rx="9" ry="13" transform="rotate(-18 24 66)"/>
+          <g id="panda-leaf-arm">
+            <ellipse class="panda-arm" cx="76" cy="60" rx="9" ry="13" transform="rotate(35 76 60)"/>
+            <path class="panda-leaf" d="M78,44 Q92,38 96,24 Q82,30 78,44 Z"/>
+          </g>
+        </svg>
+      </div>
       <div class="surprise-card" id="surprise-card">
         <img src="assets/img/gallery/plat-01.jpg" alt="" id="surprise-img">
         <span class="surprise-caption" id="surprise-caption">Cliquez pour découvrir</span>
@@ -331,6 +362,7 @@
         <h5>Découvrir</h5>
         <a href="a-propos.html">Qui sommes-nous</a>
         <a href="notre-cuisine.html">Notre cuisine</a>
+        <a href="menu.html">Menu</a>
         <a href="services.html">Nos services</a>
         <a href="engagement.html">Notre engagement</a>
       </div>
