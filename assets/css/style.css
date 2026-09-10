@@ -10,7 +10,7 @@
   /* — Ink & surfaces — */
   --ink:            #1E2721;
   --ink-soft:       #3A4A3F;
-  --cream:          #F7F5EE;
+  --cream:          #FBF8EF;
   --cream-dark:     #ECE6D6;
   --surface:        #FFFFFF;
   --surface-alt:    #FBFAF4;
@@ -18,21 +18,21 @@
   --text-secondary: #4E5A52;
   --muted:          #7C8579;
 
-  /* — Brand anchor (deep bamboo forest green) — */
-  --olive:          #2B4436;
-  --olive-dark:     #1C2D23;
+  /* — Brand anchor (lively bamboo forest green) — */
+  --olive:          #2E6E4C;
+  --olive-dark:     #1D4530;
 
-  /* — Organic accent palette — */
-  --mango:          #D4A359;
-  --mango-dark:     #B8863E;
-  --tomato:         #A65A3C;
-  --tomato-dark:    #7D4429;
-  --basil:          #708238;
-  --basil-dark:     #566226;
-  --terracotta:     #C8A97E;
-  --terracotta-dark:#A88A62;
-  --plum:           #4A3B47;
-  --teal:           #355E56;
+  /* — Joyful, saturated accent palette — */
+  --mango:          #EAA23A;
+  --mango-dark:     #C4841F;
+  --tomato:         #D14425;
+  --tomato-dark:    #A8351C;
+  --basil:          #5E8028;
+  --basil-dark:     #486019;
+  --terracotta:     #D9B583;
+  --terracotta-dark:#B8925E;
+  --plum:           #6B3F63;
+  --teal:           #2A7A72;
 
   /* — Bamboo decoration (culms, nodes, foliage) — */
   --bamboo-culm:      #9BC24A;
@@ -334,15 +334,15 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 }
 .hero::after, .bg-primary::after, .bg-dark::after, .cta-band::after {
   background-image:
-    radial-gradient(circle at 22% 22%, rgba(201,147,42,0.26), transparent 42%),
-    radial-gradient(circle at 80% 28%, rgba(193,78,54,0.22), transparent 45%),
+    radial-gradient(circle at 22% 22%, rgba(234,162,58,0.28), transparent 42%),
+    radial-gradient(circle at 80% 28%, rgba(209,68,37,0.24), transparent 45%),
     radial-gradient(circle at 55% 85%, rgba(255,255,255,0.13), transparent 40%);
 }
 .bg-cream::after, .bg-ivory::after, .bg-surface::after {
   background-image:
-    radial-gradient(circle at 18% 28%, rgba(76,90,40,0.11), transparent 42%),
-    radial-gradient(circle at 84% 74%, rgba(193,78,54,0.10), transparent 46%),
-    radial-gradient(circle at 50% 12%, rgba(61,125,85,0.09), transparent 38%);
+    radial-gradient(circle at 18% 28%, rgba(94,128,40,0.13), transparent 42%),
+    radial-gradient(circle at 84% 74%, rgba(209,68,37,0.11), transparent 46%),
+    radial-gradient(circle at 50% 12%, rgba(46,110,76,0.10), transparent 38%);
 }
 
 /* — Film-grain texture: a touch of noise over the saturated sections so flat
@@ -365,8 +365,8 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .bg-pattern::before {
   content: ''; position: absolute; z-index: 0; pointer-events: none;
   top: -15%; left: -15%; width: 130%; height: 130%;
-  background-image: radial-gradient(var(--ink) 1.5px, transparent 1.5px);
-  background-size: 26px 26px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Crect x='11' y='2' width='6' height='24' rx='3' fill='%23708238' opacity='0.16'/%3E%3Crect x='9' y='9' width='10' height='3' rx='1.5' fill='%232E6E4C' opacity='0.16'/%3E%3Crect x='9' y='18' width='10' height='3' rx='1.5' fill='%232E6E4C' opacity='0.16'/%3E%3C/svg%3E");
+  background-size: 28px 28px;
   animation: pattern-drift 50s linear infinite;
 }
 @keyframes pattern-drift { from { transform: translate(0,0); } to { transform: translate(-26px,-26px); } }
@@ -759,7 +759,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .nav-cta .btn, .hero-actions .btn-primary { animation: btn-glow 2.6s ease-in-out infinite; }
 @keyframes btn-glow {
   0%, 100% { box-shadow: 0 5px 0 var(--ink); }
-  50% { box-shadow: 0 5px 0 var(--ink), 0 0 20px 2px rgba(201,147,42,0.55); }
+  50% { box-shadow: 0 5px 0 var(--ink), 0 0 20px 2px rgba(234,162,58,0.55); }
 }
 
 /* — "Surprends-moi" random dish picker — */
@@ -883,12 +883,13 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
    any light section background instead of showing a white box. Light
    sections only — multiply would muddy a dark background. — */
 .bamboo-frame-layout { display: flex; align-items: center; justify-content: center; gap: var(--space-2xl); }
-.bamboo-frame-img { width: 130px; height: auto; flex-shrink: 0; mix-blend-mode: multiply; }
 .bamboo-frame-content { max-width: 560px; }
-@media (max-width: 768px) { .bamboo-frame-img { display: none; } }
 
-/* — A single illustrated stalk beside a text block (asymmetric, not the symmetric frame above) — */
-.bamboo-side-img { max-width: 230px; width: 100%; margin: 0 auto; display: block; mix-blend-mode: multiply; }
+/* — Real bamboo photography, framed like the site's other photo cards (bordered,
+   tilted, no blend-mode — that trick only works on the white-bg illustrations). — */
+.bamboo-frame-photo { width: 160px; max-width: 160px; flex-shrink: 0; }
+@media (max-width: 768px) { .bamboo-frame-photo { display: none; } }
+.bamboo-photo-frame { width: 100%; max-width: 320px; margin: 0; }
 
 /* — A large illustration bleeding off one corner of a section, behind the content — */
 .bamboo-corner-accent { position: absolute; bottom: -30px; right: -30px; width: 240px; opacity: 0.95; mix-blend-mode: multiply; pointer-events: none; z-index: 0; }

@@ -350,7 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* ---- Bamboo leaf watermark: tucked into section-header and bamboo-card corners ---- */
   const LEAF_WATERMARK_SVG = '<svg viewBox="0 0 100 100" class="leaf-watermark" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M50 8 C18 24, 12 56, 50 92 C88 56, 82 24, 50 8 Z" fill="var(--color-primary)"/></svg>';
-  document.querySelectorAll('.section-header, .bamboo-card, .cart-modal-inner').forEach(el => {
+  document.querySelectorAll('.bamboo-card, .cart-modal-inner').forEach(el => {
     if (el.querySelector(':scope > .leaf-watermark')) return;
     el.insertAdjacentHTML('beforeend', LEAF_WATERMARK_SVG);
   });
@@ -464,7 +464,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (hero) {
     addBambooDeco(hero, hero.classList.contains('error-page') ? ['br'] : ['bl', 'tr']);
   }
-  document.querySelectorAll('.cta-band').forEach(band => addBambooDeco(band, ['bl', 'br']));
   const siteFooter = document.querySelector('.site-footer');
   if (siteFooter) addBambooDeco(siteFooter, ['bl', 'tr']);
 
