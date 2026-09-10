@@ -334,6 +334,14 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
     radial-gradient(circle at 84% 74%, rgba(193,78,54,0.10), transparent 46%),
     radial-gradient(circle at 50% 12%, rgba(61,125,85,0.09), transparent 38%);
 }
+
+/* — Film-grain texture: a touch of noise over the saturated sections so flat
+   color reads as a richer surface instead of a plain fill — */
+.hero::before, .bg-primary::before, .bg-dark::before, .cta-band::before {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  opacity: 0.05; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
 @keyframes mesh-drift {
   0% { transform: translate(calc(var(--mesh-px) * 1px), calc(var(--mesh-py) * 1px)); }
   100% { transform: translate(calc(6% + var(--mesh-px) * 1px), calc(8% + var(--mesh-py) * 1px)); }
@@ -568,6 +576,19 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 }
 @media (prefers-reduced-motion: reduce) { .hero-orb { animation: none; } }
 
+/* — Scroll-down hint under a tall hero — */
+.scroll-hint {
+  position: absolute; z-index: 2; left: 50%; bottom: 24px; transform: translateX(-50%);
+  width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.14);
+  border: 2px solid rgba(255,255,255,0.5); color: #fff; display: flex; align-items: center;
+  justify-content: center; cursor: pointer; animation: scroll-hint-bob 1.8s ease-in-out infinite;
+}
+.scroll-hint:hover { background: rgba(255,255,255,0.24); }
+.scroll-hint:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+@keyframes scroll-hint-bob { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
+@media (max-width: 880px) { .scroll-hint { display: none; } }
+@media (prefers-reduced-motion: reduce) { .scroll-hint { animation: none; } }
+
 /* — Decorative bamboo stalks (JS-injected into hero/error-page corners, CTA bands and the footer, see main.js) — */
 .bamboo-deco {
   position: absolute; z-index: 0; pointer-events: none; bottom: 0;
@@ -576,7 +597,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
   filter: drop-shadow(0 4px 8px rgba(20,30,10,0.35));
 }
 .bamboo-deco svg { display: block; width: 100%; height: auto; }
-.bamboo-stalk rect:not(.bamboo-node) { fill: var(--bamboo-culm); }
+.bamboo-stalk rect:not(.bamboo-node) { fill: url(#bamboo-culm-grad); }
 .bamboo-stalk .bamboo-node { fill: var(--bamboo-culm-dark); }
 .bamboo-leaf { fill: var(--bamboo-leaf); }
 .bamboo-leaf--light { fill: var(--bamboo-leaf-light); }

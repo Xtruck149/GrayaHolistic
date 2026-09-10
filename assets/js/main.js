@@ -157,7 +157,36 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  /* ---- Scroll-down hint under a tall hero ---- */
+  if (hero && hero.classList.contains('hero--tall')) {
+    const scrollHint = document.createElement('button');
+    scrollHint.type = 'button';
+    scrollHint.className = 'scroll-hint';
+    scrollHint.setAttribute('aria-label', 'Défiler vers le bas');
+    scrollHint.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+    scrollHint.addEventListener('click', () => {
+      const next = hero.nextElementSibling;
+      if (next) next.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    hero.appendChild(scrollHint);
+  }
+
   /* ---- Decorative bamboo stalks — hero corners, CTA bands, footer ---- */
+  if (!document.getElementById('bamboo-culm-grad')) {
+    const gradDefs = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    gradDefs.setAttribute('aria-hidden', 'true');
+    gradDefs.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden';
+    gradDefs.innerHTML = `
+      <defs>
+        <linearGradient id="bamboo-culm-grad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" style="stop-color:var(--bamboo-culm-dark)"/>
+          <stop offset="38%" style="stop-color:var(--bamboo-culm)"/>
+          <stop offset="68%" style="stop-color:var(--bamboo-culm)"/>
+          <stop offset="100%" style="stop-color:var(--bamboo-culm-dark)"/>
+        </linearGradient>
+      </defs>`;
+    document.body.appendChild(gradDefs);
+  }
   const bambooSVG = `
     <svg viewBox="0 0 130 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <g class="bamboo-stalk" transform="translate(18,0)">
