@@ -23,8 +23,8 @@
   --olive-dark:     #1D4530;
 
   /* — Joyful, saturated accent palette — */
-  --mango:          #EAA23A;
-  --mango-dark:     #C4841F;
+  --mango:          #C8823E;
+  --mango-dark:     #9C6329;
   --tomato:         #D14425;
   --tomato-dark:    #A8351C;
   --basil:          #5E8028;
@@ -369,7 +369,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 }
 .hero::after, .bg-primary::after, .bg-dark::after, .cta-band::after {
   background-image:
-    radial-gradient(circle at 22% 22%, rgba(234,162,58,0.28), transparent 42%),
+    radial-gradient(circle at 22% 22%, rgba(200,130,62,0.28), transparent 42%),
     radial-gradient(circle at 80% 28%, rgba(209,68,37,0.24), transparent 45%),
     radial-gradient(circle at 55% 85%, rgba(255,255,255,0.13), transparent 40%);
 }
@@ -509,7 +509,10 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 
 /* ===================== ACCRED BADGE ===================== */
 .accred-badge { display: inline-flex; gap: var(--space-md); align-items: center; background: #fff; color: var(--ink); border: 2.5px dotted var(--ink); border-radius: 100px; padding: 12px 26px; font-size: 0.85rem; box-shadow: var(--shadow-flat-sm); }
-.accred-badge::before { content: ''; width: 64px; height: 64px; flex-shrink: 0; background-image: url('../img/logo-mark.png'); background-size: cover; background-repeat: no-repeat; background-position: center; border-radius: 50%; }
+.accred-badge::before { content: ''; width: 64px; height: 64px; flex-shrink: 0; background-image: url('../img/eco-bmt-badge.jpg'); background-size: cover; background-repeat: no-repeat; background-position: center; border-radius: 50%; }
+@supports (background-image: image-set(url('a.jpg') type('image/jpeg'))) {
+  .accred-badge::before { background-image: image-set(url('../img/eco-bmt-badge.webp') type('image/webp'), url('../img/eco-bmt-badge.jpg') type('image/jpeg')); }
+}
 .accred-badge strong { color: var(--olive-dark); }
 .accred-badge--light { background: var(--cream-dark); }
 
@@ -824,7 +827,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .nav-cta .btn, .hero-actions .btn-primary { animation: btn-glow 2.6s ease-in-out infinite; }
 @keyframes btn-glow {
   0%, 100% { box-shadow: 0 5px 0 var(--ink); }
-  50% { box-shadow: 0 5px 0 var(--ink), 0 0 20px 2px rgba(234,162,58,0.55); }
+  50% { box-shadow: 0 5px 0 var(--ink), 0 0 20px 2px rgba(200,130,62,0.55); }
 }
 
 /* — "Surprends-moi" random dish picker — */
