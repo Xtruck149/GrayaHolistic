@@ -794,10 +794,17 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .hero--default.hero--tall {
   background-image:
     linear-gradient(to bottom, transparent calc(100% - 14px), var(--mango) calc(100% - 14px), var(--mango) 100%),
-    url('../img/bamboo/bamboo-wallpaper-edge.png');
+    url('../img/bamboo/bamboo-wallpaper-edge.jpg');
   background-repeat: repeat-y, repeat-y;
   background-position: top center, top center;
   background-size: 100% var(--bamboo-tile-h, 800px), 100% var(--bamboo-tile-h, 800px);
+}
+@supports (background-image: image-set(url('a.jpg') type('image/jpeg'))) {
+  .hero--default.hero--tall {
+    background-image:
+      linear-gradient(to bottom, transparent calc(100% - 14px), var(--mango) calc(100% - 14px), var(--mango) 100%),
+      image-set(url('../img/bamboo/bamboo-wallpaper-edge.webp') type('image/webp'), url('../img/bamboo/bamboo-wallpaper-edge.jpg') type('image/jpeg'));
+  }
 }
 
 /* — Marquee ticker strip (sits under the header) — */
