@@ -261,11 +261,19 @@ document.addEventListener('DOMContentLoaded', () => {
     navLinks.querySelectorAll('a').forEach(link => link.addEventListener('click', closeNav));
   }
 
-  /* ---- Header scroll state ---- */
+  /* ---- Header scroll state: slim bar that hides on scroll-down, reveals on scroll-up ---- */
   const header = document.querySelector('.site-header');
   if (header) {
+    let lastY = window.scrollY;
     const onHeaderScroll = () => {
-      header.classList.toggle('scrolled', window.scrollY > 20);
+      const y = window.scrollY;
+      header.classList.toggle('scrolled', y > 20);
+      const navOpen = navLinks && navLinks.classList.contains('open');
+      if (!navOpen) {
+        if (y > lastY && y > 140) header.classList.add('site-header--hidden');
+        else if (y < lastY || y <= 140) header.classList.remove('site-header--hidden');
+      }
+      lastY = y;
     };
     window.addEventListener('scroll', onHeaderScroll, { passive: true });
     onHeaderScroll();
