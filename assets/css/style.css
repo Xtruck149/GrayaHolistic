@@ -256,9 +256,9 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .hero-photo-brand-logo { display: block; width: 100%; max-width: 380px; aspect-ratio: 1; object-fit: cover; border-radius: 50%; box-shadow: var(--shadow-flat-lg); margin: var(--space-lg) auto 0; }
 @media (max-width: 880px) {
   .hero-inner.hero-inner--split { grid-template-columns: 1fr; text-align: center; }
-  .hero-photo-panel { order: -1; margin-bottom: var(--space-lg); }
-  .hero-photo-brand-logo { max-width: 280px; }
-  .hero-photo-frame { max-width: 280px; }
+  .hero-photo-panel { margin-top: var(--space-xl); }
+  .hero-photo-brand-logo { max-width: 110px; margin-top: var(--space-md); }
+  .hero-photo-frame { max-width: 240px; }
 }
 .hero h1 { color: inherit; margin-bottom: var(--space-lg); }
 .hero h1 em { font-style: normal; color: var(--mango); text-decoration: wavy underline; text-decoration-thickness: 3px; text-underline-offset: 6px; animation: em-line-bob 2.4s ease-in-out infinite; }
