@@ -81,7 +81,7 @@
 
 /* ===================== RESET ===================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; scroll-padding-top: 130px; -webkit-text-size-adjust: 100%; overflow-x: hidden; }
+html { scroll-behavior: smooth; scroll-padding-top: 20px; -webkit-text-size-adjust: 100%; overflow-x: hidden; }
 body {
   font-family: var(--font-body);
   color: var(--text);
@@ -175,25 +175,14 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 
 /* ===================== HEADER / NAV ===================== */
 .site-header {
-  position: fixed; top: 0; left: 0; right: 0; width: 100%; z-index: 160;
-  background: transparent; box-shadow: none;
-  transition: background var(--duration) var(--ease), box-shadow var(--duration) var(--ease), transform var(--duration) var(--ease);
+  position: static; width: 100%; z-index: 160;
+  background: var(--cream); box-shadow: 0 4px 0 var(--olive);
 }
-.site-header.scrolled { background: var(--cream); box-shadow: 0 4px 0 var(--olive); }
-.site-header--hidden { transform: translateY(-100%); }
 .nav { display: flex; align-items: center; justify-content: space-between; padding: 8px var(--space-lg); max-width: var(--max-w-wide); margin: 0 auto; }
 .logo { display: flex; align-items: center; gap: 10px; font-family: var(--font-serif); font-weight: 700; font-size: 1.3rem; color: var(--ink); flex-shrink: 0; transition: color var(--duration) var(--ease); }
 .logo-mark { height: 68px; width: 68px; object-fit: contain; flex-shrink: 0; transition: transform var(--duration) var(--ease); }
 .logo:hover .logo-mark, .logo:focus-visible .logo-mark { transform: scale(1.08) rotate(-4deg); }
 .logo-text span { color: var(--tomato); transition: color var(--duration) var(--ease); }
-/* — Transparent (pre-scroll) header floats over the hero: swap ink text for
-   white + a shadow so it stays legible over any hero color, then swap back
-   once .scrolled restores the solid cream bar. — */
-.site-header:not(.scrolled) .logo,
-.site-header:not(.scrolled) .nav-links a {
-  color: #fff; text-shadow: 0 1px 5px rgba(0,0,0,0.4);
-}
-.site-header:not(.scrolled) .logo-text span { color: #fff; }
 .nav-links { display: flex; align-items: center; gap: 2px; font-family: var(--font-display); font-size: 0.86rem; font-weight: 600; }
 .nav-links li { position: relative; }
 .nav-links a { display: block; padding: 9px 15px; border-radius: 12px; color: var(--ink); position: relative; transition: color var(--duration) var(--ease); }
@@ -227,8 +216,8 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 
 /* ===================== HERO ===================== */
 .hero { position: relative; padding: 90px 0 90px; min-height: 540px; display: flex; align-items: center; background: var(--olive); color: #fff; }
-.hero--tall { min-height: 620px; padding-top: 140px; }
-.hero--short { min-height: 360px; padding: 130px 0 70px; }
+.hero--tall { min-height: 620px; padding-top: 60px; }
+.hero--short { min-height: 360px; padding: 60px 0 70px; }
 .hero-inner > .breadcrumbs { margin-bottom: var(--space-lg); }
 .hero--dark { background: var(--ink); }
 .hero--warm { background: var(--mango); color: var(--ink); }
@@ -277,23 +266,24 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 
 /* — Homepage hero brand badge: cream capsule, dashed gold border, stacked lines — */
 .hero-brand-badge {
-  display: inline-flex; flex-direction: column; align-items: center; gap: 3px;
+  display: inline-flex; flex-direction: column; align-items: center; gap: 4px;
   background: var(--cream); color: var(--ink);
   border: 2.5px dashed var(--mango-dark);
   border-radius: 999px;
-  padding: var(--space-md) var(--space-2xl);
+  padding: var(--space-lg) var(--space-2xl);
   margin-bottom: var(--space-lg);
   box-shadow: var(--shadow-flat-sm);
 }
-.hero-brand-badge-name { font-family: var(--font-serif); font-weight: 800; font-size: 1.6rem; line-height: 1.1; white-space: nowrap; }
-.hero-brand-badge-sub { font-family: var(--font-display); font-weight: 600; font-size: 0.85rem; color: var(--ink-soft); white-space: nowrap; }
+.hero-brand-badge-name { font-family: var(--font-serif); font-weight: 800; font-size: 2.1rem; line-height: 1.1; white-space: nowrap; }
+.hero-brand-badge-sub { font-family: var(--font-display); font-weight: 600; font-size: 1.05rem; color: var(--ink-soft); white-space: nowrap; }
 .hero-brand-badge-sub::before, .hero-brand-badge-sub::after { content: '—'; margin: 0 8px; color: var(--mango-dark); }
-.hero-brand-badge-city { font-family: var(--font-display); font-weight: 600; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.hero-brand-badge-city { font-family: var(--font-display); font-weight: 600; font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .hero-brand-badge-city::before, .hero-brand-badge-city::after { content: '—'; margin: 0 6px; color: var(--mango-dark); }
 @media (max-width: 560px) {
-  .hero-brand-badge { padding: var(--space-sm) var(--space-xl); }
-  .hero-brand-badge-name { font-size: 1.25rem; }
-  .hero-brand-badge-sub { font-size: 0.72rem; white-space: normal; text-align: center; }
+  .hero-brand-badge { padding: var(--space-md) var(--space-xl); }
+  .hero-brand-badge-name { font-size: 1.6rem; }
+  .hero-brand-badge-sub { font-size: 0.9rem; white-space: normal; text-align: center; }
+  .hero-brand-badge-city { font-size: 0.7rem; }
 }
 
 /* — Plate-spot decoration (circular, food-plate motif) — */
@@ -670,7 +660,7 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .cart-modal .btn { width: 100%; }
 
 /* ===================== 404 ===================== */
-.error-page { min-height: 60vh; padding-top: 120px; display: flex; align-items: center; justify-content: center; text-align: center; background: var(--plum); color: #fff; }
+.error-page { min-height: 60vh; padding-top: 60px; display: flex; align-items: center; justify-content: center; text-align: center; background: var(--plum); color: #fff; }
 .error-page h1 { font-size: clamp(5rem, 12vw, 10rem); color: #fff; -webkit-text-stroke: 4px var(--ink); }
 
 /* ===================== STATS ===================== */
@@ -702,9 +692,9 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
   .nav-links a { padding: 14px 16px; }
   .burger { display: flex; }
   .hero { min-height: auto; padding: 60px 0 50px; }
-  .hero--tall { min-height: auto; padding: 130px 0 50px; }
-  .hero--short { padding-top: 120px; }
-  .error-page { padding-top: 110px; }
+  .hero--tall { min-height: auto; padding: 50px 0 50px; }
+  .hero--short { padding-top: 50px; }
+  .error-page { padding-top: 50px; }
   .hero h1 { font-size: clamp(1.9rem, 6vw, 2.4rem); }
   .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
   .stats-row { grid-template-columns: 1fr 1fr; }
@@ -784,12 +774,18 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 @media (max-width: 880px) { .bamboo-deco { width: 76px; opacity: 0.85; } }
 @media (prefers-reduced-motion: reduce) { .bamboo-deco { animation: none; } }
 
-/* — Homepage hero wallpaper: the client's own reference bamboo image, used
-   full-bleed exactly as supplied (both flanking stalks baked in) instead of
-   a cropped/windowed strip, tiled vertically for taller viewports. — */
+/* — Homepage hero wallpaper: the client's own reference bamboo image, tiled
+   the full height of the hero so it never runs out. A gold bar is drawn as
+   a second background layer at the exact same tile size (kept in sync with
+   --bamboo-tile-h, set in main.js) so it lands precisely on each repeat
+   seam instead of leaving a visible hard cut. — */
 .hero--default.hero--tall {
-  background-image: url('../img/bamboo/bamboo-wallpaper-edge.png');
-  background-repeat: repeat-y; background-position: top center; background-size: 100% auto;
+  background-image:
+    linear-gradient(to bottom, transparent calc(100% - 14px), var(--mango) calc(100% - 14px), var(--mango) 100%),
+    url('../img/bamboo/bamboo-wallpaper-edge.png');
+  background-repeat: repeat-y, repeat-y;
+  background-position: top center, top center;
+  background-size: 100% var(--bamboo-tile-h, 800px), 100% var(--bamboo-tile-h, 800px);
 }
 
 /* — Marquee ticker strip (sits under the header) — */

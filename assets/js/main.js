@@ -261,24 +261,6 @@ document.addEventListener('DOMContentLoaded', () => {
     navLinks.querySelectorAll('a').forEach(link => link.addEventListener('click', closeNav));
   }
 
-  /* ---- Header scroll state: slim bar that hides on scroll-down, reveals on scroll-up ---- */
-  const header = document.querySelector('.site-header');
-  if (header) {
-    let lastY = window.scrollY;
-    const onHeaderScroll = () => {
-      const y = window.scrollY;
-      header.classList.toggle('scrolled', y > 20);
-      const navOpen = navLinks && navLinks.classList.contains('open');
-      if (!navOpen) {
-        if (y > lastY && y > 140) header.classList.add('site-header--hidden');
-        else if (y < lastY || y <= 140) header.classList.remove('site-header--hidden');
-      }
-      lastY = y;
-    };
-    window.addEventListener('scroll', onHeaderScroll, { passive: true });
-    onHeaderScroll();
-  }
-
   /* ---- Scroll progress bar ---- */
   const progress = document.createElement('div');
   progress.className = 'scroll-progress';
@@ -508,6 +490,20 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   const siteFooter = document.querySelector('.site-footer');
   if (siteFooter) addBambooDeco(siteFooter, ['bl', 'tr']);
+
+  /* ---- Bamboo wallpaper tile sync: the homepage hero's bamboo background
+     repeats vertically, and its tile height scales with the hero's width
+     (the image keeps its own 2:3 aspect ratio). The gold seam bar is drawn
+     as a second background layer at the same --bamboo-tile-h size, so it
+     always lands exactly on the repeat line instead of drifting off it. ---- */
+  const bambooHero = document.querySelector('.hero--default.hero--tall');
+  if (bambooHero) {
+    const syncBambooTile = () => {
+      bambooHero.style.setProperty('--bamboo-tile-h', (bambooHero.clientWidth * 1536 / 1024) + 'px');
+    };
+    syncBambooTile();
+    window.addEventListener('resize', syncBambooTile, { passive: true });
+  }
 
   /* ---- Pole-block accordion ---- */
   document.querySelectorAll('.pole-block-head').forEach(head => {
