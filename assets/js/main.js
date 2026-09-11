@@ -338,7 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const target = document.querySelector(id);
       if (target) {
         e.preventDefault();
-        const headerH = header ? header.offsetHeight : 0;
+        const headerH = siteHeader ? siteHeader.offsetHeight : 0;
         const top = target.getBoundingClientRect().top + window.pageYOffset - headerH - 20;
         window.scrollTo({ top, behavior: 'smooth' });
       }
