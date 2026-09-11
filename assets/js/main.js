@@ -500,15 +500,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (hero) {
-    if (hero.classList.contains('hero--tall')) {
-      // Homepage hero gets the full-height flanking bamboo wallpaper instead of a small corner sprig.
-      ['left', 'right'].forEach(side => {
-        const edge = document.createElement('div');
-        edge.className = 'hero-bamboo-edge hero-bamboo-edge--' + side;
-        edge.setAttribute('aria-hidden', 'true');
-        hero.appendChild(edge);
-      });
-    } else {
+    // Homepage hero gets its own full-bleed bamboo wallpaper background (see .hero--tall
+    // in style.css) instead of a small corner sprig.
+    if (!hero.classList.contains('hero--tall')) {
       addBambooDeco(hero, hero.classList.contains('error-page') ? ['br'] : ['bl', 'tr']);
     }
   }

@@ -784,20 +784,12 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 @media (max-width: 880px) { .bamboo-deco { width: 76px; opacity: 0.85; } }
 @media (prefers-reduced-motion: reduce) { .bamboo-deco { animation: none; } }
 
-/* — Full-height flanking bamboo wallpaper for the homepage hero (JS-injected,
-   see main.js) — the client's own reference wallpaper asset, windowed to its
-   left stalk and mirrored for the right edge, tiled vertically so it always
-   fills the hero regardless of viewport height. — */
-.hero-bamboo-edge {
-  position: absolute; top: 0; bottom: 0; width: 150px; z-index: 0; pointer-events: none;
+/* — Homepage hero wallpaper: the client's own reference bamboo image, used
+   full-bleed exactly as supplied (both flanking stalks baked in) instead of
+   a cropped/windowed strip, tiled vertically for taller viewports. — */
+.hero--default.hero--tall {
   background-image: url('../img/bamboo/bamboo-wallpaper-edge.png');
-  background-repeat: repeat-y; background-position: left top; background-size: 220px 330px;
-  opacity: 0.95;
-}
-.hero-bamboo-edge--left { left: -20px; }
-.hero-bamboo-edge--right { right: -20px; transform: scaleX(-1); }
-@media (max-width: 880px) {
-  .hero-bamboo-edge { width: 96px; background-size: 140px 210px; opacity: 0.9; }
+  background-repeat: repeat-y; background-position: top center; background-size: 100% auto;
 }
 
 /* — Marquee ticker strip (sits under the header) — */
