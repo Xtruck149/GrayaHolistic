@@ -271,6 +271,27 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .hero--centered .hero-actions { justify-content: center; }
 .hero-quote { margin-top: var(--space-2xl); padding: var(--space-lg) var(--space-xl); background: rgba(255,255,255,0.14); border: 2.5px dashed rgba(255,255,255,0.6); border-radius: var(--radius); color: inherit; font-family: var(--font-display); font-size: 1rem; max-width: 540px; }
 
+/* — Homepage hero brand badge: cream capsule, dashed gold border, stacked lines — */
+.hero-brand-badge {
+  display: inline-flex; flex-direction: column; align-items: center; gap: 3px;
+  background: var(--cream); color: var(--ink);
+  border: 2.5px dashed var(--mango-dark);
+  border-radius: 999px;
+  padding: var(--space-md) var(--space-2xl);
+  margin-bottom: var(--space-lg);
+  box-shadow: var(--shadow-flat-sm);
+}
+.hero-brand-badge-name { font-family: var(--font-serif); font-weight: 800; font-size: 1.6rem; line-height: 1.1; white-space: nowrap; }
+.hero-brand-badge-sub { font-family: var(--font-display); font-weight: 600; font-size: 0.85rem; color: var(--ink-soft); white-space: nowrap; }
+.hero-brand-badge-sub::before, .hero-brand-badge-sub::after { content: '—'; margin: 0 8px; color: var(--mango-dark); }
+.hero-brand-badge-city { font-family: var(--font-display); font-weight: 600; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.hero-brand-badge-city::before, .hero-brand-badge-city::after { content: '—'; margin: 0 6px; color: var(--mango-dark); }
+@media (max-width: 560px) {
+  .hero-brand-badge { padding: var(--space-sm) var(--space-xl); }
+  .hero-brand-badge-name { font-size: 1.25rem; }
+  .hero-brand-badge-sub { font-size: 0.72rem; white-space: normal; text-align: center; }
+}
+
 /* — Plate-spot decoration (circular, food-plate motif) — */
 .hero-blob { position: absolute; z-index: 0; pointer-events: none; border-radius: 50%; }
 .hero-blob.b1 { width: 320px; height: 320px; background: rgba(255,255,255,0.12); top: -100px; right: -80px; animation: blob-float 10s ease-in-out infinite; }
@@ -763,15 +784,15 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
    see main.js) — a continuous stalk with alternating leaf clusters, tiled
    vertically so it always fills the hero regardless of viewport height. — */
 .hero-bamboo-edge {
-  position: absolute; top: 0; bottom: 0; width: 140px; z-index: 0; pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 140 280'%3E%3Crect x='62' y='0' width='16' height='280' rx='8' fill='%239BC24A'/%3E%3Crect x='58' y='86' width='24' height='7' rx='3.5' fill='%234E7A28'/%3E%3Crect x='58' y='196' width='24' height='7' rx='3.5' fill='%234E7A28'/%3E%3Cg transform='translate(70,58)'%3E%3Cpath d='M0,0 Q-34,-14 -54,-46 Q-20,-38 0,0 Z' fill='%238FBF5A' transform='rotate(-18)'/%3E%3Cpath d='M0,0 Q-30,-22 -34,-58 Q-6,-42 0,0 Z' fill='%233D7D55' transform='rotate(6)'/%3E%3Cpath d='M0,0 Q-20,-12 -32,-34 Q-10,-26 0,0 Z' fill='%238FBF5A' transform='rotate(-32)'/%3E%3C/g%3E%3Cg transform='translate(70,208) scale(-1,1)'%3E%3Cpath d='M0,0 Q-34,-14 -54,-46 Q-20,-38 0,0 Z' fill='%233D7D55' transform='rotate(-18)'/%3E%3Cpath d='M0,0 Q-30,-22 -34,-58 Q-6,-42 0,0 Z' fill='%238FBF5A' transform='rotate(6)'/%3E%3Cpath d='M0,0 Q-20,-12 -32,-34 Q-10,-26 0,0 Z' fill='%233D7D55' transform='rotate(-32)'/%3E%3C/g%3E%3C/svg%3E");
-  background-repeat: repeat-y; background-position: top center; background-size: 140px 280px;
-  opacity: 0.9; filter: drop-shadow(0 4px 10px rgba(20,30,10,0.3));
+  position: absolute; top: 0; bottom: 0; width: 150px; z-index: 0; pointer-events: none;
+  background-image: url('../img/bamboo/bamboo-stalk-illustration.jpg');
+  background-repeat: repeat-y; background-position: top center; background-size: 150px 225px;
+  mix-blend-mode: multiply; opacity: 0.92;
 }
 .hero-bamboo-edge--left { left: -20px; }
 .hero-bamboo-edge--right { right: -20px; transform: scaleX(-1); }
 @media (max-width: 880px) {
-  .hero-bamboo-edge { width: 90px; background-size: 90px 180px; opacity: 0.75; }
+  .hero-bamboo-edge { width: 96px; background-size: 96px 144px; opacity: 0.85; }
 }
 
 /* — Marquee ticker strip (sits under the header) — */
