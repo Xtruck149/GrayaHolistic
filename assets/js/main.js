@@ -1,5 +1,18 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+  /* ---- Header entrance animation: applied transiently, not unconditionally in CSS.
+     An element with a running/filled animation on opacity or transform establishes a
+     stacking context for as long as the animation is "in effect" — with
+     animation-fill-mode:both that never ends on its own, which would permanently trap
+     the header's fixed-position mobile nav panel inside its own small box. Adding the
+     class only for the animation's duration keeps the drop-in effect without the
+     permanent side effect. ---- */
+  const siteHeader = document.querySelector('.site-header');
+  if (siteHeader) {
+    siteHeader.classList.add('header-enter');
+    setTimeout(() => siteHeader.classList.remove('header-enter'), 550);
+  }
+
   /* ---- Order builder: "+ Ajouter" on priced menu rows -> WhatsApp cart (menu.html) ---- */
   (() => {
     const priceRows = Array.from(document.querySelectorAll('.menu-row')).filter(row => row.querySelector('.menu-price'));
@@ -81,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function save() { localStorage.setItem('graya-cart', JSON.stringify(cart)); }
     function subtotal() { return cart.reduce((sum, i) => sum + i.price * i.qty, 0); }
     function currentZone() { return DELIVERY_ZONES[parseInt(zoneSelect.value, 10)] || DELIVERY_ZONES[0]; }
-    function total() { return subtotal() + currentZone().fee; }
+    function total() { return cart.length ? subtotal() + currentZone().fee : 0; }
     function fmt(n) { return n.toLocaleString('fr-FR'); }
 
     zoneSelect.addEventListener('change', render);
@@ -92,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
       totalEl.textContent = fmt(total());
       bar.hidden = count === 0;
       subtotalEl.textContent = fmt(subtotal()) + ' FCFA';
-      deliveryFeeEl.textContent = fmt(currentZone().fee) + ' FCFA';
+      deliveryFeeEl.textContent = fmt(cart.length ? currentZone().fee : 0) + ' FCFA';
 
       itemsEl.innerHTML = cart.map((item, i) => `
         <div class="cart-item">
@@ -176,8 +189,8 @@ document.addEventListener('DOMContentLoaded', () => {
       render();
     });
 
-    function openModal() { modal.classList.add('open'); document.body.style.overflow = 'hidden'; }
-    function closeModal() { modal.classList.remove('open'); document.body.style.overflow = ''; }
+    function openModal() { modal.classList.add('open'); document.documentElement.style.overflow = 'hidden'; }
+    function closeModal() { modal.classList.remove('open'); document.documentElement.style.overflow = ''; }
     bar.querySelector('#cart-open-btn').addEventListener('click', openModal);
     modal.querySelector('.cart-modal-close').addEventListener('click', closeModal);
     modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
@@ -241,13 +254,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (navLinks) navLinks.classList.remove('open');
     if (burger) burger.setAttribute('aria-expanded', 'false');
     if (overlay) overlay.classList.remove('visible');
-    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
   }
   function openNav() {
     if (navLinks) navLinks.classList.add('open');
     if (burger) burger.setAttribute('aria-expanded', 'true');
     if (overlay) overlay.classList.add('visible');
-    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
   }
 
   if (burger) {
@@ -702,14 +715,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function close() {
       box.classList.remove('open');
-      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
       if (lightboxLastFocused) { lightboxLastFocused.focus(); lightboxLastFocused = null; }
     }
     function open(i, triggerEl) {
       lightboxLastFocused = triggerEl || document.activeElement;
       show(i);
       box.classList.add('open');
-      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
       box.querySelector('.lightbox-close').focus();
     }
 
