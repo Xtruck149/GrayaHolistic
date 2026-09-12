@@ -254,10 +254,12 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 .hero-photo-caption::after { content: '🌿'; font-size: 0.7rem; line-height: 1; }
 .hero-photo-caption.visible { opacity: 1; }
 .hero-photo-brand-logo { display: block; width: 100%; max-width: 380px; aspect-ratio: 1; object-fit: cover; border-radius: 50%; box-shadow: var(--shadow-flat-lg); margin: var(--space-lg) auto 0; }
+.hero-photo-brand-logo--top { max-width: 560px; margin: 0 auto var(--space-lg); }
 @media (max-width: 880px) {
   .hero-inner.hero-inner--split { grid-template-columns: 1fr; text-align: center; }
   .hero-photo-panel { margin-top: var(--space-xl); }
   .hero-photo-brand-logo { max-width: 110px; margin-top: var(--space-md); }
+  .hero-photo-brand-logo--top { max-width: 240px; margin: 0 auto var(--space-lg); }
   .hero-photo-frame { max-width: 240px; }
 }
 .hero h1 { color: inherit; margin-bottom: var(--space-lg); }
@@ -274,22 +276,22 @@ section { padding: var(--space-4xl) 0; position: relative; overflow: hidden; }
 
 /* — Homepage hero brand badge: cream capsule, dashed gold border, stacked lines — */
 .hero-brand-badge {
-  display: inline-flex; flex-direction: column; align-items: center; gap: 4px;
+  display: inline-flex; flex-direction: column; align-items: center; gap: 3px;
   background: var(--cream); color: var(--ink);
   border: 2.5px dashed var(--mango-dark);
   border-radius: 999px;
-  padding: var(--space-lg) var(--space-2xl);
+  padding: var(--space-sm) var(--space-xl);
   margin-bottom: var(--space-lg);
   box-shadow: var(--shadow-flat-sm);
 }
-.hero-brand-badge-name { font-family: var(--font-serif); font-weight: 800; font-size: 2.1rem; line-height: 1.1; white-space: nowrap; }
-.hero-brand-badge-sub { font-family: var(--font-display); font-weight: 600; font-size: 1.05rem; color: var(--ink-soft); white-space: nowrap; }
+.hero-brand-badge-name { font-family: var(--font-serif); font-weight: 800; font-size: 1.4rem; line-height: 1.1; white-space: nowrap; }
+.hero-brand-badge-sub { font-family: var(--font-display); font-weight: 600; font-size: 0.78rem; color: var(--ink-soft); white-space: nowrap; }
 .hero-brand-badge-sub::before, .hero-brand-badge-sub::after { content: '—'; margin: 0 8px; color: var(--mango-dark); }
 .hero-brand-badge-city { font-family: var(--font-display); font-weight: 600; font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .hero-brand-badge-city::before, .hero-brand-badge-city::after { content: '—'; margin: 0 6px; color: var(--mango-dark); }
 @media (max-width: 560px) {
-  .hero-brand-badge { padding: var(--space-md) var(--space-xl); }
-  .hero-brand-badge-name { font-size: 1.6rem; }
+  .hero-brand-badge { padding: var(--space-xs) var(--space-lg); }
+  .hero-brand-badge-name { font-size: 1.15rem; }
   .hero-brand-badge-sub { font-size: 0.9rem; white-space: normal; text-align: center; }
   .hero-brand-badge-city { font-size: 0.7rem; }
 }
