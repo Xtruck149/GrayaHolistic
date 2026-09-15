@@ -339,6 +339,25 @@ main > section:nth-of-type(5n+5) .eyebrow:not([class*="eyebrow--"]) { background
 .card h3, .card h4 { margin-bottom: var(--space-xs); }
 .card p { font-size: 0.94rem; }
 
+/* — Photo card: a real dish behind the copy instead of a flat white panel, so a
+     row of feature cards reads as distinct places rather than the same tile three
+     times over. The image sits absolutely so the card's own aspect ratio controls
+     height instead of the photo's. — */
+.card--photo { min-height: 320px; overflow: hidden; display: flex; align-items: flex-end; color: #fff; }
+.card--photo::before {
+  content: ''; position: absolute; inset: 0; background-size: cover; background-position: center;
+  background-image: var(--card-photo);
+}
+.card--photo::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(15,20,14,0.92) 0%, rgba(15,20,14,0.55) 42%, rgba(15,20,14,0.05) 75%);
+}
+.card--photo .card-body { position: relative; z-index: 1; padding-top: var(--space-3xl); }
+.card--photo h4 { color: #fff; }
+.card--photo p { color: rgba(255,255,255,0.86); }
+.card--photo .icon-circle { --icon-bg: rgba(255,255,255,0.94); }
+.card--photo .btn-ghost { color: #fff; }
+
 /* Color-tile variants — food-coded */
 .tile-green { background: var(--basil); color: #fff; } .tile-green h4 { color: #fff; }
 .tile-gold { background: var(--mango); color: var(--ink); }
