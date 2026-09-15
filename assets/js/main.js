@@ -300,17 +300,24 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ---- Sticky mobile action bar: Commander / Voir le panier / WhatsApp direct ----
      Replaces the floating WhatsApp FAB on small screens (hidden there via CSS) so
      mobile visitors get one consolidated bottom bar instead of stacked floating buttons. */
+  const svgIcon = paths =>
+    `<svg class="mobile-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
+  const ICON_MENU = svgIcon('<path d="M8 3h8a2 2 0 0 1 2 2v15l-6-3-6 3V5a2 2 0 0 1 2-2Z"/><path d="M9.5 8h5M9.5 11.5h5"/>');
+  const ICON_CART = svgIcon('<circle cx="9.5" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/><path d="M3 4h2.2l2.3 11.2h11"/><path d="M6.6 7.4h14l-1.5 6.2H7.9"/>');
+  const ICON_CHAT = svgIcon('<path d="M20.5 11.6c0 4-3.8 7.2-8.5 7.2-1 0-2-.15-2.9-.42L4 20l1.4-3.6C4.2 15.1 3.5 13.4 3.5 11.6c0-4 3.8-7.2 8.5-7.2s8.5 3.2 8.5 7.2Z"/>');
+
   const mobileBar = document.createElement('div');
   mobileBar.className = 'mobile-action-bar';
   mobileBar.innerHTML = `
     <a href="menu.html" class="mobile-action-btn">
-      <span aria-hidden="true">📋</span><span>Commander</span>
+      ${ICON_MENU}<span>Commander</span>
     </a>
     <button type="button" class="mobile-action-btn" id="mobile-cart-btn">
-      <span aria-hidden="true">🛒</span><span>Panier</span>
+      ${ICON_CART}<span>Panier</span>
     </button>
     <a href="https://wa.me/2250101736812?text=${encodeURIComponent("Bonjour Graya Holistic, j'ai une question.")}" class="mobile-action-btn" target="_blank" rel="noopener">
-      <span aria-hidden="true">💬</span><span>WhatsApp</span>
+      ${ICON_CHAT}<span>WhatsApp</span>
     </a>
   `;
   document.body.appendChild(mobileBar);
