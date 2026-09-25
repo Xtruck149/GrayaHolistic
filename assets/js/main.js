@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     priceRows.forEach(row => {
-      const h4 = row.querySelector('h4');
+      const h4 = row.querySelector('h3, h4');
       const priceEl = row.querySelector('.menu-price');
       if (!h4 || !priceEl) return;
       const name = h4.childNodes[0] ? h4.childNodes[0].textContent.trim() : h4.textContent.trim();
@@ -362,7 +362,12 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(r => r.ok ? r.json() : [])
       .then(photos => {
         if (!Array.isArray(photos) || photos.length < 2) return;
-        const shuffled = photos.slice().sort(() => Math.random() - 0.5).slice(0, 8);
+        /* Keep the photo already in the HTML as slide 0: swapping it on load would
+           re-download an image and push back the page's LCP by ~2s. */
+        const initialFile = (rotatorImg.getAttribute('src') || '').split('/').pop().replace(/\.\w+$/, '');
+        const first = photos.find(p => p.file === initialFile);
+        const rest = photos.filter(p => p !== first).sort(() => Math.random() - 0.5);
+        const shuffled = (first ? [first, ...rest] : rest).slice(0, 8);
         let idx = 0;
         const show = i => {
           const p = shuffled[i];
@@ -377,7 +382,12 @@ document.addEventListener('DOMContentLoaded', () => {
             rotatorCaption.classList.add('visible');
           }, 400);
         };
-        show(idx);
+        if (first) {
+          rotatorCaption.textContent = first.caption || '';
+          rotatorCaption.classList.add('visible');
+        } else {
+          show(idx);
+        }
         if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
           setInterval(() => {
             idx = (idx + 1) % shuffled.length;
@@ -773,7 +783,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="gallery-media">
           <picture>
             <source srcset="assets/img/gallery/${p.file}.webp" type="image/webp">
-            <img src="assets/img/gallery/${p.file}.jpg" alt="${p.alt || ''}" decoding="async">
+            <img src="assets/img/gallery/${p.file}.jpg" alt="${p.alt || ''}" loading="lazy" decoding="async">
           </picture>
         </div>
         ${p.caption ? `<span class="gallery-caption">${p.caption}</span>` : ''}
