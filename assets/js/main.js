@@ -1,964 +1,446 @@
-document.addEventListener('DOMContentLoaded', () => {
-
-  /* ---- Header entrance animation: applied transiently, not unconditionally in CSS.
-     An element with a running/filled animation on opacity or transform establishes a
-     stacking context for as long as the animation is "in effect" — with
-     animation-fill-mode:both that never ends on its own, which would permanently trap
-     the header's fixed-position mobile nav panel inside its own small box. Adding the
-     class only for the animation's duration keeps the drop-in effect without the
-     permanent side effect. ---- */
-  const siteHeader = document.querySelector('.site-header');
-  if (siteHeader) {
-    siteHeader.classList.add('header-enter');
-    setTimeout(() => siteHeader.classList.remove('header-enter'), 550);
-  }
-
-  /* ---- Order builder: "+ Ajouter" on priced menu rows -> WhatsApp cart (menu.html) ---- */
-  (() => {
-    const priceRows = Array.from(document.querySelectorAll('.menu-row')).filter(row => row.querySelector('.menu-price'));
-    if (!priceRows.length) return;
-
-    let cart = [];
-    try { cart = JSON.parse(localStorage.getItem('graya-cart') || '[]'); } catch (e) { cart = []; }
-
-    /* Delivery fee by zone — the kitchen is based in Bingerville, so fees scale
-       with real distance from there. Placeholder figures, adjust before launch. */
-    const DELIVERY_ZONES = [
-      { name: 'Bingerville', fee: 500 },
-      { name: 'Riviera', fee: 1000 },
-      { name: 'Cocody', fee: 1500 },
-      { name: 'Plateau', fee: 2000 },
-      { name: 'Marcory', fee: 2000 },
-      { name: 'Treichville', fee: 2000 },
-      { name: 'Zone 4', fee: 2000 },
-      { name: 'Grand-Bassam', fee: 2500 },
-      { name: 'Yopougon', fee: 3000 },
-      { name: 'Autre zone (à préciser)', fee: 0 }
-    ];
-
-    const bar = document.createElement('div');
-    bar.className = 'cart-bar';
-    bar.hidden = true;
-    bar.innerHTML = `
-      <span class="cart-bar-summary"><span id="cart-count">0</span> article(s) — <span id="cart-total">0</span> FCFA</span>
-      <button type="button" class="btn btn-primary btn-sm" id="cart-open-btn">Voir ma commande</button>
-    `;
-    document.body.appendChild(bar);
-
-    const modal = document.createElement('div');
-    modal.className = 'cart-modal';
-    modal.innerHTML = `
-      <div class="cart-modal-inner">
-        <button type="button" class="cart-modal-close" aria-label="Fermer">&times;</button>
-        <h3>Votre commande</h3>
-        <div class="cart-items" id="cart-items"></div>
-        <div class="form-field">
-          <label for="cart-zone">Zone de livraison</label>
-          <select id="cart-zone">
-            ${DELIVERY_ZONES.map((z, i) => `<option value="${i}">${z.name}${z.fee ? ' (+' + z.fee.toLocaleString('fr-FR') + ' FCFA)' : ''}</option>`).join('')}
-          </select>
-        </div>
-        <div class="cart-total-row cart-total-row--sub">Sous-total : <span id="cart-subtotal">0 FCFA</span></div>
-        <div class="cart-total-row cart-total-row--sub">Livraison : <span id="cart-delivery-fee">0 FCFA</span></div>
-        <div class="cart-total-row">Total : <strong id="cart-modal-total">0 FCFA</strong></div>
-        <div class="form-field">
-          <label for="cart-date">Date de livraison souhaitée</label>
-          <input type="date" id="cart-date">
-        </div>
-        <div class="form-field">
-          <label for="cart-time">Créneau horaire</label>
-          <select id="cart-time">
-            <option value="Dès que possible">Dès que possible</option>
-            <option value="12h - 14h">12h – 14h</option>
-            <option value="19h - 21h">19h – 21h</option>
-          </select>
-        </div>
-        <div class="form-field">
-          <label for="cart-notes">Remarques (optionnel)</label>
-          <input type="text" id="cart-notes" placeholder="Ex : sans piment, appartement 3e étage...">
-        </div>
-        <a href="#" class="btn btn-primary" id="cart-send-btn" target="_blank" rel="noopener">Envoyer la commande via WhatsApp</a>
-      </div>
-    `;
-    document.body.appendChild(modal);
-
-    const countEl = bar.querySelector('#cart-count');
-    const totalEl = bar.querySelector('#cart-total');
-    const itemsEl = modal.querySelector('#cart-items');
-    const modalTotalEl = modal.querySelector('#cart-modal-total');
-    const subtotalEl = modal.querySelector('#cart-subtotal');
-    const deliveryFeeEl = modal.querySelector('#cart-delivery-fee');
-    const zoneSelect = modal.querySelector('#cart-zone');
-    const sendBtn = modal.querySelector('#cart-send-btn');
-
-    function save() { localStorage.setItem('graya-cart', JSON.stringify(cart)); }
-    function subtotal() { return cart.reduce((sum, i) => sum + i.price * i.qty, 0); }
-    function currentZone() { return DELIVERY_ZONES[parseInt(zoneSelect.value, 10)] || DELIVERY_ZONES[0]; }
-    function total() { return cart.length ? subtotal() + currentZone().fee : 0; }
-    function fmt(n) { return n.toLocaleString('fr-FR'); }
-
-    zoneSelect.addEventListener('change', render);
-
-    function render() {
-      const count = cart.reduce((sum, i) => sum + i.qty, 0);
-      countEl.textContent = count;
-      totalEl.textContent = fmt(total());
-      bar.hidden = count === 0;
-      subtotalEl.textContent = fmt(subtotal()) + ' FCFA';
-      deliveryFeeEl.textContent = fmt(cart.length ? currentZone().fee : 0) + ' FCFA';
-
-      itemsEl.innerHTML = cart.map((item, i) => `
-        <div class="cart-item">
-          <span class="cart-item-name">${item.name}</span>
-          <div class="cart-item-qty">
-            <button type="button" class="cart-qty-btn" data-action="dec" data-i="${i}" aria-label="Retirer un">−</button>
-            <span>${item.qty}</span>
-            <button type="button" class="cart-qty-btn" data-action="inc" data-i="${i}" aria-label="Ajouter un">+</button>
-          </div>
-          <span class="cart-item-price">${fmt(item.price * item.qty)} FCFA</span>
-        </div>
-      `).join('') || '<p class="text-muted">Votre commande est vide.</p>';
-      modalTotalEl.textContent = fmt(total()) + ' FCFA';
-      save();
-    }
-
-    priceRows.forEach(row => {
-      const h4 = row.querySelector('h3, h4');
-      const priceEl = row.querySelector('.menu-price');
-      if (!h4 || !priceEl) return;
-      const name = h4.childNodes[0] ? h4.childNodes[0].textContent.trim() : h4.textContent.trim();
-      const price = parseInt(priceEl.textContent.replace(/[^\d]/g, ''), 10);
-      if (!name || !price) return;
-
-      const addBtn = document.createElement('button');
-      addBtn.type = 'button';
-      addBtn.className = 'menu-add-btn';
-      addBtn.setAttribute('aria-label', 'Ajouter ' + name + ' à la commande');
-      addBtn.textContent = '+ Ajouter';
-      addBtn.addEventListener('click', () => {
-        const existing = cart.find(i => i.name === name);
-        if (existing) existing.qty++; else cart.push({ name, price, qty: 1 });
-        render();
-        addBtn.textContent = 'Ajouté ✓';
-        setTimeout(() => { addBtn.textContent = '+ Ajouter'; }, 1200);
-      });
-      const actions = document.createElement('div');
-      actions.className = 'menu-row-actions';
-      row.insertBefore(actions, priceEl);
-      actions.appendChild(priceEl);
-      actions.appendChild(addBtn);
-    });
-
-    /* Photo-card menu items (accompagnements, brochettes, soupes): name/price
-       aren't in separate DOM nodes like a .menu-row, they're baked into the
-       image — read them back out of the descriptive alt text instead. */
-    document.querySelectorAll('.accomp-card').forEach(card => {
-      if (card.querySelector('.accomp-card-actions')) return;
-      const img = card.querySelector('img');
-      const alt = img ? img.getAttribute('alt') || '' : '';
-      const name = alt.split('—')[0].trim();
-      const priceMatch = alt.match(/([\d\s]+)\s*FCFA/);
-      const price = priceMatch ? parseInt(priceMatch[1].replace(/\s/g, ''), 10) : NaN;
-      if (!name || !price) return;
-
-      const addBtn = document.createElement('button');
-      addBtn.type = 'button';
-      addBtn.className = 'menu-add-btn';
-      addBtn.setAttribute('aria-label', 'Ajouter ' + name + ' à la commande');
-      addBtn.textContent = '+ Ajouter';
-      addBtn.addEventListener('click', () => {
-        const existing = cart.find(i => i.name === name);
-        if (existing) existing.qty++; else cart.push({ name, price, qty: 1 });
-        render();
-        addBtn.textContent = 'Ajouté ✓';
-        setTimeout(() => { addBtn.textContent = '+ Ajouter'; }, 1200);
-      });
-      const actions = document.createElement('div');
-      actions.className = 'accomp-card-actions';
-      actions.appendChild(addBtn);
-      card.appendChild(actions);
-    });
-
-    modal.querySelectorAll('.cart-qty-btn, .cart-item').length; // no-op, delegate below
-    itemsEl.addEventListener('click', e => {
-      const btn = e.target.closest('.cart-qty-btn');
-      if (!btn) return;
-      const i = parseInt(btn.dataset.i, 10);
-      if (btn.dataset.action === 'inc') cart[i].qty++;
-      else { cart[i].qty--; if (cart[i].qty <= 0) cart.splice(i, 1); }
-      render();
-    });
-
-    function openModal() { modal.classList.add('open'); document.documentElement.style.overflow = 'hidden'; }
-    function closeModal() { modal.classList.remove('open'); document.documentElement.style.overflow = ''; }
-    bar.querySelector('#cart-open-btn').addEventListener('click', openModal);
-    modal.querySelector('.cart-modal-close').addEventListener('click', closeModal);
-    modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
-
-    sendBtn.addEventListener('click', e => {
-      e.preventDefault();
-      if (!cart.length) return;
-      const date = modal.querySelector('#cart-date').value;
-      const time = modal.querySelector('#cart-time').value;
-      const notes = modal.querySelector('#cart-notes').value.trim();
-      const zone = currentZone();
-      const lines = [
-        'Bonjour Graya Holistic, je souhaite commander :',
-        ...cart.map(i => `• ${i.qty} × ${i.name} — ${fmt(i.price * i.qty)} FCFA`),
-        `Sous-total : ${fmt(subtotal())} FCFA`,
-        `Zone de livraison : ${zone.name}${zone.fee ? ' (+' + fmt(zone.fee) + ' FCFA)' : ''}`,
-        `Total : ${fmt(total())} FCFA`,
-        date ? `Date souhaitée : ${date}` : '',
-        `Créneau : ${time}`,
-        notes ? `Remarques : ${notes}` : ''
-      ].filter(Boolean).join('\n');
-      window.open('https://wa.me/2250101736812?text=' + encodeURIComponent(lines), '_blank', 'noopener');
-      cart = [];
-      render();
-      closeModal();
-    });
-
-    render();
-  })();
-
-  /* ---- Interactive wallpaper: ambient mesh nudged by pointer/touch + scroll ---- */
-  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const root = document.documentElement;
-    let rafId = null, latestX = null, latestY = null;
-    const applyMeshOffset = () => {
-      rafId = null;
-      if (latestX === null) return;
-      const nx = (latestX / window.innerWidth - 0.5) * 2;
-      const ny = (latestY / window.innerHeight - 0.5) * 2;
-      const scrollPull = Math.min(window.scrollY / 30, 24);
-      root.style.setProperty('--mesh-px', (nx * 16).toFixed(1));
-      root.style.setProperty('--mesh-py', (ny * 10 + scrollPull).toFixed(1));
-    };
-    const queueMeshUpdate = (x, y) => {
-      latestX = x; latestY = y;
-      if (rafId === null) rafId = requestAnimationFrame(applyMeshOffset);
-    };
-    window.addEventListener('pointermove', e => queueMeshUpdate(e.clientX, e.clientY), { passive: true });
-    window.addEventListener('scroll', () => {
-      if (latestX === null) { latestX = window.innerWidth / 2; latestY = window.innerHeight / 2; }
-      if (rafId === null) rafId = requestAnimationFrame(applyMeshOffset);
-    }, { passive: true });
-  }
-
-  /* ---- Mobile navigation ---- */
-  const burger = document.querySelector('.burger');
-  const navLinks = document.querySelector('.nav-links');
-  const overlay = document.querySelector('.nav-mobile-overlay');
-
-  function closeNav() {
-    if (navLinks) navLinks.classList.remove('open');
-    if (burger) burger.setAttribute('aria-expanded', 'false');
-    if (overlay) overlay.classList.remove('visible');
-    document.documentElement.style.overflow = '';
-  }
-  function openNav() {
-    if (navLinks) navLinks.classList.add('open');
-    if (burger) burger.setAttribute('aria-expanded', 'true');
-    if (overlay) overlay.classList.add('visible');
-    document.documentElement.style.overflow = 'hidden';
-  }
-
-  if (burger) {
-    burger.addEventListener('click', () => {
-      const isOpen = navLinks && navLinks.classList.contains('open');
-      isOpen ? closeNav() : openNav();
-    });
-  }
-  if (overlay) overlay.addEventListener('click', closeNav);
-  if (navLinks) {
-    navLinks.querySelectorAll('a').forEach(link => link.addEventListener('click', closeNav));
-  }
-
-  /* ---- Scroll progress bar ---- */
-  const progress = document.createElement('div');
-  progress.className = 'scroll-progress';
-  document.body.appendChild(progress);
-
-  /* ---- Back to top button ---- */
-  const toTop = document.createElement('button');
-  toTop.className = 'to-top';
-  toTop.setAttribute('aria-label', 'Retour en haut');
-  toTop.innerHTML = '&#8593;';
-  toTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-  document.body.appendChild(toTop);
-
-  /* ---- Persistent floating WhatsApp button ---- */
-  const waFab = document.createElement('a');
-  waFab.className = 'whatsapp-fab';
-  waFab.href = 'https://wa.me/2250101736812?text=' + encodeURIComponent("Bonjour Graya Holistic, j'ai une question.");
-  waFab.target = '_blank';
-  waFab.rel = 'noopener';
-  waFab.setAttribute('aria-label', 'Écrire sur WhatsApp');
-  waFab.innerHTML = '<svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.39 1.26 4.81L2 22l5.41-1.42a9.87 9.87 0 0 0 4.63 1.18h.01c5.46 0 9.9-4.45 9.9-9.91C21.95 6.45 17.5 2 12.04 2zm5.78 14.03c-.24.68-1.4 1.3-1.93 1.38-.5.08-1.12.11-1.81-.11-.42-.13-.96-.31-1.65-.61-2.9-1.25-4.79-4.17-4.94-4.36-.14-.19-1.18-1.57-1.18-3 0-1.42.75-2.12 1.02-2.41.26-.29.57-.36.76-.36.19 0 .38 0 .55.01.18.01.41-.07.64.49.24.58.81 2 .88 2.14.07.14.11.31.02.5-.09.19-.14.31-.27.48-.14.17-.29.37-.41.5-.14.14-.28.29-.12.57.16.28.71 1.17 1.52 1.9 1.05.94 1.93 1.23 2.21 1.37.28.14.44.12.6-.07.16-.19.68-.79.86-1.06.18-.27.36-.22.6-.13.24.09 1.53.72 1.79.85.26.13.43.19.5.3.07.11.07.62-.17 1.3z"/></svg>';
-  document.body.appendChild(waFab);
-
-  /* ---- Sticky mobile action bar: Commander / Voir le panier / WhatsApp direct ----
-     Replaces the floating WhatsApp FAB on small screens (hidden there via CSS) so
-     mobile visitors get one consolidated bottom bar instead of stacked floating buttons. */
-  const svgIcon = paths =>
-    `<svg class="mobile-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
-  const ICON_MENU = svgIcon('<path d="M8 3h8a2 2 0 0 1 2 2v15l-6-3-6 3V5a2 2 0 0 1 2-2Z"/><path d="M9.5 8h5M9.5 11.5h5"/>');
-  const ICON_CART = svgIcon('<circle cx="9.5" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/><path d="M3 4h2.2l2.3 11.2h11"/><path d="M6.6 7.4h14l-1.5 6.2H7.9"/>');
-  const ICON_CHAT = svgIcon('<path d="M20.5 11.6c0 4-3.8 7.2-8.5 7.2-1 0-2-.15-2.9-.42L4 20l1.4-3.6C4.2 15.1 3.5 13.4 3.5 11.6c0-4 3.8-7.2 8.5-7.2s8.5 3.2 8.5 7.2Z"/>');
-
-  const mobileBar = document.createElement('div');
-  mobileBar.className = 'mobile-action-bar';
-  mobileBar.innerHTML = `
-    <a href="menu.html" class="mobile-action-btn">
-      ${ICON_MENU}<span>Commander</span>
-    </a>
-    <button type="button" class="mobile-action-btn" id="mobile-cart-btn">
-      ${ICON_CART}<span>Panier</span>
-    </button>
-    <a href="https://wa.me/2250101736812?text=${encodeURIComponent("Bonjour Graya Holistic, j'ai une question.")}" class="mobile-action-btn" target="_blank" rel="noopener">
-      ${ICON_CHAT}<span>WhatsApp</span>
-    </a>
-  `;
-  document.body.appendChild(mobileBar);
-  mobileBar.querySelector('#mobile-cart-btn').addEventListener('click', () => {
-    const cartOpenBtn = document.getElementById('cart-open-btn');
-    if (cartOpenBtn) cartOpenBtn.click();
-    else window.location.href = 'menu.html';
-  });
-
-  const onScroll = () => {
-    const h = document.documentElement;
-    const pct = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
-    progress.style.width = pct + '%';
-    toTop.classList.toggle('visible', h.scrollTop > 600);
-    waFab.classList.toggle('visible', h.scrollTop > 300);
+/* Graya Holistic — site behaviour.
+   Depends on window.GRAYA (assets/js/data.js, generated by tools/build.py). */
+(() => {
+  'use strict';
+  const G = window.GRAYA || { whatsapp: '2250101736812', zones: [], hours: [], dishes: {} };
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fcfa = n => n.toLocaleString('fr-FR').replace(/\s/g, ' ') + ' FCFA';
+  const waUrl = text => `https://wa.me/${G.whatsapp}?text=${encodeURIComponent(text)}`;
+  const store = {
+    get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } }
   };
-  window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
+  const openWhatsApp = text => {
+    const w = window.open(waUrl(text), '_blank', 'noopener');
+    if (!w) location.href = waUrl(text);
+  };
 
-  /* ---- Smooth scroll for anchor links ---- */
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
-      const id = this.getAttribute('href');
-      if (!id || id.length < 2) return;
-      const target = document.querySelector(id);
-      if (target) {
-        e.preventDefault();
-        const headerH = siteHeader ? siteHeader.offsetHeight : 0;
-        const top = target.getBoundingClientRect().top + window.pageYOffset - headerH - 20;
-        window.scrollTo({ top, behavior: 'smooth' });
-      }
+  const yearEl = $('[data-year]'); if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+  /* ---------------- Header: solid after the hero, mobile nav ---------------- */
+  const header = $('.site-header');
+  const burger = $('.burger');
+  const onScrollHeader = () => header && header.classList.toggle('is-solid', scrollY > 40);
+  onScrollHeader();
+  addEventListener('scroll', onScrollHeader, { passive: true });
+  const setNav = open => {
+    document.body.classList.toggle('nav-open', open);
+    burger?.setAttribute('aria-expanded', String(open));
+    burger?.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
+  };
+  burger?.addEventListener('click', () => setNav(!document.body.classList.contains('nav-open')));
+  $$('.nav a').forEach(a => a.addEventListener('click', () => setNav(false)));
+
+  /* ---------------- Toast ---------------- */
+  const toast = document.createElement('div');
+  toast.className = 'toast'; toast.setAttribute('role', 'status');
+  document.body.appendChild(toast);
+  let toastTimer;
+  const say = msg => {
+    toast.textContent = msg; toast.classList.add('is-on');
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('is-on'), 2200);
+  };
+
+  /* ================= CART ================= */
+  const KEY = 'graya-cart-v2';
+  let cart = store.get(KEY, []);
+  if (!Array.isArray(cart)) cart = [];
+  const saveCart = () => { store.set(KEY, cart); renderCount(); if (drawerOpen) renderDrawer(); };
+  const count = () => cart.reduce((n, l) => n + l.qty, 0);
+  const subtotal = () => cart.reduce((n, l) => n + l.qty * l.price, 0);
+
+  function renderCount(bump) {
+    $$('[data-cart-count]').forEach(el => {
+      const n = count();
+      el.textContent = n; el.hidden = n === 0;
+      if (bump && !reduced) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
     });
+    $$('[data-cart-open]').forEach(b => b.setAttribute('aria-label', `Ouvrir le panier, ${count()} article${count() > 1 ? 's' : ''}`));
+  }
+
+  function addToCart(btn) {
+    const id = btn.dataset.id, name = btn.dataset.name, price = Number(btn.dataset.price);
+    const line = cart.find(l => l.id === id);
+    if (line) line.qty += 1; else cart.push({ id, name, price, qty: 1 });
+    saveCart(); renderCount(true);
+    btn.classList.add('is-added');
+    const label = btn.firstChild.nodeValue;
+    btn.firstChild.nodeValue = 'Ajouté';
+    setTimeout(() => { btn.classList.remove('is-added'); btn.firstChild.nodeValue = label; }, 1400);
+    say(`${name} ajouté au panier`);
+  }
+  document.addEventListener('click', e => {
+    const add = e.target.closest('[data-add]');
+    if (add) addToCart(add);
+    if (e.target.closest('[data-cart-open]')) openDrawer();
   });
 
-  /* ---- Hero photo rotator (homepage split hero) ---- */
-  const heroRotator = document.querySelector('[data-hero-rotator]');
-  if (heroRotator) {
-    const rotatorImg = document.getElementById('hero-rotator-img');
-    const rotatorSource = heroRotator.querySelector('source');
-    const rotatorCaption = document.getElementById('hero-rotator-caption');
-    fetch('assets/img/gallery/manifest.json')
-      .then(r => r.ok ? r.json() : [])
-      .then(photos => {
-        if (!Array.isArray(photos) || photos.length < 2) return;
-        /* Keep the photo already in the HTML as slide 0: swapping it on load would
-           re-download an image and push back the page's LCP by ~2s. */
-        const initialFile = (rotatorImg.getAttribute('src') || '').split('/').pop().replace(/\.\w+$/, '');
-        const first = photos.find(p => p.file === initialFile);
-        const rest = photos.filter(p => p !== first).sort(() => Math.random() - 0.5);
-        const shuffled = (first ? [first, ...rest] : rest).slice(0, 8);
-        let idx = 0;
-        const show = i => {
-          const p = shuffled[i];
-          rotatorImg.classList.add('fading');
-          rotatorCaption.classList.remove('visible');
-          setTimeout(() => {
-            if (rotatorSource) rotatorSource.srcset = 'assets/img/gallery/' + p.file + '.webp';
-            rotatorImg.src = 'assets/img/gallery/' + p.file + '.jpg';
-            rotatorImg.alt = p.alt || '';
-            rotatorCaption.textContent = p.caption || '';
-            rotatorImg.classList.remove('fading');
-            rotatorCaption.classList.add('visible');
-          }, 400);
-        };
-        if (first) {
-          rotatorCaption.textContent = first.caption || '';
-          rotatorCaption.classList.add('visible');
-        } else {
-          show(idx);
-        }
-        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-          setInterval(() => {
-            idx = (idx + 1) % shuffled.length;
-            show(idx);
-          }, 4500);
-        }
-      })
-      .catch(() => {});
+  /* ---- Drawer ---- */
+  const prefs = store.get('graya-order-prefs', {});
+  const backdrop = document.createElement('div');
+  backdrop.className = 'drawer-backdrop'; backdrop.hidden = true;
+  const drawer = document.createElement('aside');
+  drawer.className = 'drawer'; drawer.hidden = true;
+  drawer.setAttribute('role', 'dialog'); drawer.setAttribute('aria-modal', 'true'); drawer.setAttribute('aria-labelledby', 'drawer-title');
+  document.body.append(backdrop, drawer);
+  let drawerOpen = false, lastFocus = null;
+
+  function openDrawer() {
+    lastFocus = document.activeElement;
+    drawer.hidden = backdrop.hidden = false;
+    renderDrawer();
+    requestAnimationFrame(() => document.body.classList.add('drawer-open'));
+    drawerOpen = true;
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => $('.drawer-head button', drawer)?.focus(), 50);
   }
-
-  /* ---- Bamboo leaf watermark: tucked into section-header and bamboo-card corners ---- */
-  const LEAF_WATERMARK_SVG = '<svg viewBox="0 0 100 100" class="leaf-watermark" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M50 8 C18 24, 12 56, 50 92 C88 56, 82 24, 50 8 Z" fill="var(--color-primary)"/></svg>';
-  document.querySelectorAll('.bamboo-card, .cart-modal-inner').forEach(el => {
-    if (el.querySelector(':scope > .leaf-watermark')) return;
-    el.insertAdjacentHTML('beforeend', LEAF_WATERMARK_SVG);
-  });
-
-  /* ---- Hero floating orbs (also on the 404 error page) ---- */
-  const hero = document.querySelector('.hero, .error-page');
-  if (hero && !hero.querySelector('.hero-orb')) {
-    ['o1', 'o2', 'o3'].forEach(cls => {
-      const orb = document.createElement('span');
-      orb.className = 'hero-orb ' + cls;
-      hero.appendChild(orb);
-    });
+  function closeDrawer() {
+    document.body.classList.remove('drawer-open');
+    drawerOpen = false;
+    document.body.style.overflow = '';
+    setTimeout(() => { drawer.hidden = backdrop.hidden = true; }, reduced ? 0 : 400);
+    lastFocus?.focus?.();
   }
-
-  /* ---- Scroll-down hint under a tall hero ---- */
-  if (hero && hero.classList.contains('hero--tall')) {
-    const scrollHint = document.createElement('button');
-    scrollHint.type = 'button';
-    scrollHint.className = 'scroll-hint';
-    scrollHint.setAttribute('aria-label', 'Défiler vers le bas');
-    scrollHint.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
-    scrollHint.addEventListener('click', () => {
-      const next = hero.nextElementSibling;
-      if (next) next.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-    hero.appendChild(scrollHint);
-  }
-
-  /* ---- Decorative bamboo stalks — hero corners, CTA bands, footer ---- */
-  if (!document.getElementById('bamboo-culm-grad')) {
-    const gradDefs = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    gradDefs.setAttribute('aria-hidden', 'true');
-    gradDefs.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden';
-    gradDefs.innerHTML = `
-      <defs>
-        <linearGradient id="bamboo-culm-grad" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" style="stop-color:var(--bamboo-culm-dark)"/>
-          <stop offset="38%" style="stop-color:var(--bamboo-culm)"/>
-          <stop offset="68%" style="stop-color:var(--bamboo-culm)"/>
-          <stop offset="100%" style="stop-color:var(--bamboo-culm-dark)"/>
-        </linearGradient>
-      </defs>`;
-    document.body.appendChild(gradDefs);
-  }
-  const bambooSVG = `
-    <svg viewBox="0 0 130 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <g class="bamboo-stalk" transform="translate(18,0)">
-        <rect x="-8" y="30" width="16" height="190" rx="8"/>
-        <rect x="-11" y="62" width="22" height="6" rx="3" class="bamboo-node"/>
-        <rect x="-11" y="104" width="22" height="6" rx="3" class="bamboo-node"/>
-        <rect x="-11" y="146" width="22" height="6" rx="3" class="bamboo-node"/>
-        <rect x="-11" y="188" width="22" height="6" rx="3" class="bamboo-node"/>
-      </g>
-      <g class="bamboo-stalk" transform="translate(58,0) rotate(-4)">
-        <rect x="-9" y="0" width="18" height="220" rx="9"/>
-        <rect x="-12" y="36" width="24" height="6" rx="3" class="bamboo-node"/>
-        <rect x="-12" y="82" width="24" height="6" rx="3" class="bamboo-node"/>
-        <rect x="-12" y="128" width="24" height="6" rx="3" class="bamboo-node"/>
-        <rect x="-12" y="174" width="24" height="6" rx="3" class="bamboo-node"/>
-      </g>
-      <g class="bamboo-stalk" transform="translate(78,0) rotate(2)">
-        <rect x="-6" y="66" width="12" height="154" rx="6"/>
-        <rect x="-9" y="90" width="18" height="5" rx="2.5" class="bamboo-node"/>
-        <rect x="-9" y="126" width="18" height="5" rx="2.5" class="bamboo-node"/>
-        <rect x="-9" y="162" width="18" height="5" rx="2.5" class="bamboo-node"/>
-      </g>
-      <g class="bamboo-stalk" transform="translate(96,0) rotate(3)">
-        <rect x="-7" y="52" width="14" height="168" rx="7"/>
-        <rect x="-10" y="80" width="20" height="6" rx="3" class="bamboo-node"/>
-        <rect x="-10" y="120" width="20" height="6" rx="3" class="bamboo-node"/>
-        <rect x="-10" y="160" width="20" height="6" rx="3" class="bamboo-node"/>
-      </g>
-      <g class="bamboo-leaves" transform="translate(58,34)">
-        <path class="bamboo-leaf--light" d="M0,0 Q-34,-14 -54,-46 Q-20,-38 0,0 Z" transform="rotate(-18)"/>
-        <path class="bamboo-vein" d="M0,0 Q-30,-24 -40,-42" transform="rotate(-18)"/>
-        <path class="bamboo-leaf" d="M0,0 Q-30,-22 -34,-58 Q-6,-42 0,0 Z" transform="rotate(6)"/>
-        <path class="bamboo-vein" d="M0,0 Q-20,-34 -22,-52" transform="rotate(6)"/>
-        <path class="bamboo-leaf--light" d="M0,0 Q26,-16 44,-48 Q14,-38 0,0 Z" transform="rotate(14)"/>
-        <path class="bamboo-vein" d="M0,0 Q22,-26 30,-44" transform="rotate(14)"/>
-        <path class="bamboo-leaf" d="M0,0 Q30,-24 30,-60 Q4,-42 0,0 Z" transform="rotate(-8)"/>
-        <path class="bamboo-vein" d="M0,0 Q16,-34 18,-54" transform="rotate(-8)"/>
-        <path class="bamboo-leaf--light" d="M0,0 Q10,-30 6,-64 Q-8,-46 0,0 Z" transform="rotate(2)"/>
-        <path class="bamboo-vein" d="M0,0 Q2,-38 -1,-58" transform="rotate(2)"/>
-      </g>
-      <g class="bamboo-leaves" transform="translate(18,28)">
-        <path class="bamboo-leaf" d="M0,0 Q-22,-10 -36,-34 Q-12,-26 0,0 Z" transform="rotate(-20)"/>
-        <path class="bamboo-vein" d="M0,0 Q-18,-18 -24,-32" transform="rotate(-20)"/>
-        <path class="bamboo-leaf--light" d="M0,0 Q20,-12 30,-36 Q8,-26 0,0 Z" transform="rotate(16)"/>
-        <path class="bamboo-vein" d="M0,0 Q14,-20 18,-33" transform="rotate(16)"/>
-        <path class="bamboo-leaf" d="M0,0 Q-8,-24 -4,-42 Q6,-30 0,0 Z" transform="rotate(-4)"/>
-        <path class="bamboo-vein" d="M0,0 Q0,-24 0,-38" transform="rotate(-4)"/>
-      </g>
-      <g class="bamboo-leaves" transform="translate(78,62)">
-        <path class="bamboo-leaf--light" d="M0,0 Q-18,-8 -30,-28 Q-10,-22 0,0 Z" transform="rotate(-14)"/>
-        <path class="bamboo-vein" d="M0,0 Q-14,-16 -19,-26" transform="rotate(-14)"/>
-        <path class="bamboo-leaf" d="M0,0 Q16,-10 24,-30 Q6,-22 0,0 Z" transform="rotate(12)"/>
-        <path class="bamboo-vein" d="M0,0 Q11,-17 14,-27" transform="rotate(12)"/>
-      </g>
-    </svg>`;
-
-  function addBambooDeco(container, corners) {
-    if (!container || container.querySelector('.bamboo-deco')) return;
-    corners.forEach(pos => {
-      const wrap = document.createElement('div');
-      wrap.className = 'bamboo-deco bamboo-deco--' + pos;
-      wrap.innerHTML = bambooSVG;
-      container.appendChild(wrap);
-    });
-  }
-
-  if (hero) {
-    // Homepage hero gets its own full-bleed bamboo wallpaper background (see .hero--tall
-    // in style.css) instead of a small corner sprig.
-    if (!hero.classList.contains('hero--tall')) {
-      addBambooDeco(hero, hero.classList.contains('error-page') ? ['br'] : ['bl', 'tr']);
-    }
-  }
-  const siteFooter = document.querySelector('.site-footer');
-  if (siteFooter) addBambooDeco(siteFooter, ['bl', 'tr']);
-
-  /* ---- Bamboo wallpaper tile sync: the homepage hero's bamboo background
-     repeats vertically, and its tile height scales with the hero's width
-     (the image keeps its own 2:3 aspect ratio). The gold seam bar is drawn
-     as a second background layer at the same --bamboo-tile-h size, so it
-     always lands exactly on the repeat line instead of drifting off it. ---- */
-  const bambooHero = document.querySelector('.hero--default.hero--tall');
-  if (bambooHero) {
-    const syncBambooTile = () => {
-      bambooHero.style.setProperty('--bamboo-tile-h', (bambooHero.clientWidth * 1536 / 1024) + 'px');
-    };
-    syncBambooTile();
-    window.addEventListener('resize', syncBambooTile, { passive: true });
-  }
-
-  /* ---- Pole-block accordion ---- */
-  document.querySelectorAll('.pole-block-head').forEach(head => {
-    head.setAttribute('role', 'button');
-    head.setAttribute('aria-expanded', 'false');
-    head.setAttribute('tabindex', '0');
-    head.addEventListener('click', () => {
-      const block = head.closest('.pole-block');
-      const isOpen = block.classList.contains('is-open');
-      block.classList.toggle('is-open');
-      head.setAttribute('aria-expanded', String(!isOpen));
-    });
-    head.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); head.click(); }
-    });
-  });
-
-  /* ---- Accordion (FAQ, etc.) ---- */
-  document.querySelectorAll('.accordion-trigger').forEach(trigger => {
-    trigger.setAttribute('aria-expanded', 'false');
-    trigger.addEventListener('click', () => {
-      const item = trigger.closest('.accordion-item');
-      const body = item.querySelector('.accordion-body');
-      const isOpen = item.classList.contains('is-open');
-      item.classList.toggle('is-open');
-      trigger.setAttribute('aria-expanded', String(!isOpen));
-      if (!isOpen) {
-        body.style.maxHeight = body.scrollHeight + 'px';
-      } else {
-        body.style.maxHeight = '0';
-      }
-    });
-  });
-
-  /* ---- Tab filtering ---- */
-  document.querySelectorAll('.tabs').forEach(tabGroup => {
-    const tabs = tabGroup.querySelectorAll('.tab');
-    const targetSelector = tabGroup.dataset.target;
-    const items = targetSelector ? document.querySelectorAll(targetSelector) : [];
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        tabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        const filter = tab.dataset.filter;
-        items.forEach(item => {
-          if (filter === 'all' || item.dataset.category === filter) {
-            item.style.display = '';
-            item.style.opacity = '0';
-            requestAnimationFrame(() => { item.style.opacity = '1'; });
-          } else {
-            item.style.display = 'none';
-          }
-        });
-      });
-    });
-  });
-
-  /* ---- Scroll reveal observer ---- */
-  const autoReveal = document.querySelectorAll(
-    '.pillars, .poles-list, .atouts-grid, .featured-grid, .parcours-steps, .team-grid, .partner-grid, .name-cloud, .grid-3, .grid-4, .value-cards, .stats-row, .logo-grid'
-  );
-  autoReveal.forEach(el => el.classList.add('reveal-stagger'));
-
-  const soloReveal = document.querySelectorAll(
-    '.section-header, .about-grid, .founder-card, .hero-quote, .accred-badge, .notice-box, .pole-block-head, .quote-block, .split-layout, .form-grid, .contact-split'
-  );
-  soloReveal.forEach(el => el.classList.add('reveal'));
-
-  if ('IntersectionObserver' in window) {
-    const io = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-          io.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-    document.querySelectorAll('.reveal, .reveal-stagger, .reveal-left, .reveal-right, .reveal-scale').forEach(el => io.observe(el));
-  } else {
-    document.querySelectorAll('.reveal, .reveal-stagger, .reveal-left, .reveal-right, .reveal-scale').forEach(el => el.classList.add('is-visible'));
-  }
-
-  /* ---- Animated counters ---- */
-  const counters = document.querySelectorAll('[data-count]');
-  if (counters.length && 'IntersectionObserver' in window) {
-    const cio = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const el = entry.target;
-          const target = parseInt(el.dataset.count, 10);
-          const suffix = el.dataset.suffix || '';
-          const prefix = el.dataset.prefix || '';
-          let current = 0;
-          const step = Math.max(1, Math.floor(target / 60));
-          const timer = setInterval(() => {
-            current += step;
-            if (current >= target) { current = target; clearInterval(timer); }
-            el.textContent = prefix + current.toLocaleString() + suffix;
-          }, 20);
-          cio.unobserve(el);
-        }
-      });
-    }, { threshold: 0.5 });
-    counters.forEach(el => cio.observe(el));
-  }
-
-  /* ---- Contact form: send via WhatsApp (site has no email backend) ---- */
-  const contactForm = document.querySelector('.contact-form');
-  if (contactForm) {
-    contactForm.addEventListener('submit', e => {
-      e.preventDefault();
-      const name = contactForm.querySelector('#name').value.trim();
-      const email = contactForm.querySelector('#email').value.trim();
-      const subjectSelect = contactForm.querySelector('#subject');
-      const subject = subjectSelect.options[subjectSelect.selectedIndex]?.textContent || '';
-      const message = contactForm.querySelector('#message').value.trim();
-      const lines = [
-        'Bonjour Graya Holistic,',
-        `Nom : ${name}`,
-        `Email : ${email}`,
-        subject ? `Sujet : ${subject}` : '',
-        `Message : ${message}`
-      ].filter(Boolean).join('\n');
-      window.open('https://wa.me/2250101736812?text=' + encodeURIComponent(lines), '_blank', 'noopener');
-
-      let msg = contactForm.querySelector('.form-success-msg');
-      if (!msg) {
-        msg = document.createElement('div');
-        msg.className = 'form-success-msg';
-        msg.style.cssText = 'background:rgba(61,125,85,0.12);border:1px solid rgba(61,125,85,0.35);border-radius:var(--radius-sm);padding:16px 20px;margin-bottom:20px;font-weight:600;color:var(--olive-dark);font-size:0.92rem;';
-        contactForm.parentNode.insertBefore(msg, contactForm);
-      }
-      msg.textContent = 'Votre message est pr\u00eat sur WhatsApp \u2014 il ne reste qu\u2019\u00e0 l\u2019envoyer !';
-      contactForm.reset();
-    });
-  }
-
-  /* ---- Magnetic tilt on elevated cards (fine pointer + motion allowed only) ---- */
-  const finePointer = window.matchMedia('(pointer: fine)').matches;
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (finePointer && !reducedMotion) {
-    document.querySelectorAll('.card--elevated, .formation-card, .founder-card').forEach(card => {
-      card.addEventListener('mousemove', e => {
-        const rect = card.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / rect.width - 0.5;
-        const y = (e.clientY - rect.top) / rect.height - 0.5;
-        card.style.transform = `perspective(800px) rotateX(${(-y * 6).toFixed(2)}deg) rotateY(${(x * 8).toFixed(2)}deg) translateY(-6px)`;
-      });
-      card.addEventListener('mouseleave', () => { card.style.transform = ''; });
-    });
-  }
-
-  /* ---- Marquee: duplicate content once so the -50% loop is seamless ---- */
-  document.querySelectorAll('.marquee-track').forEach(track => {
-    if (!track.dataset.doubled) {
-      track.innerHTML += track.innerHTML;
-      track.dataset.doubled = 'true';
+  backdrop.addEventListener('click', closeDrawer);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { if (drawerOpen) closeDrawer(); else if (lb && !lb.hidden) closeLb(); else setNav(false); }
+    if (e.key === 'Tab' && drawerOpen) {
+      const f = $$('button, a[href], input, select, textarea', drawer).filter(el => !el.disabled && el.offsetParent !== null);
+      if (!f.length) return;
+      if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+      else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
     }
   });
 
-  /* ---- Photo gallery, fed by assets/img/gallery/manifest.json ---- */
-  let lightboxWired = false;
-  let lightboxShow = null;
-  let lightboxClose = null;
-  let lightboxLastFocused = null;
-
-  function buildLightbox() {
-    const box = document.createElement('div');
-    box.className = 'lightbox';
-    box.setAttribute('role', 'dialog');
-    box.setAttribute('aria-modal', 'true');
-    box.setAttribute('aria-label', 'Galerie photo');
-    box.innerHTML = `
-      <button class="lightbox-close" aria-label="Fermer">&times;</button>
-      <button class="lightbox-prev" aria-label="Photo précédente">&#8249;</button>
-      <div>
-        <img src="" alt="">
-        <div class="lightbox-caption"></div>
-      </div>
-      <button class="lightbox-next" aria-label="Photo suivante">&#8250;</button>
-    `;
-    document.body.appendChild(box);
-    return box;
+  /* Time slots for "Programmer", within the opening hours of the chosen day */
+  const hoursFor = d => G.hours.find(h => h.days.includes(d.getDay()));
+  const toMin = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+  const pad = n => String(n).padStart(2, '0');
+  function slotsFor(dateStr) {
+    if (!dateStr) return [];
+    const d = new Date(dateStr + 'T00:00');
+    const h = hoursFor(d); if (!h) return [];
+    let start = toMin(h.opens) + 30; const end = toMin(h.closes);
+    const now = new Date();
+    if (d.toDateString() === now.toDateString()) start = Math.max(start, Math.ceil((now.getHours() * 60 + now.getMinutes() + 60) / 30) * 30);
+    const out = []; for (let m = start; m <= end; m += 30) out.push(`${pad(Math.floor(m / 60))}:${pad(m % 60)}`);
+    return out;
   }
+  const todayISO = () => { const t = new Date(); return `${t.getFullYear()}-${pad(t.getMonth() + 1)}-${pad(t.getDate())}`; };
+  const niceDate = s => new Date(s + 'T00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
 
-  function setupGallery(grid, photos) {
-    const box = document.querySelector('.lightbox') || buildLightbox();
-    let current = 0;
-
-    function show(i) {
-      current = (i + photos.length) % photos.length;
-      const p = photos[current];
-      box.querySelector('img').src = 'assets/img/gallery/' + p.file + '.jpg';
-      box.querySelector('img').alt = p.alt || '';
-      box.querySelector('.lightbox-caption').textContent = p.caption || '';
-    }
-    function close() {
-      box.classList.remove('open');
-      document.documentElement.style.overflow = '';
-      if (lightboxLastFocused) { lightboxLastFocused.focus(); lightboxLastFocused = null; }
-    }
-    function open(i, triggerEl) {
-      lightboxLastFocused = triggerEl || document.activeElement;
-      show(i);
-      box.classList.add('open');
-      document.documentElement.style.overflow = 'hidden';
-      box.querySelector('.lightbox-close').focus();
-    }
-
-    lightboxShow = show;
-    lightboxClose = close;
-
-    if (!lightboxWired) {
-      lightboxWired = true;
-      box.addEventListener('click', e => { if (e.target === box) lightboxClose(); });
-      box.querySelector('.lightbox-close').addEventListener('click', () => lightboxClose());
-      box.querySelector('.lightbox-prev').addEventListener('click', () => lightboxShow(current - 1));
-      box.querySelector('.lightbox-next').addEventListener('click', () => lightboxShow(current + 1));
-      document.addEventListener('keydown', e => {
-        if (!box.classList.contains('open')) return;
-        if (e.key === 'Escape') { lightboxClose(); return; }
-        if (e.key === 'ArrowRight') { lightboxShow(current + 1); return; }
-        if (e.key === 'ArrowLeft') { lightboxShow(current - 1); return; }
-        if (e.key === 'Tab') {
-          const focusables = Array.from(box.querySelectorAll('button'));
-          const first = focusables[0], last = focusables[focusables.length - 1];
-          if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-          else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-        }
-      });
-    }
-
-    grid.querySelectorAll('.gallery-card').forEach(card => {
-      if (card.dataset.wired) return;
-      card.dataset.wired = '1';
-      card.addEventListener('click', () => open(parseInt(card.dataset.index, 10), card));
-      card.addEventListener('keydown', e => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(parseInt(card.dataset.index, 10), card); }
-      });
-    });
-  }
-
-  function galleryCardHTML(p, i) {
-    const label = 'Agrandir la photo : ' + (p.caption || p.alt || 'photo');
-    return `
-      <div class="gallery-card reveal-scale" data-index="${i}" data-category="${p.category || 'autres'}" role="button" tabindex="0" aria-label="${label}">
-        <div class="gallery-media">
-          <picture>
-            <source srcset="assets/img/gallery/${p.file}.webp" type="image/webp">
-            <img src="assets/img/gallery/${p.file}.jpg" alt="${p.alt || ''}" loading="lazy" decoding="async">
-          </picture>
+  function renderDrawer() {
+    const zoneOpts = G.zones.map(z => `<option value="${z.name}"${prefs.zone === z.name ? ' selected' : ''}>${z.name} — ${fcfa(z.fee)}</option>`).join('')
+      + `<option value="autre"${prefs.zone === 'autre' ? ' selected' : ''}>Autre zone (frais confirmés sur WhatsApp)</option>`;
+    const lines = cart.map((l, i) => `
+      <div class="line">
+        <b>${l.name}</b>
+        <div class="qty" role="group" aria-label="Quantité de ${l.name}">
+          <button type="button" data-q="${i}" data-d="-1" aria-label="Retirer un ${l.name}">−</button>
+          <span aria-live="polite">${l.qty}</span>
+          <button type="button" data-q="${i}" data-d="1" aria-label="Ajouter un ${l.name}">+</button>
         </div>
-        ${p.caption ? `<span class="gallery-caption">${p.caption}</span>` : ''}
+        <small>${fcfa(l.price)} l'unité</small><small class="line-total">${fcfa(l.price * l.qty)}</small>
+      </div>`).join('');
+    const empty = `<div class="drawer-empty"><p>Votre panier est vide.</p><a class="btn btn--gold" href="menu.html">Voir la carte</a></div>`;
+    drawer.innerHTML = `
+      <div class="drawer-head"><h2 id="drawer-title">Votre commande</h2>
+        <button type="button" class="cart-btn" data-close aria-label="Fermer le panier"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+      <div class="drawer-body">${cart.length ? lines + `
+        <form data-order novalidate>
+          <div class="field"><label for="o-zone">Zone de livraison</label><select id="o-zone" name="zone" required><option value="">Choisir votre zone</option>${zoneOpts}</select></div>
+          <div class="field"><span class="label" id="o-when-l">Quand ?</span>
+            <div class="segmented" role="radiogroup" aria-labelledby="o-when-l">
+              <label><input type="radio" name="when" value="asap" ${prefs.when !== 'later' ? 'checked' : ''}><span>Dès que possible</span></label>
+              <label><input type="radio" name="when" value="later" ${prefs.when === 'later' ? 'checked' : ''}><span>Programmer</span></label>
+            </div></div>
+          <div class="grid-2" data-later ${prefs.when === 'later' ? '' : 'hidden'}>
+            <div class="field"><label for="o-date">Jour</label><input id="o-date" name="date" type="date" min="${todayISO()}" value="${prefs.date && prefs.date >= todayISO() ? prefs.date : todayISO()}"></div>
+            <div class="field"><label for="o-time">Heure</label><select id="o-time" name="time"></select></div>
+          </div>
+          <div class="field"><label for="o-address">Adresse ou point de repère</label><input id="o-address" name="address" autocomplete="street-address" placeholder="ex. Riviera 3, près de la pharmacie" value="${(prefs.address || '').replace(/"/g, '&quot;')}" required></div>
+          <div class="field"><label for="o-name">Votre nom</label><input id="o-name" name="name" autocomplete="name" value="${(prefs.name || '').replace(/"/g, '&quot;')}" required></div>
+          <div class="field"><label for="o-note">Note pour la cuisine (facultatif)</label><textarea id="o-note" name="note" rows="2" placeholder="Allergies, sans piment…"></textarea></div>
+          <p class="form-error" data-error role="alert" hidden></p>
+        </form>` : empty}
       </div>
-    `;
+      ${cart.length ? `<div class="drawer-foot">
+        <div class="total-row"><span>Sous-total</span><span>${fcfa(subtotal())}</span></div>
+        <div class="total-row" data-fee-row><span>Livraison</span><span data-fee>Choisissez une zone</span></div>
+        <div class="total-row total-row--grand"><span>Total</span><span data-total>${fcfa(subtotal())}</span></div>
+        <button type="button" class="btn btn--gold" data-send><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.39 1.26 4.81L2 22l5.41-1.42a9.87 9.87 0 0 0 4.63 1.18c5.46 0 9.9-4.45 9.9-9.91S17.5 2 12.04 2Z"/></svg>Envoyer la commande sur WhatsApp</button>
+        <p class="drawer-note" data-sent hidden>Votre commande est prête dans WhatsApp : envoyez le message pour la valider.</p>
+        <button type="button" class="link" data-clear>Vider le panier</button>
+      </div>` : ''}`;
+    $('[data-close]', drawer).addEventListener('click', closeDrawer);
+    if (!cart.length) return;
+    const form = $('[data-order]', drawer);
+    const refreshTotals = () => {
+      const z = G.zones.find(x => x.name === form.elements.zone.value);
+      $('[data-fee]', drawer).textContent = z ? fcfa(z.fee) : (form.elements.zone.value === 'autre' ? 'À confirmer' : 'Choisissez une zone');
+      $('[data-total]', drawer).textContent = fcfa(subtotal() + (z ? z.fee : 0));
+    };
+    const refreshSlots = () => {
+      const sel = form.elements.time; const slots = slotsFor(form.elements.date.value);
+      sel.innerHTML = slots.length ? slots.map(s => `<option${prefs.time === s ? ' selected' : ''}>${s}</option>`).join('') : '<option value="">Fermé ce jour-là</option>';
+    };
+    refreshTotals(); refreshSlots();
+    form.addEventListener('change', e => {
+      if (e.target.name === 'when') {
+        prefs.when = e.target.value; $('[data-later]', drawer).hidden = e.target.value !== 'later';
+      }
+      if (e.target.name === 'date') refreshSlots();
+      if (e.target.name === 'zone') refreshTotals();
+      Object.assign(prefs, { zone: form.elements.zone.value, address: form.elements.address.value, name: form.elements.name.value, date: form.elements.date.value, time: form.elements.time.value });
+      store.set('graya-order-prefs', prefs);
+    });
+    $$('[data-q]', drawer).forEach(b => b.addEventListener('click', () => {
+      const i = Number(b.dataset.q); cart[i].qty += Number(b.dataset.d);
+      if (cart[i].qty <= 0) cart.splice(i, 1);
+      saveCart(); renderCount();
+      const again = $(`[data-q="${Math.min(i, cart.length - 1)}"][data-d="${b.dataset.d}"]`, drawer);
+      (again || $('[data-close]', drawer)).focus();
+    }));
+    $('[data-clear]', drawer).addEventListener('click', () => { cart = []; saveCart(); renderCount(); $('[data-close]', drawer).focus(); });
+    $('[data-send]', drawer).addEventListener('click', () => {
+      const err = $('[data-error]', drawer);
+      const missing = ['zone', 'address', 'name'].filter(n => !form.elements[n].value.trim());
+      const later = form.elements.when.value === 'later';
+      if (later && !form.elements.time.value) missing.push('time');
+      $$('input, select', form).forEach(el => el.removeAttribute('aria-invalid'));
+      if (missing.length) {
+        missing.forEach(n => form.elements[n].setAttribute('aria-invalid', 'true'));
+        const labels = { zone: 'la zone de livraison', address: "l'adresse", name: 'votre nom', time: "l'heure (ce jour est fermé, choisissez-en un autre)" };
+        err.textContent = 'Indiquez ' + missing.map(n => labels[n]).join(', ') + '.';
+        err.hidden = false; form.elements[missing[0]].focus(); return;
+      }
+      err.hidden = true;
+      const z = G.zones.find(x => x.name === form.elements.zone.value);
+      const when = later ? `le ${niceDate(form.elements.date.value)} à ${form.elements.time.value.replace(':', 'h')}` : 'dès que possible';
+      const msg = [
+        'Bonjour Graya Holistic, je souhaite commander :',
+        ...cart.map(l => `• ${l.qty} × ${l.name} — ${fcfa(l.qty * l.price)}`),
+        '',
+        `Sous-total : ${fcfa(subtotal())}`,
+        z ? `Livraison (${z.name}) : ${fcfa(z.fee)}` : 'Livraison : autre zone, frais à confirmer',
+        `Total : ${fcfa(subtotal() + (z ? z.fee : 0))}${z ? '' : ' + livraison'}`,
+        '',
+        `Livraison ${when}`,
+        `Adresse : ${form.elements.address.value.trim()}`,
+        `Nom : ${form.elements.name.value.trim()}`,
+        form.elements.note.value.trim() ? `Note : ${form.elements.note.value.trim()}` : ''
+      ].filter((l, i, a) => l !== '' || a[i - 1] !== '').join('\n').trim();
+      openWhatsApp(msg);
+      $('[data-sent]', drawer).hidden = false;
+    });
   }
+  renderCount();
 
-  function wireGalleryReveal(container) {
-    const els = container.querySelectorAll('.reveal-scale:not(.is-visible)');
-    if ('IntersectionObserver' in window) {
-      const galleryIo = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) { entry.target.classList.add('is-visible'); galleryIo.unobserve(entry.target); }
-        });
-      }, { threshold: 0.1 });
-      els.forEach(el => galleryIo.observe(el));
-    } else {
-      els.forEach(el => el.classList.add('is-visible'));
-    }
-  }
+  /* ---------------- Mobile bottom bar ---------------- */
+  const bar = document.createElement('nav');
+  bar.className = 'mobile-bar'; bar.setAttribute('aria-label', 'Actions rapides');
+  bar.innerHTML = `
+    <a href="menu.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h10a2 2 0 0 1 2 2v16l-7-3-7 3V5a2 2 0 0 1 2-2Z"/><path d="M9.5 8h5M9.5 11.5h5"/></svg>La carte</a>
+    <button type="button" data-cart-open><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.3 11.2a2 2 0 0 1-2 1.8H8.3a2 2 0 0 1-2-1.8L5 8Z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>Panier<span class="cart-count" data-cart-count hidden>0</span></button>
+    <a href="${waUrl("Bonjour Graya Holistic, j'ai une question.")}"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.39 1.26 4.81L2 22l5.41-1.42a9.87 9.87 0 0 0 4.63 1.18c5.46 0 9.9-4.45 9.9-9.91S17.5 2 12.04 2Z"/></svg>WhatsApp</a>`;
+  document.body.appendChild(bar);
+  renderCount();
 
-  document.querySelectorAll('[data-gallery]').forEach(grid => {
-    fetch('assets/img/gallery/manifest.json')
-      .then(r => r.ok ? r.json() : [])
-      .then(photos => {
-        if (!Array.isArray(photos) || !photos.length) {
-          grid.innerHTML = '<div class="gallery-empty">Photos à venir — bientôt notre galerie gourmande !</div>';
-          return;
-        }
-        const limit = parseInt(grid.dataset.galleryLimit || '8', 10);
-        const showAll = !limit || photos.length <= limit;
-        const initialCount = showAll ? photos.length : limit;
+  /* ================= LA CARTE: filters + chef's pick ================= */
+  const chips = $$('[data-filter]');
+  const sections = $$('[data-cat]');
+  const applyFilter = cat => {
+    chips.forEach(c => c.setAttribute('aria-pressed', String(c.dataset.filter === cat)));
+    sections.forEach(s => { s.hidden = cat !== 'all' && s.dataset.cat !== cat; });
+    if (cat !== 'all') history.replaceState(null, '', '#' + cat);
+    else history.replaceState(null, '', location.pathname);
+  };
+  chips.forEach(c => c.addEventListener('click', () => {
+    applyFilter(c.dataset.filter);
+    const nav = $('.carte-nav');
+    if (nav) scrollTo({ top: nav.getBoundingClientRect().top + scrollY - (header?.offsetHeight || 0) + 1, behavior: reduced ? 'auto' : 'smooth' });
+  }));
+  if (chips.length && location.hash && sections.some(s => s.dataset.cat === location.hash.slice(1))) applyFilter(location.hash.slice(1));
 
-        grid.innerHTML = photos.slice(0, initialCount).map((p, i) => galleryCardHTML(p, i)).join('');
-        wireGalleryReveal(grid);
-        setupGallery(grid, photos);
-
-        if (!showAll) {
-          const moreBtn = document.createElement('button');
-          moreBtn.type = 'button';
-          moreBtn.className = 'btn btn-outline-dark gallery-more-btn';
-          moreBtn.textContent = `Voir ${photos.length - initialCount} photos de plus`;
-          moreBtn.addEventListener('click', () => {
-            grid.insertAdjacentHTML('beforeend', photos.slice(initialCount).map((p, i) => galleryCardHTML(p, i + initialCount)).join(''));
-            wireGalleryReveal(grid);
-            setupGallery(grid, photos);
-            moreBtn.remove();
-          });
-          grid.insertAdjacentElement('afterend', moreBtn);
-        }
-      })
-      .catch(() => {
-        grid.innerHTML = '<div class="gallery-empty">Photos à venir — bientôt notre galerie gourmande !</div>';
-      });
+  $('[data-chef]')?.addEventListener('click', () => {
+    applyFilter('all');
+    const dishes = $$('[data-dish]');
+    $$('.is-chef').forEach(d => d.classList.remove('is-chef'));
+    const pick = dishes[Math.floor(Math.random() * dishes.length)];
+    pick.classList.add('is-chef');
+    pick.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' });
+    say(`Le chef vous propose : ${$('h3', pick).textContent}`);
+    setTimeout(() => $('[data-add]', pick)?.focus({ preventScroll: true }), reduced ? 0 : 600);
   });
 
-  /* ---- Confetti burst on the WhatsApp reservation buttons ---- */
-  if (!reducedMotion) {
-    const confettiColors = ['#C9932A', '#C14E36', '#3D7D55', '#7D4A6C', '#2C7A78'];
-    function burstConfetti(x, y) {
-      for (let i = 0; i < 14; i++) {
-        const piece = document.createElement('span');
-        piece.className = 'confetti-piece';
-        const angle = Math.random() * Math.PI * 2;
-        const dist = 50 + Math.random() * 60;
-        piece.style.setProperty('--dx', (Math.cos(angle) * dist).toFixed(0) + 'px');
-        piece.style.setProperty('--dy', (Math.sin(angle) * dist - 30).toFixed(0) + 'px');
-        piece.style.setProperty('--rot', (Math.random() * 720 - 360).toFixed(0) + 'deg');
-        piece.style.background = confettiColors[i % confettiColors.length];
-        piece.style.left = x + 'px';
-        piece.style.top = y + 'px';
-        document.body.appendChild(piece);
-        piece.addEventListener('animationend', () => piece.remove());
+  /* ================= GALLERY + LIGHTBOX ================= */
+  let lb = null, lbList = [], lbIdx = 0, lbLast = null;
+  function buildLb() {
+    lb = document.createElement('div');
+    lb.className = 'lightbox'; lb.hidden = true;
+    lb.setAttribute('role', 'dialog'); lb.setAttribute('aria-modal', 'true'); lb.setAttribute('aria-label', 'Photo agrandie');
+    lb.innerHTML = `<button type="button" class="lb-prev" aria-label="Photo précédente">‹</button>
+      <figure><img alt=""><figcaption></figcaption></figure>
+      <button type="button" class="lb-next" aria-label="Photo suivante">›</button>
+      <button type="button" class="lb-close" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>`;
+    document.body.appendChild(lb);
+    $('.lb-prev', lb).onclick = () => showLb(lbIdx - 1);
+    $('.lb-next', lb).onclick = () => showLb(lbIdx + 1);
+    $('.lb-close', lb).onclick = closeLb;
+    lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
+    lb.addEventListener('keydown', e => { if (e.key === 'ArrowLeft') showLb(lbIdx - 1); if (e.key === 'ArrowRight') showLb(lbIdx + 1); });
+  }
+  function showLb(i) {
+    lbIdx = (i + lbList.length) % lbList.length;
+    const p = lbList[lbIdx];
+    $('img', lb).src = `assets/img/gallery/${p.file}.jpg`; $('img', lb).alt = p.alt || '';
+    $('figcaption', lb).textContent = p.caption || '';
+  }
+  function closeLb() { lb.hidden = true; document.body.style.overflow = ''; lbLast?.focus(); }
+
+  const grid = $('[data-gallery]');
+  if (grid) {
+    fetch('assets/img/gallery/manifest.json').then(r => r.ok ? r.json() : []).then(photos => {
+      if (!Array.isArray(photos)) return;
+      const limit = Number(grid.dataset.limit) || photos.length;
+      const shown = photos.slice(0, limit);
+      grid.innerHTML = shown.map((p, i) => `
+        <figure class="gallery-card" data-i="${i}" data-category="${p.category || 'autres'}" tabindex="0" role="button" aria-label="Agrandir : ${p.caption || p.alt || 'photo'}">
+          <picture><source srcset="assets/img/gallery/${p.file}.webp" type="image/webp"><img src="assets/img/gallery/${p.file}.jpg" alt="${p.alt || ''}" loading="lazy" decoding="async" width="605" height="1080"></picture>
+          ${p.caption ? `<figcaption>${p.caption}</figcaption>` : ''}
+        </figure>`).join('');
+      const open = card => {
+        if (!lb) buildLb();
+        lbList = $$('.gallery-card:not([hidden])', grid).map(c => shown[Number(c.dataset.i)]);
+        lbLast = card; lb.hidden = false; document.body.style.overflow = 'hidden';
+        showLb(lbList.indexOf(shown[Number(card.dataset.i)]));
+        $('.lb-close', lb).focus();
+      };
+      grid.addEventListener('click', e => { const c = e.target.closest('.gallery-card'); if (c) open(c); });
+      grid.addEventListener('keydown', e => { const c = e.target.closest('.gallery-card'); if (c && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); open(c); } });
+      $$('[data-gfilter]').forEach(b => b.addEventListener('click', () => {
+        $$('[data-gfilter]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+        $$('.gallery-card', grid).forEach(c => { c.hidden = b.dataset.gfilter !== 'all' && c.dataset.category !== b.dataset.gfilter; });
+      }));
+    }).catch(() => {});
+  }
+
+  /* ================= TRAITEUR: 3-step quote ================= */
+  const quote = $('[data-quote]');
+  if (quote) {
+    let step = 1;
+    const steps = $$('[data-step]', quote);
+    const marks = $$('.stepper li', quote);
+    const err = $('[data-error]', quote);
+    const [prev, next, submit] = ['[data-prev]', '[data-next]', '[data-submit]'].map(s => $(s, quote));
+    quote.elements.date.min = todayISO();
+    const invalid = fs => $$('input, select, textarea', fs).filter(el => {
+      el.removeAttribute('aria-invalid');
+      if (el.type === 'radio') return el.required && !$$(`input[name="${el.name}"]`, quote).some(r => r.checked);
+      return !el.checkValidity();
+    });
+    const summary = () => {
+      const f = quote; const prefsQ = $$('input[name="pref"]:checked', f).map(c => c.value);
+      return [
+        `Événement : ${f.elements.type.value}`,
+        `Date : ${f.elements.date.value ? niceDate(f.elements.date.value) : ''} à ${f.elements.time.value.replace(':', 'h')}`,
+        `Invités : ${f.elements.guests.value}`,
+        `Lieu : ${f.elements.place.value}`,
+        `Service : ${($('input[name="service"]:checked', f) || {}).value || ''}`,
+        f.elements.budget.value ? `Budget par personne : ${f.elements.budget.value}` : '',
+        prefsQ.length ? `Préférences : ${prefsQ.join(', ')}` : ''
+      ].filter(Boolean).join('\n');
+    };
+    const go = n => {
+      step = n;
+      steps.forEach(s => { s.hidden = Number(s.dataset.step) !== n; });
+      marks.forEach((m, i) => { m.toggleAttribute('aria-current', i + 1 === n); if (i + 1 === n) m.setAttribute('aria-current', 'step'); m.classList.toggle('is-done', i + 1 < n); });
+      prev.hidden = n === 1; next.hidden = n === steps.length; submit.hidden = n !== steps.length;
+      if (n === steps.length) $('[data-summary]', quote).textContent = summary();
+      err.hidden = true;
+      $('input, select', steps[n - 1])?.focus();
+    };
+    next.addEventListener('click', () => {
+      const bad = invalid(steps[step - 1]);
+      if (bad.length) {
+        bad.forEach(el => el.setAttribute('aria-invalid', 'true'));
+        err.textContent = 'Complétez les champs indiqués pour continuer.'; err.hidden = false; bad[0].focus(); return;
       }
-    }
-    document.querySelectorAll('a.btn-primary[href*="wa.me"], .whatsapp-fab').forEach(btn => {
-      btn.addEventListener('click', e => burstConfetti(e.clientX, e.clientY));
+      go(step + 1);
+    });
+    prev.addEventListener('click', () => go(step - 1));
+    quote.addEventListener('submit', e => {
+      e.preventDefault();
+      const bad = invalid(steps[step - 1]);
+      if (bad.length) { bad.forEach(el => el.setAttribute('aria-invalid', 'true')); err.textContent = 'Indiquez votre nom et votre téléphone.'; err.hidden = false; bad[0].focus(); return; }
+      const f = quote;
+      openWhatsApp(['Bonjour Graya Holistic, je souhaite un devis traiteur.', '', summary(), '', `Nom : ${f.elements.name.value}`, `Téléphone : ${f.elements.phone.value}`, f.elements.message.value.trim() ? `Précisions : ${f.elements.message.value.trim()}` : ''].filter((l, i, a) => l !== '' || a[i - 1] !== '').join('\n').trim());
+      err.hidden = true; say('Votre demande est prête dans WhatsApp');
     });
   }
 
-  /* ---- "Surprends-moi" random dish picker ---- */
-  const surpriseBtn = document.getElementById('surprise-btn');
-  if (surpriseBtn) {
-    surpriseBtn.addEventListener('click', async () => {
-      const card = document.getElementById('surprise-card');
-      const img = document.getElementById('surprise-img');
-      const caption = document.getElementById('surprise-caption');
-      const cta = document.getElementById('surprise-cta');
+  /* ================= CONTACT → WhatsApp ================= */
+  const contact = $('[data-contact]');
+  contact?.addEventListener('submit', e => {
+    e.preventDefault();
+    const err = $('[data-error]', contact);
+    const bad = $$('input, select, textarea', contact).filter(el => { el.removeAttribute('aria-invalid'); return !el.checkValidity(); });
+    if (bad.length) { bad.forEach(el => el.setAttribute('aria-invalid', 'true')); err.textContent = 'Complétez votre nom, le sujet et le message.'; err.hidden = false; bad[0].focus(); return; }
+    err.hidden = true;
+    openWhatsApp(`Bonjour Graya Holistic,\nNom : ${contact.elements.name.value}\nSujet : ${contact.elements.subject.value}\n\n${contact.elements.message.value}`);
+    say('Votre message est prêt dans WhatsApp');
+  });
 
-      surpriseBtn.disabled = true;
-      card.classList.remove('landed');
-      card.classList.add('spinning');
-      caption.textContent = 'On cherche…';
+  /* ================= MOTION ================= */
+  // Photos unveil upward once, like a culm growing.
+  const unveil = $$('[data-unveil]');
+  if ('IntersectionObserver' in window && !reduced) {
+    const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { en.target.classList.add('is-in'); io.unobserve(en.target); } }), { rootMargin: '0px 0px -12% 0px' });
+    unveil.forEach(el => io.observe(el));
+  } else unveil.forEach(el => el.classList.add('is-in'));
 
-      const panda = document.getElementById('panda-mascot');
-      if (panda) {
-        panda.classList.remove('excited');
-        void panda.offsetWidth;
-        panda.classList.add('excited');
-      }
-
-      let photos;
-      try {
-        photos = await (await fetch('assets/img/gallery/manifest.json')).json();
-      } catch (e) {
-        photos = [];
-      }
-      if (!Array.isArray(photos) || !photos.length) {
-        caption.textContent = 'Galerie indisponible pour le moment';
-        card.classList.remove('spinning');
-        surpriseBtn.disabled = false;
-        return;
-      }
-
-      const tickDelay = reducedMotion ? 0 : 90;
-      const maxTicks = reducedMotion ? 1 : 16;
-      let ticks = 0;
-
-      await new Promise(resolve => {
-        const tick = () => {
-          const p = photos[Math.floor(Math.random() * photos.length)];
-          img.src = 'assets/img/gallery/' + p.file + '.jpg';
-          ticks++;
-          if (ticks >= maxTicks) { resolve(); return; }
-          setTimeout(tick, tickDelay);
-        };
-        tick();
-      });
-
-      const final = photos[Math.floor(Math.random() * photos.length)];
-      img.src = 'assets/img/gallery/' + final.file + '.jpg';
-      img.alt = final.alt || '';
-      const dishName = final.caption || final.alt || 'ce plat';
-      caption.textContent = dishName;
-      card.classList.remove('spinning');
-      card.classList.add('landed');
-
-      cta.href = 'https://wa.me/2250101736812?text=' + encodeURIComponent(
-        `Bonjour Graya Holistic, le hasard m'a proposé « ${dishName} » — je voudrais le commander !`
-      );
-      cta.hidden = false;
-      surpriseBtn.disabled = false;
-      surpriseBtn.textContent = '🎲 Rejouer';
+  // Parallax on the bamboo photos + the growing stalk (desktop only).
+  const para = $$('[data-parallax]');
+  const stalkSections = $$('[data-stalk]');
+  let stalk = null, fill = null, nodes = [];
+  if (stalkSections.length > 2 && matchMedia('(min-width: 1181px)').matches) {
+    stalk = document.createElement('div'); stalk.className = 'stalk';
+    stalk.innerHTML = '<div class="stalk-fill"></div>';
+    fill = $('.stalk-fill', stalk);
+    nodes = stalkSections.map(sec => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'stalk-node';
+      b.dataset.label = sec.dataset.stalk; b.setAttribute('aria-label', 'Aller à : ' + sec.dataset.stalk);
+      b.addEventListener('click', () => scrollTo({ top: sec.offsetTop - (header?.offsetHeight || 0) + 2, behavior: reduced ? 'auto' : 'smooth' }));
+      stalk.appendChild(b); return b;
     });
+    stalk.setAttribute('aria-label', 'Sections de la page'); stalk.setAttribute('role', 'navigation');
+    document.body.appendChild(stalk);
   }
-
-  /* ---- Gallery category filters ---- */
-  document.querySelectorAll('.gallery-filters').forEach(filterBar => {
-    const grid = filterBar.nextElementSibling;
-    if (!grid) return;
-    filterBar.addEventListener('click', e => {
-      const btn = e.target.closest('.gallery-filter');
-      if (!btn) return;
-      filterBar.querySelectorAll('.gallery-filter').forEach(b => {
-        b.classList.remove('active');
-        b.setAttribute('aria-selected', 'false');
-      });
-      btn.classList.add('active');
-      btn.setAttribute('aria-selected', 'true');
-      const filter = btn.dataset.filter;
-      grid.querySelectorAll('.gallery-card').forEach(card => {
-        const match = filter === 'all' || card.dataset.category === filter;
-        card.hidden = !match;
-      });
+  let docH = 0;
+  const layout = () => {
+    docH = document.documentElement.scrollHeight - innerHeight;
+    if (stalk) nodes.forEach((n, i) => { n.style.top = (Math.min(stalkSections[i].offsetTop / Math.max(docH, 1), 1) * 100) + '%'; });
+  };
+  let ticking = false;
+  const frame = () => {
+    ticking = false;
+    const y = scrollY;
+    if (!reduced) para.forEach(el => {
+      const r = el.parentElement.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > innerHeight) return;
+      el.style.transform = `translate3d(0, ${(-r.top * 0.18).toFixed(1)}px, 0)`;
     });
-  });
-
-  /* ---- Active nav link based on current page ---- */
-  const currentPath = window.location.pathname.split('/').pop() || 'index.html';
-  document.querySelectorAll('.nav-links a').forEach(link => {
-    const href = link.getAttribute('href').split('/').pop();
-    if (href === currentPath) {
-      link.classList.add('active');
-      link.setAttribute('aria-current', 'page');
+    if (stalk) {
+      const p = Math.min(y / Math.max(docH, 1), 1);
+      fill.style.height = (p * 100) + '%';
+      nodes.forEach((n, i) => n.classList.toggle('is-passed', stalkSections[i].offsetTop <= y + innerHeight * 0.3));
     }
-  });
-
-});
+  };
+  const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(frame); } };
+  addEventListener('scroll', onScroll, { passive: true });
+  addEventListener('resize', () => { layout(); onScroll(); });
+  addEventListener('load', () => { layout(); onScroll(); });
+  layout(); frame();
+})();
