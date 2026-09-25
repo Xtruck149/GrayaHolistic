@@ -2,8 +2,9 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<script>document.documentElement.classList.add('js')</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Notre Cuisine — Graya Holistic®</title>
+<title>Notre cuisine holistique : plats, jus &amp; desserts | Graya Holistic®</title>
 <meta name="description" content="Cuisine Holistique Consciente™ : les plats, les boissons bien-être et les desserts de Graya Holistic. Une gastronomie qui nourrit le corps, apaise l'esprit et élève l'âme.">
 <link rel="icon" href="assets/img/favicon.ico" sizes="any">
 <link rel="icon" href="assets/img/favicon-32.png" type="image/png" sizes="32x32">
@@ -22,14 +23,20 @@
 <meta name="twitter:title" content="Notre Cuisine — Graya Holistic®">
 <meta name="twitter:description" content="Cuisine Holistique Consciente™ : les plats, les boissons bien-être et les desserts de Graya Holistic.">
 <link rel="canonical" href="https://xtruck149.github.io/GrayaHolistic/notre-cuisine.html">
-<link rel="stylesheet" href="assets/css/style.css?v=19">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="assets/css/style.css?v=20">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Accueil","item":"https://xtruck149.github.io/GrayaHolistic/"},{"@type":"ListItem","position":2,"name":"Notre cuisine","item":"https://xtruck149.github.io/GrayaHolistic/notre-cuisine.html"}]}
+</script>
 </head>
 <body>
 <a href="#main-content" class="skip-link">Aller au contenu principal</a>
 
 <header class="site-header">
-  <nav class="nav">
-    <a href="index.html" class="logo"><img src="assets/img/logo-mark.png" alt="" class="logo-mark" width="104" height="104"><span class="logo-text">Graya <span>Holistic</span></span></a>
+  <nav class="nav" aria-label="Navigation principale">
+    <a href="index.html" class="logo" aria-label="Graya Holistic — accueil"><picture><source srcset="assets/img/logo-mark.webp" type="image/webp"><img src="assets/img/logo-mark.png" alt="" class="logo-mark" width="104" height="104"></picture><span class="logo-text">Graya <span>Holistic</span></span></a>
     <ul class="nav-links">
       <li><a href="a-propos.html">Qui sommes-nous</a></li>
       <li><a href="notre-cuisine.html">Notre Cuisine</a></li>
@@ -39,7 +46,7 @@
       <li><a href="contact.html">Contact</a></li>
     </ul>
     <div class="nav-cta"><a href="https://wa.me/2250101736812?text=Bonjour%20Graya%20Holistic%2C%20je%20souhaite%20passer%20une%20commande." class="btn btn-primary btn-sm">Commander</a></div>
-    <button class="burger" aria-label="Ouvrir le menu" aria-expanded="false">
+    <button type="button" class="burger" aria-label="Ouvrir le menu" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
   </nav>
@@ -58,11 +65,11 @@
 <main id="main-content">
 <section class="hero hero--coral hero--short">
   <div class="wrap hero-inner">
-    <div class="breadcrumbs">
+    <nav class="breadcrumbs" aria-label="Fil d'Ariane">
       <a href="index.html">Accueil</a>
       <span class="sep">/</span>
-      <span class="current">Notre Cuisine</span>
-    </div>
+      <span class="current" aria-current="page">Notre Cuisine</span>
+    </nav>
     <span class="eyebrow eyebrow--light">Notre cuisine</span>
     <h1>Cuisine Holistique <em>Consciente™</em></h1>
     <p class="lead">Une gastronomie qui nourrit le corps, apaise l'esprit et élève l'âme, en harmonie avec la nature.</p>
@@ -80,21 +87,21 @@
         <span class="card-badge">Coup de cœur</span>
         <div class="card-body">
           <span class="card-tag card-tag--green">Les plats</span>
-          <h4>Savoureux &amp; équilibrés</h4>
+          <h2 class="h4">Savoureux &amp; équilibrés</h2>
           <p>Des créations savoureuses et équilibrées, élaborées à partir d'ingrédients frais, locaux et de saison. Chaque plat est conçu pour respecter votre santé et sublimer les saveurs naturelles.</p>
         </div>
       </div>
       <div class="card card--elevated">
         <div class="card-body">
           <span class="card-tag card-tag--gold">Les boissons bien-être</span>
-          <h4>Naturelles &amp; revitalisantes</h4>
+          <h2 class="h4">Naturelles &amp; revitalisantes</h2>
           <p>Des boissons naturelles et revitalisantes à base de fruits, plantes, épices et super-aliments, pour hydrater, détoxifier et renforcer votre vitalité au quotidien.</p>
         </div>
       </div>
       <div class="card card--elevated">
         <div class="card-body">
           <span class="card-tag card-tag--coral">Les desserts</span>
-          <h4>Saines &amp; gourmandes</h4>
+          <h2 class="h4">Saines &amp; gourmandes</h2>
           <p>Des douceurs saines et gourmandes, préparées avec des ingrédients naturels et peu transformés, pour finir votre repas avec légèreté et plaisir.</p>
         </div>
       </div>
@@ -124,7 +131,7 @@
   <div class="wrap">
     <div class="split-layout">
       <div class="bamboo-wallpaper-photo bamboo-photo-frame reveal-left">
-        <picture><source srcset="assets/img/bamboo/bamboo-stalks-vivid.webp" type="image/webp"><img src="assets/img/bamboo/bamboo-stalks-vivid.jpg" alt="Gros plan sur des tiges de bambou vert vif"></picture>
+        <picture><source srcset="assets/img/bamboo/bamboo-stalks-vivid.webp" type="image/webp"><img src="assets/img/bamboo/bamboo-stalks-vivid.jpg" alt="Gros plan sur des tiges de bambou vert vif" width="1000" height="1503" loading="lazy" decoding="async"></picture>
       </div>
       <div class="reveal-right">
         <span class="eyebrow">Patience &amp; croissance</span>
@@ -147,28 +154,28 @@
       <div class="card card--bordered text-center">
         <div class="card-body">
           <div class="icon-circle" data-icon="herb" aria-hidden="true"></div>
-          <h4>Ingrédients de qualité</h4>
+          <h3 class="h4">Ingrédients de qualité</h3>
           <p>Sélection rigoureuse des meilleurs produits naturels.</p>
         </div>
       </div>
       <div class="card card--bordered text-center">
         <div class="card-body">
           <div class="icon-circle" data-icon="flame" aria-hidden="true"></div>
-          <h4>Cuisson saine</h4>
+          <h3 class="h4">Cuisson saine</h3>
           <p>Méthodes douces pour préserver les nutriments et les saveurs.</p>
         </div>
       </div>
       <div class="card card--bordered text-center">
         <div class="card-body">
           <div class="icon-circle" data-icon="balance" aria-hidden="true"></div>
-          <h4>Équilibre &amp; harmonie</h4>
+          <h3 class="h4">Équilibre &amp; harmonie</h3>
           <p>Des recettes équilibrées pour le corps, l'esprit et l'émotion.</p>
         </div>
       </div>
       <div class="card card--bordered text-center">
         <div class="card-body">
           <div class="icon-circle" data-icon="globe" aria-hidden="true"></div>
-          <h4>Éthique &amp; durabilité</h4>
+          <h3 class="h4">Éthique &amp; durabilité</h3>
           <p>Respect de la nature, des producteurs et des générations futures.</p>
         </div>
       </div>
@@ -201,7 +208,7 @@
   <div class="wrap">
     <div class="footer-grid">
       <div class="footer-col footer-brand">
-        <div class="footer-logo"><img src="assets/img/logo-mark.png" alt="" class="footer-logo-mark" width="104" height="104"><h4>Graya Holistic</h4></div>
+        <div class="footer-logo"><picture><source srcset="assets/img/logo-mark.webp" type="image/webp"><img src="assets/img/logo-mark.png" alt="" class="footer-logo-mark" width="104" height="104" loading="lazy"></picture><h2 class="h4">Graya Holistic</h2></div>
         <p>Cuisine Holistique Consciente™ — livrée à Abidjan. L'art de bien manger, de bien vivre et de prendre soin de demain.</p>
         <div class="footer-social">
           <a href="https://facebook.com/bmtgreenacademy" aria-label="Facebook" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 21v-8h2.5l.5-3H15V8.2c0-.9.3-1.5 1.6-1.5H18V4.1C17.7 4 16.8 4 15.8 4c-2.1 0-3.5 1.3-3.5 3.6V10H10v3h2.3v8"/></svg></a>
@@ -211,7 +218,7 @@
         </div>
       </div>
       <div class="footer-col">
-        <h5>Découvrir</h5>
+        <h2 class="h5">Découvrir</h2>
         <a href="a-propos.html">Qui sommes-nous</a>
         <a href="notre-cuisine.html">Notre cuisine</a>
         <a href="menu.html">Menu</a>
@@ -219,18 +226,18 @@
         <a href="engagement.html">Notre engagement</a>
       </div>
       <div class="footer-col">
-        <h5>Services</h5>
+        <h2 class="h5">Services</h2>
         <a href="services.html">Livraison express</a>
         <a href="services.html">Traiteur événementiel</a>
         <a href="services.html">Cures &amp; formules</a>
         <a href="menu.html">Notre menu</a>
       </div>
       <div class="footer-col">
-        <h5>Contact</h5>
+        <h2 class="h5">Contact</h2>
         <p>Abidjan, Côte d'Ivoire</p>
         <a href="mailto:bmtgreenacademy@gmail.com">bmtgreenacademy@gmail.com</a>
-        <a href="tel:+2250101736812">01 01 73 68 12</a>
-        <a href="tel:+2250777776200">07 77 77 62 00</a>
+        <a href="tel:+2250101736812">01&nbsp;01&nbsp;73&nbsp;68&nbsp;12</a>
+        <a href="tel:+2250777776200">07&nbsp;77&nbsp;77&nbsp;62&nbsp;00</a>
       </div>
     </div>
     <div class="footer-bottom">
@@ -240,6 +247,6 @@
   </div>
 </footer>
 
-<script src="assets/js/main.js?v=9"></script>
+<script src="assets/js/main.js?v=10"></script>
 </body>
 </html>

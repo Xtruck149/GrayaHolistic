@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<script>document.documentElement.classList.add('js')</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Graya Holistic® — Cuisine Holistique Consciente à Abidjan</title>
 <meta name="description" content="Graya Holistic® — cuisine holistique consciente livrée à Abidjan. Atelier culinaire virtuel & traiteur éco-conscient. Une gastronomie qui nourrit le corps, apaise l'esprit et élève l'âme, en harmonie avec la nature.">
@@ -24,7 +25,10 @@
 <meta name="twitter:title" content="Graya Holistic® — Cuisine Holistique Consciente, livrée à Abidjan">
 <meta name="twitter:description" content="Atelier culinaire virtuel & traiteur éco-conscient à Abidjan. Une gastronomie consciente qui nourrit le corps, apaise l'esprit et élève l'âme.">
 <link rel="canonical" href="https://xtruck149.github.io/GrayaHolistic/">
-<link rel="stylesheet" href="assets/css/style.css?v=19">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="assets/css/style.css?v=20">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -64,8 +68,8 @@
 <a href="#main-content" class="skip-link">Aller au contenu principal</a>
 
 <header class="site-header">
-  <nav class="nav">
-    <a href="index.html" class="logo"><img src="assets/img/logo-mark.png" alt="" class="logo-mark" width="104" height="104"><span class="logo-text">Graya <span>Holistic</span></span></a>
+  <nav class="nav" aria-label="Navigation principale">
+    <a href="index.html" class="logo" aria-label="Graya Holistic — accueil"><picture><source srcset="assets/img/logo-mark.webp" type="image/webp"><img src="assets/img/logo-mark.png" alt="" class="logo-mark" width="104" height="104"></picture><span class="logo-text">Graya <span>Holistic</span></span></a>
     <ul class="nav-links">
       <li><a href="a-propos.html">Qui sommes-nous</a></li>
       <li><a href="notre-cuisine.html">Notre Cuisine</a></li>
@@ -75,7 +79,7 @@
       <li><a href="contact.html">Contact</a></li>
     </ul>
     <div class="nav-cta"><a href="https://wa.me/2250101736812?text=Bonjour%20Graya%20Holistic%2C%20je%20souhaite%20passer%20une%20commande." class="btn btn-primary btn-sm">Commander</a></div>
-    <button class="burger" aria-label="Ouvrir le menu" aria-expanded="false">
+    <button type="button" class="burger" aria-label="Ouvrir le menu" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
   </nav>
@@ -97,7 +101,7 @@
   <span class="hero-blob b2"></span>
   <div class="wrap hero-inner hero-inner--split">
     <div class="hero-copy">
-      <img src="assets/img/logo-square.png" alt="Graya Holistic®" class="hero-photo-brand-logo hero-photo-brand-logo--top">
+      <picture><source srcset="assets/img/logo-square.webp" type="image/webp"><img src="assets/img/logo-square.png" alt="Graya Holistic®" class="hero-photo-brand-logo hero-photo-brand-logo--top" width="560" height="560" fetchpriority="high"></picture>
       <div class="hero-brand-badge">
         <span class="hero-brand-badge-name">Graya Holistic®</span>
         <span class="hero-brand-badge-sub">Cuisine Holistique Consciente™</span>
@@ -115,7 +119,7 @@
       <div class="hero-photo-frame">
         <picture>
           <source srcset="assets/img/gallery/plat-01.webp" type="image/webp">
-          <img src="assets/img/gallery/plat-01.jpg" alt="" id="hero-rotator-img">
+          <img src="assets/img/gallery/plat-01.jpg" alt="Brochettes de poulet grillées, citron et persil" id="hero-rotator-img" width="605" height="1080" fetchpriority="high">
         </picture>
         <span class="hero-photo-caption" id="hero-rotator-caption"></span>
       </div>
@@ -133,17 +137,17 @@
       <div class="grid-3 reveal-stagger">
         <div class="card card--dark text-center p-xl">
           <div class="icon-circle" data-icon="globe" aria-hidden="true"></div>
-          <h4>Savoirs culinaires africains</h4>
+          <h3 class="h4">Savoirs culinaires africains</h3>
           <p>Un héritage gastronomique transmis et réinventé, ancré dans la culture ivoirienne.</p>
         </div>
         <div class="card card--dark text-center p-xl">
           <div class="icon-circle" data-icon="herb" aria-hidden="true"></div>
-          <h4>Plantes &amp; épices locales</h4>
+          <h3 class="h4">Plantes &amp; épices locales</h3>
           <p>Des ingrédients du terroir choisis pour leurs vertus nutritives et thérapeutiques.</p>
         </div>
         <div class="card card--dark text-center p-xl">
           <div class="icon-circle" data-icon="lotus" aria-hidden="true"></div>
-          <h4>Bien-être holistique</h4>
+          <h3 class="h4">Bien-être holistique</h3>
           <p>Des approches contemporaines qui replacent le corps, l'esprit et l'émotion au centre du repas.</p>
         </div>
       </div>
@@ -182,22 +186,22 @@
       <div class="grid-4 reveal-stagger">
         <div class="card card--dark text-center p-xl">
           <div class="icon-circle" data-icon="bowl" aria-hidden="true"></div>
-          <h4>Cuisine consciente</h4>
+          <h3 class="h4">Cuisine consciente</h3>
           <p>Cuisiner avec intention, conscience et énergie pour nourrir le corps et l'esprit.</p>
         </div>
         <div class="card card--dark text-center p-xl">
           <div class="icon-circle" data-icon="palette" aria-hidden="true"></div>
-          <h4>Art comestible thérapeutique</h4>
+          <h3 class="h4">Art comestible thérapeutique</h3>
           <p>Transformer l'assiette en expérience sensorielle et émotionnelle, source d'apaisement intérieur.</p>
         </div>
         <div class="card card--dark text-center p-xl">
           <div class="icon-circle" data-icon="sprout" aria-hidden="true"></div>
-          <h4>Phytothérapie &amp; alimentation consciente</h4>
+          <h3 class="h4">Phytothérapie &amp; alimentation consciente</h3>
           <p>Valoriser les plantes médicinales, les épices traditionnelles et leurs vertus naturelles.</p>
         </div>
         <div class="card card--dark text-center p-xl">
           <div class="icon-circle" data-icon="ecotherapy" aria-hidden="true"></div>
-          <h4>Éco-thérapie &amp; harmonie des lieux</h4>
+          <h3 class="h4">Éco-thérapie &amp; harmonie des lieux</h3>
           <p>Des recettes pensées pour soutenir le bien-être et l'énergie positive, livrées chez vous.</p>
         </div>
       </div>
@@ -224,21 +228,21 @@
         <span class="card-badge">Coup de cœur</span>
         <div class="card-body">
           <span class="card-tag card-tag--green">Les plats</span>
-          <h4>Des créations savoureuses et équilibrées</h4>
+          <h3 class="h4">Des créations savoureuses et équilibrées</h3>
           <p>Élaborées à partir d'ingrédients frais, locaux et de saison, conçues pour respecter votre santé et sublimer les saveurs naturelles.</p>
         </div>
       </div>
       <div class="card card--elevated">
         <div class="card-body">
           <span class="card-tag card-tag--gold">Les boissons bien-être</span>
-          <h4>Naturelles et revitalisantes</h4>
+          <h3 class="h4">Naturelles et revitalisantes</h3>
           <p>À base de fruits, plantes, épices et super-aliments, pour hydrater, détoxifier et renforcer votre vitalité au quotidien.</p>
         </div>
       </div>
       <div class="card card--elevated">
         <div class="card-body">
           <span class="card-tag card-tag--coral">Les desserts</span>
-          <h4>Saines et gourmandes</h4>
+          <h3 class="h4">Saines et gourmandes</h3>
           <p>Préparés avec des ingrédients naturels et peu transformés, pour finir votre repas avec légèreté et plaisir.</p>
         </div>
       </div>
@@ -287,7 +291,7 @@
         </svg>
       </div>
       <div class="surprise-card" id="surprise-card">
-        <img src="assets/img/gallery/plat-01.jpg" alt="" id="surprise-img">
+        <img src="assets/img/gallery/plat-01.jpg" alt="" id="surprise-img" width="605" height="1080" loading="lazy" decoding="async">
         <span class="surprise-caption" id="surprise-caption">Cliquez pour découvrir</span>
       </div>
       <button type="button" class="btn btn-primary btn-lg mt-lg" id="surprise-btn">🎲 Surprends-moi !</button>
@@ -306,7 +310,7 @@
       <div class="card card--photo" style="--card-photo: url('../img/gallery/plat-28.webp');">
         <div class="card-body text-center">
           <div class="icon-circle" data-icon="scooter" aria-hidden="true"></div>
-          <h4>Livraison express</h4>
+          <h3 class="h4">Livraison express</h3>
           <p>Commandez et savourez nos plats holistiques où que vous soyez à Abidjan, en un message WhatsApp.</p>
           <a href="services.html" class="btn btn-ghost mt-md">En savoir plus →</a>
         </div>
@@ -314,7 +318,7 @@
       <div class="card card--photo" style="--card-photo: url('../img/gallery/plat-08.webp');">
         <div class="card-body text-center">
           <div class="icon-circle" data-icon="celebration" aria-hidden="true"></div>
-          <h4>Traiteur événementiel</h4>
+          <h3 class="h4">Traiteur événementiel</h3>
           <p>Menus sur mesure et ateliers bien-être pour vos réceptions privées ou professionnelles.</p>
           <a href="services.html" class="btn btn-ghost mt-md">En savoir plus →</a>
         </div>
@@ -322,7 +326,7 @@
       <div class="card card--photo" style="--card-photo: url('../img/gallery/plat-18.webp');">
         <div class="card-body text-center">
           <div class="icon-circle" data-icon="box" aria-hidden="true"></div>
-          <h4>Cures &amp; formules holistiques</h4>
+          <h3 class="h4">Cures &amp; formules holistiques</h3>
           <p>Des formules hebdomadaires pensées pour accompagner durablement votre bien-être.</p>
           <a href="services.html" class="btn btn-ghost mt-md">En savoir plus →</a>
         </div>
@@ -366,7 +370,7 @@
   <div class="wrap">
     <div class="footer-grid">
       <div class="footer-col footer-brand">
-        <div class="footer-logo"><img src="assets/img/logo-mark.png" alt="" class="footer-logo-mark" width="104" height="104"><h4>Graya Holistic</h4></div>
+        <div class="footer-logo"><picture><source srcset="assets/img/logo-mark.webp" type="image/webp"><img src="assets/img/logo-mark.png" alt="" class="footer-logo-mark" width="104" height="104" loading="lazy"></picture><h2 class="h4">Graya Holistic</h2></div>
         <p>Cuisine Holistique Consciente™ — livrée à Abidjan. L'art de bien manger, de bien vivre et de prendre soin de demain.</p>
         <div class="footer-social">
           <a href="https://facebook.com/bmtgreenacademy" aria-label="Facebook" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 21v-8h2.5l.5-3H15V8.2c0-.9.3-1.5 1.6-1.5H18V4.1C17.7 4 16.8 4 15.8 4c-2.1 0-3.5 1.3-3.5 3.6V10H10v3h2.3v8"/></svg></a>
@@ -376,7 +380,7 @@
         </div>
       </div>
       <div class="footer-col">
-        <h5>Découvrir</h5>
+        <h2 class="h5">Découvrir</h2>
         <a href="a-propos.html">Qui sommes-nous</a>
         <a href="notre-cuisine.html">Notre cuisine</a>
         <a href="menu.html">Menu</a>
@@ -384,18 +388,18 @@
         <a href="engagement.html">Notre engagement</a>
       </div>
       <div class="footer-col">
-        <h5>Services</h5>
+        <h2 class="h5">Services</h2>
         <a href="services.html">Livraison express</a>
         <a href="services.html">Traiteur événementiel</a>
         <a href="services.html">Cures &amp; formules</a>
         <a href="menu.html">Notre menu</a>
       </div>
       <div class="footer-col">
-        <h5>Contact</h5>
+        <h2 class="h5">Contact</h2>
         <p>Abidjan, Côte d'Ivoire</p>
         <a href="mailto:bmtgreenacademy@gmail.com">bmtgreenacademy@gmail.com</a>
-        <a href="tel:+2250101736812">01 01 73 68 12</a>
-        <a href="tel:+2250777776200">07 77 77 62 00</a>
+        <a href="tel:+2250101736812">01&nbsp;01&nbsp;73&nbsp;68&nbsp;12</a>
+        <a href="tel:+2250777776200">07&nbsp;77&nbsp;77&nbsp;62&nbsp;00</a>
       </div>
     </div>
     <div class="footer-bottom">
@@ -405,6 +409,6 @@
   </div>
 </footer>
 
-<script src="assets/js/main.js?v=9"></script>
+<script src="assets/js/main.js?v=10"></script>
 </body>
 </html>
