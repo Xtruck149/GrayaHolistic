@@ -483,7 +483,9 @@
   } else unveil.forEach(el => el.classList.add('is-in'));
 
   // Parallax on the bamboo photos + the growing stalk (desktop only).
-  const para = $$('[data-parallax]');
+  // Native scroll-driven animations handle the parallax in CSS when available (see style.css).
+  const nativePx = window.CSS?.supports?.('(animation-timeline: view()) and (animation-range: entry)');
+  const para = nativePx ? [] : $$('[data-parallax]');
   const stalkSections = $$('[data-stalk]');
   let stalk = null, fill = null, nodes = [];
   if (stalkSections.length > 2 && matchMedia('(min-width: 1181px)').matches) {

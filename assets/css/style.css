@@ -531,3 +531,24 @@ h1, h2, blockquote, .signature { font-variation-settings: "opsz" 11; }
 h3, h4, .h3, .kicker, .sub, .price, .brand span, .hours dt, .contact-list dt, .hero-facts strong, .stalk-node::after, .line b, .total-row--grand, .gallery-card figcaption, .lightbox figcaption, .nav a, .faq-item summary h2 { font-variation-settings: "opsz" 6; }
 .carte-section > *, .row > *, .split > *, .info > *, .devis > *, .contact > * { min-width: 0; }
 .drawer-note--warn { color: var(--or-clair); }
+
+/* ===================== NATIVE PARALLAX (scroll-driven animations) =====================
+   Runs on the compositor where supported (Chrome/Edge 115+, Safari 26+); main.js keeps the
+   scroll-listener version only for browsers without it. Offsets stay inside each photo's
+   overflow (-10 % / -12 %) so no edge is ever revealed. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports ((animation-timeline: view()) and (animation-range: entry)) {
+    .hero-bg[data-parallax], .page-hero-bg[data-parallax] {
+      animation: px-hero linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 100vh;
+    }
+    .band--photo { view-timeline: --px-band; }
+    .band--photo .photo[data-parallax] {
+      animation: px-band linear both;
+      animation-timeline: --px-band;
+    }
+    @keyframes px-hero { from { transform: translateY(0); } to { transform: translateY(9%); } }
+    @keyframes px-band { from { transform: translateY(-8%); } to { transform: translateY(8%); } }
+  }
+}
