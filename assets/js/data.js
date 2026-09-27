@@ -143,5 +143,31 @@ window.GRAYA = {
    "name": "Le Consolateur",
    "cat": "the"
   }
+ },
+ "prices": {
+  "francois": 3000,
+  "kaikai": 3000,
+  "intrigue": 4000,
+  "rivage": 5000,
+  "gabriella": 3000,
+  "nerree": 5000,
+  "braise": 5000,
+  "poisson-graya": 4000,
+  "soupe-pecheur": 5000,
+  "kedjenou": 3000,
+  "ebrie": 1000,
+  "baoule": 1000,
+  "bondoukouenne": 1000,
+  "belge": 1000,
+  "francaise": 2000,
+  "fmn-verre": 2000,
+  "fmn-bouteille": 5000,
+  "hibiscus-verre": 2000,
+  "hibiscus-bouteille": 5000,
+  "deboukei-verre": 2000,
+  "deboukei-bouteille": 5000,
+  "evasion-verre": 2000,
+  "evasion-bouteille": 5000,
+  "consolateur": 500
  }
 };

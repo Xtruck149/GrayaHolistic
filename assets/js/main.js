@@ -12,6 +12,42 @@
     get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } }
   };
+  const esc = v => String(v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const pad = n => String(n).padStart(2, '0');
+  const toMin = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+  const fmtT = t => { const [h, m] = t.split(':'); return `${Number(h)} h${m === '00' ? '' : ' ' + m}`; };
+
+  /* Opening hours are always read in Abidjan time (UTC+0, no daylight saving), whatever the visitor's device says. */
+  const DOW = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+  const DAYS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+  let clock = null;
+  try { clock = new Intl.DateTimeFormat('en-US', { timeZone: 'Africa/Abidjan', weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }); } catch { /* very old browser: local time */ }
+  function abidjanNow() {
+    if (clock) {
+      const p = Object.fromEntries(clock.formatToParts(new Date()).map(x => [x.type, x.value]));
+      return { dow: DOW[p.weekday], min: Number(p.hour) * 60 + Number(p.minute), iso: `${p.year}-${p.month}-${p.day}` };
+    }
+    const d = new Date();
+    return { dow: d.getDay(), min: d.getHours() * 60 + d.getMinutes(), iso: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` };
+  }
+  function openState() {
+    if (!G.hours.length) return null;
+    const n = abidjanNow();
+    const today = G.hours.find(h => h.days.includes(n.dow));
+    if (today && n.min >= toMin(today.opens) && n.min < toMin(today.closes)) return { open: true, text: `Ouvert maintenant, jusqu'à ${fmtT(today.closes)}` };
+    if (today && n.min < toMin(today.opens)) return { open: false, text: `Fermé, ouvre aujourd'hui à ${fmtT(today.opens)}` };
+    for (let i = 1; i <= 7; i++) {
+      const d = (n.dow + i) % 7, h = G.hours.find(x => x.days.includes(d));
+      if (h) return { open: false, text: `Fermé, ouvre ${i === 1 ? 'demain' : DAYS[d]} à ${fmtT(h.opens)}` };
+    }
+    return { open: false, text: 'Fermé' };
+  }
+  const statusEl = $('[data-status]');
+  if (statusEl) {
+    const st = openState();
+    if (st) { statusEl.hidden = false; statusEl.classList.add(st.open ? 'is-open' : 'is-closed'); $('span', statusEl).textContent = st.text; }
+  }
+
   const openWhatsApp = text => {
     const w = window.open(waUrl(text), '_blank', 'noopener');
     if (!w) location.href = waUrl(text);
@@ -47,6 +83,13 @@
   const KEY = 'graya-cart-v2';
   let cart = store.get(KEY, []);
   if (!Array.isArray(cart)) cart = [];
+  // A cart saved before a price change (or a removed dish) must never be sent with stale figures.
+  if (G.prices && Object.keys(G.prices).length) {
+    cart = cart.filter(l => l && l.id in G.prices)
+      .map(l => ({ ...l, price: G.prices[l.id], qty: Math.max(1, Math.floor(Number(l.qty)) || 1) }));
+    store.set(KEY, cart);
+  }
+  const draft = { note: '' };  // note typed in the drawer: kept while the drawer re-renders
   const saveCart = () => { store.set(KEY, cart); renderCount(); if (drawerOpen) renderDrawer(); };
   const count = () => cart.reduce((n, l) => n + l.qty, 0);
   const subtotal = () => cart.reduce((n, l) => n + l.qty * l.price, 0);
@@ -116,31 +159,29 @@
 
   /* Time slots for "Programmer", within the opening hours of the chosen day */
   const hoursFor = d => G.hours.find(h => h.days.includes(d.getDay()));
-  const toMin = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
-  const pad = n => String(n).padStart(2, '0');
   function slotsFor(dateStr) {
     if (!dateStr) return [];
     const d = new Date(dateStr + 'T00:00');
     const h = hoursFor(d); if (!h) return [];
     let start = toMin(h.opens) + 30; const end = toMin(h.closes);
-    const now = new Date();
-    if (d.toDateString() === now.toDateString()) start = Math.max(start, Math.ceil((now.getHours() * 60 + now.getMinutes() + 60) / 30) * 30);
+    const now = abidjanNow();
+    if (dateStr === now.iso) start = Math.max(start, Math.ceil((now.min + 60) / 30) * 30);
     const out = []; for (let m = start; m <= end; m += 30) out.push(`${pad(Math.floor(m / 60))}:${pad(m % 60)}`);
     return out;
   }
-  const todayISO = () => { const t = new Date(); return `${t.getFullYear()}-${pad(t.getMonth() + 1)}-${pad(t.getDate())}`; };
+  const todayISO = () => abidjanNow().iso;
   const niceDate = s => new Date(s + 'T00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
 
   function renderDrawer() {
-    const zoneOpts = G.zones.map(z => `<option value="${z.name}"${prefs.zone === z.name ? ' selected' : ''}>${z.name} — ${fcfa(z.fee)}</option>`).join('')
+    const zoneOpts = G.zones.map(z => `<option value="${esc(z.name)}"${prefs.zone === z.name ? ' selected' : ''}>${esc(z.name)} — ${fcfa(z.fee)}</option>`).join('')
       + `<option value="autre"${prefs.zone === 'autre' ? ' selected' : ''}>Autre zone (frais confirmés sur WhatsApp)</option>`;
     const lines = cart.map((l, i) => `
       <div class="line">
-        <b>${l.name}</b>
-        <div class="qty" role="group" aria-label="Quantité de ${l.name}">
-          <button type="button" data-q="${i}" data-d="-1" aria-label="Retirer un ${l.name}">−</button>
+        <b>${esc(l.name)}</b>
+        <div class="qty" role="group" aria-label="Quantité de ${esc(l.name)}">
+          <button type="button" data-q="${i}" data-d="-1" aria-label="Retirer un ${esc(l.name)}">−</button>
           <span aria-live="polite">${l.qty}</span>
-          <button type="button" data-q="${i}" data-d="1" aria-label="Ajouter un ${l.name}">+</button>
+          <button type="button" data-q="${i}" data-d="1" aria-label="Ajouter un ${esc(l.name)}">+</button>
         </div>
         <small>${fcfa(l.price)} l'unité</small><small class="line-total">${fcfa(l.price * l.qty)}</small>
       </div>`).join('');
@@ -160,9 +201,9 @@
             <div class="field"><label for="o-date">Jour</label><input id="o-date" name="date" type="date" min="${todayISO()}" value="${prefs.date && prefs.date >= todayISO() ? prefs.date : todayISO()}"></div>
             <div class="field"><label for="o-time">Heure</label><select id="o-time" name="time"></select></div>
           </div>
-          <div class="field"><label for="o-address">Adresse ou point de repère</label><input id="o-address" name="address" autocomplete="street-address" placeholder="ex. Riviera 3, près de la pharmacie" value="${(prefs.address || '').replace(/"/g, '&quot;')}" required></div>
-          <div class="field"><label for="o-name">Votre nom</label><input id="o-name" name="name" autocomplete="name" value="${(prefs.name || '').replace(/"/g, '&quot;')}" required></div>
-          <div class="field"><label for="o-note">Note pour la cuisine (facultatif)</label><textarea id="o-note" name="note" rows="2" placeholder="Allergies, sans piment…"></textarea></div>
+          <div class="field"><label for="o-address">Adresse ou point de repère</label><input id="o-address" name="address" autocomplete="street-address" placeholder="ex. Riviera 3, près de la pharmacie" value="${esc(prefs.address || '')}" required></div>
+          <div class="field"><label for="o-name">Votre nom</label><input id="o-name" name="name" autocomplete="name" value="${esc(prefs.name || '')}" required></div>
+          <div class="field"><label for="o-note">Note pour la cuisine (facultatif)</label><textarea id="o-note" name="note" rows="2" placeholder="Allergies, sans piment…">${esc(draft.note)}</textarea></div>
           <p class="form-error" data-error role="alert" hidden></p>
         </form>` : empty}
       </div>
@@ -171,6 +212,7 @@
         <div class="total-row" data-fee-row><span>Livraison</span><span data-fee>Choisissez une zone</span></div>
         <div class="total-row total-row--grand"><span>Total</span><span data-total>${fcfa(subtotal())}</span></div>
         <button type="button" class="btn btn--gold" data-send><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.39 1.26 4.81L2 22l5.41-1.42a9.87 9.87 0 0 0 4.63 1.18c5.46 0 9.9-4.45 9.9-9.91S17.5 2 12.04 2Z"/></svg>Envoyer la commande sur WhatsApp</button>
+        <p class="drawer-note drawer-note--warn" data-closed hidden></p>
         <p class="drawer-note" data-sent hidden>Votre commande est prête dans WhatsApp : envoyez le message pour la valider.</p>
         <button type="button" class="link" data-clear>Vider le panier</button>
       </div>` : ''}`;
@@ -186,10 +228,17 @@
       const sel = form.elements.time; const slots = slotsFor(form.elements.date.value);
       sel.innerHTML = slots.length ? slots.map(s => `<option${prefs.time === s ? ' selected' : ''}>${s}</option>`).join('') : '<option value="">Fermé ce jour-là</option>';
     };
-    refreshTotals(); refreshSlots();
+    const refreshClosed = () => {
+      const st = openState(), el = $('[data-closed]', drawer);
+      const show = !!st && !st.open && form.elements.when.value !== 'later';
+      el.hidden = !show;
+      if (show) el.textContent = `Nous sommes fermés en ce moment (${st.text.replace('Fermé, ', '')}). Votre commande sera préparée à l'ouverture, ou programmez un créneau précis.`;
+    };
+    refreshTotals(); refreshSlots(); refreshClosed();
+    form.addEventListener('input', e => { if (e.target.name === 'note') draft.note = e.target.value; });
     form.addEventListener('change', e => {
       if (e.target.name === 'when') {
-        prefs.when = e.target.value; $('[data-later]', drawer).hidden = e.target.value !== 'later';
+        prefs.when = e.target.value; $('[data-later]', drawer).hidden = e.target.value !== 'later'; refreshClosed();
       }
       if (e.target.name === 'date') refreshSlots();
       if (e.target.name === 'zone') refreshTotals();
@@ -203,7 +252,7 @@
       const again = $(`[data-q="${Math.min(i, cart.length - 1)}"][data-d="${b.dataset.d}"]`, drawer);
       (again || $('[data-close]', drawer)).focus();
     }));
-    $('[data-clear]', drawer).addEventListener('click', () => { cart = []; saveCart(); renderCount(); $('[data-close]', drawer).focus(); });
+    $('[data-clear]', drawer).addEventListener('click', () => { cart = []; draft.note = ''; saveCart(); renderCount(); $('[data-close]', drawer).focus(); });
     $('[data-send]', drawer).addEventListener('click', () => {
       const err = $('[data-error]', drawer);
       const missing = ['zone', 'address', 'name'].filter(n => !form.elements[n].value.trim());
@@ -218,7 +267,8 @@
       }
       err.hidden = true;
       const z = G.zones.find(x => x.name === form.elements.zone.value);
-      const when = later ? `le ${niceDate(form.elements.date.value)} à ${form.elements.time.value.replace(':', 'h')}` : 'dès que possible';
+      const st = openState();
+      const when = later ? `le ${niceDate(form.elements.date.value)} à ${form.elements.time.value.replace(':', 'h')}` : (st && !st.open ? "dès l'ouverture" : 'dès que possible');
       const msg = [
         'Bonjour Graya Holistic, je souhaite commander :',
         ...cart.map(l => `• ${l.qty} × ${l.name} — ${fcfa(l.qty * l.price)}`),
@@ -276,6 +326,8 @@
   });
 
   /* ================= GALLERY + LIGHTBOX ================= */
+  // The grid is plain HTML (built by tools/build.py); each photo is a real link to the full image.
+  // JavaScript only upgrades those links into a lightbox and adds the category filters.
   let lb = null, lbList = [], lbIdx = 0, lbLast = null;
   function buildLb() {
     lb = document.createElement('div');
@@ -290,42 +342,71 @@
     $('.lb-next', lb).onclick = () => showLb(lbIdx + 1);
     $('.lb-close', lb).onclick = closeLb;
     lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
-    lb.addEventListener('keydown', e => { if (e.key === 'ArrowLeft') showLb(lbIdx - 1); if (e.key === 'ArrowRight') showLb(lbIdx + 1); });
+    lb.addEventListener('keydown', e => {
+      if (e.key === 'ArrowLeft') showLb(lbIdx - 1);
+      if (e.key === 'ArrowRight') showLb(lbIdx + 1);
+      if (e.key === 'Tab') {   // keep focus inside the lightbox
+        const f = $$('button', lb), first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    });
+    let x0 = null;   // swipe left / right on touch screens
+    lb.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
+    lb.addEventListener('touchend', e => {
+      if (x0 === null) return;
+      const dx = e.changedTouches[0].clientX - x0; x0 = null;
+      if (Math.abs(dx) > 50) showLb(lbIdx + (dx < 0 ? 1 : -1));
+    }, { passive: true });
   }
   function showLb(i) {
     lbIdx = (i + lbList.length) % lbList.length;
-    const p = lbList[lbIdx];
-    $('img', lb).src = `assets/img/gallery/${p.file}.jpg`; $('img', lb).alt = p.alt || '';
-    $('figcaption', lb).textContent = p.caption || '';
+    const p = lbList[lbIdx], im = $('img', lb);
+    im.onerror = () => { im.onerror = null; im.src = p.src; };   // fall back to the JPEG
+    im.src = p.src.replace(/\.jpg$/, '.webp'); im.alt = p.alt;
+    $('figcaption', lb).textContent = p.caption;
   }
   function closeLb() { lb.hidden = true; document.body.style.overflow = ''; lbLast?.focus(); }
 
   const grid = $('[data-gallery]');
   if (grid) {
-    fetch('assets/img/gallery/manifest.json').then(r => r.ok ? r.json() : []).then(photos => {
-      if (!Array.isArray(photos)) return;
-      const limit = Number(grid.dataset.limit) || photos.length;
-      const shown = photos.slice(0, limit);
-      grid.innerHTML = shown.map((p, i) => `
-        <figure class="gallery-card" data-i="${i}" data-category="${p.category || 'autres'}" tabindex="0" role="button" aria-label="Agrandir : ${p.caption || p.alt || 'photo'}">
-          <picture><source srcset="assets/img/gallery/${p.file}.webp" type="image/webp"><img src="assets/img/gallery/${p.file}.jpg" alt="${p.alt || ''}" loading="lazy" decoding="async" width="605" height="1080"></picture>
-          ${p.caption ? `<figcaption>${p.caption}</figcaption>` : ''}
-        </figure>`).join('');
-      const open = card => {
-        if (!lb) buildLb();
-        lbList = $$('.gallery-card:not([hidden])', grid).map(c => shown[Number(c.dataset.i)]);
-        lbLast = card; lb.hidden = false; document.body.style.overflow = 'hidden';
-        showLb(lbList.indexOf(shown[Number(card.dataset.i)]));
-        $('.lb-close', lb).focus();
-      };
-      grid.addEventListener('click', e => { const c = e.target.closest('.gallery-card'); if (c) open(c); });
-      grid.addEventListener('keydown', e => { const c = e.target.closest('.gallery-card'); if (c && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); open(c); } });
-      $$('[data-gfilter]').forEach(b => b.addEventListener('click', () => {
-        $$('[data-gfilter]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
-        $$('.gallery-card', grid).forEach(c => { c.hidden = b.dataset.gfilter !== 'all' && c.dataset.category !== b.dataset.gfilter; });
-      }));
-    }).catch(() => {});
+    grid.addEventListener('click', e => {
+      const a = e.target.closest('.gallery-link');
+      if (!a) return;
+      e.preventDefault();
+      if (!lb) buildLb();
+      const links = $$('.gallery-card:not([hidden]) .gallery-link', grid);
+      lbList = links.map(l => ({ src: l.getAttribute('href'), alt: $('img', l).alt, caption: $('figcaption', l.parentElement)?.textContent || '' }));
+      lbLast = a; lb.hidden = false; document.body.style.overflow = 'hidden';
+      showLb(links.indexOf(a));
+      $('.lb-close', lb).focus();
+    });
+    $$('[data-gfilter]').forEach(b => b.addEventListener('click', () => {
+      $$('[data-gfilter]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+      $$('.gallery-card', grid).forEach(c => { c.hidden = b.dataset.gfilter !== 'all' && c.dataset.category !== b.dataset.gfilter; });
+    }));
   }
+
+  /* ================= MAP: Google is only contacted when the visitor asks ================= */
+  $$('[data-map]').forEach(box => {
+    const btn = $('[data-map-load]', box);
+    if (!btn) return;
+    btn.hidden = false;
+    btn.addEventListener('click', () => {
+      const f = document.createElement('iframe');
+      f.src = box.dataset.src; f.title = 'Carte : Bingerville et la zone de livraison';
+      f.loading = 'lazy'; f.referrerPolicy = 'no-referrer-when-downgrade';
+      box.replaceChildren(f);
+    });
+  });
+
+  /* ================= PRIVACY: erase what the site keeps on this device ================= */
+  $('[data-clear-data]')?.addEventListener('click', () => {
+    try { localStorage.removeItem(KEY); localStorage.removeItem('graya-order-prefs'); } catch { /* private mode */ }
+    cart = []; draft.note = ''; Object.keys(prefs).forEach(k => delete prefs[k]);
+    renderCount();
+    $('[data-clear-done]').hidden = false;
+  });
 
   /* ================= TRAITEUR: 3-step quote ================= */
   const quote = $('[data-quote]');
