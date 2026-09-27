@@ -5,14 +5,14 @@
 Content that changes often (menu, prices, zones, hours, contacts) lives in tools/site_data.py.
 The generated pages are plain static HTML: they can still be edited by hand, but the next build
 overwrites them, so prefer editing this file and site_data.py."""
-import html, json, os, sys
+import hashlib, html, json, os, struct, sys
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
 import site_data as D
 
 ROOT = Path(__file__).resolve().parent.parent
-V = "30"  # cache-busting version for css/js
+V = "0"  # cache-busting version for css/js: a hash of their content, set by main()
 e = html.escape
 
 
@@ -20,16 +20,54 @@ e = html.escape
 def fcfa(n):
     return f"{n:,}".replace(",", " ") + " FCFA"
 
+def fmt_time(t):
+    """'21:30' -> '21 h 30', '11:00' -> '11 h'."""
+    h, m = t.split(":")
+    return f"{int(h)} h" + (f" {m}" if m != "00" else "")
+
+def fmt_hours(h):
+    return f"{fmt_time(h['opens'])} – {fmt_time(h['closes'])}"
+
+def jpeg_size(path):
+    """(width, height) of a JPEG, read from its header (no Pillow needed)."""
+    with open(path, "rb") as f:
+        f.read(2)
+        while True:
+            b = f.read(1)
+            while b and b != b"\xff":
+                b = f.read(1)
+            while b == b"\xff":
+                b = f.read(1)
+            if not b:
+                raise ValueError(f"no size found in {path}")
+            if b[0] in (0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7, 0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF):
+                f.read(3)
+                h, w = struct.unpack(">HH", f.read(4))
+                return w, h
+            f.read(struct.unpack(">H", f.read(2))[0] - 2)
+
+def content_hash(*rel_paths):
+    h = hashlib.sha1()
+    for rel in rel_paths:
+        h.update((ROOT / rel).read_bytes())
+    return h.hexdigest()[:8]
+
 def wa(text):
     from urllib.parse import quote
     return f"https://wa.me/{D.WHATSAPP}?text={quote(text)}"
+
+BAMBOO_LARGE_W = {"bamboo-stalks-vivid": 1000}  # width of each -1400.webp file (default 1200)
+
+def bamboo_srcset(stem):
+    return (f"assets/img/bamboo/{stem}-720.webp 720w, "
+            f"assets/img/bamboo/{stem}-1400.webp {BAMBOO_LARGE_W.get(stem, 1200)}w")
 
 def pic(stem, alt, cls="", w=640, h=640, lazy=True, folder="plats", extra=""):
     lz = ' loading="lazy" decoding="async"' if lazy else ' fetchpriority="high"'
     c = f' class="{cls}"' if cls else ""
     webp = f"assets/img/{folder}/{stem}.webp"
     if folder == "bamboo":  # full-bleed background photos: responsive, lighter variants
-        webp = f'assets/img/bamboo/{stem}-720.webp 720w, assets/img/bamboo/{stem}-1400.webp 1200w" sizes="100vw'
+        webp = f'{bamboo_srcset(stem)}" sizes="100vw'
     return (f'<picture><source srcset="{webp}" type="image/webp">'
             f'<img src="assets/img/{folder}/{stem}.jpg" alt="{e(alt)}"{c} width="{w}" height="{h}"{lz}{extra}></picture>')
 
@@ -67,6 +105,12 @@ def head(p):
     lds = "".join(f'<script type="application/ld+json">{json.dumps(ld, ensure_ascii=False)}</script>\n' for ld in p.get("ld", []))
     robots = '<meta name="robots" content="noindex">\n' if p.get("noindex") else ""
     base = '<base href="/GrayaHolistic/">\n' if p["file"] == "404.html" else ""
+    pre = ""
+    if p.get("hero_img"):  # the full-bleed photo is the largest thing painted above the fold
+        pre += (f'<link rel="preload" as="image" imagesrcset="{bamboo_srcset(p["hero_img"])}" imagesizes="100vw" '
+                'type="image/webp" fetchpriority="high">\n')
+    if p["file"] == "index.html":
+        pre += '<link rel="preload" href="assets/img/logo-lockup.webp" as="image" type="image/webp">\n'
     return f"""<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -90,10 +134,13 @@ def head(p):
 <meta property="og:image" content="{D.BASE_URL}assets/img/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Graya Holistic, Côte d'Ivoire : brochettes grillées sur un plateau doré, dans une bambouseraie">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{e(p['title'])}">
+<meta name="twitter:description" content="{e(p['desc'])}">
 <link rel="preload" href="assets/fonts/bodoni-moda-latin-opsz-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/jost-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-{'<link rel="preload" href="assets/img/logo-lockup.webp" as="image" type="image/webp">' + chr(10) if p["file"] == "index.html" else ""}<link rel="stylesheet" href="assets/css/style.css?v={V}">
+{pre}<link rel="stylesheet" href="assets/css/style.css?v={V}">
 {lds}</head>
 """
 
@@ -118,7 +165,7 @@ def header(active):
 
 def footer():
     phones = "".join(f'<a href="tel:{t}">{e(d)}</a>' for t, d in D.PHONES)
-    hours = "".join(f"<p>{e(h['label'])} : {h['opens'].replace(':', ' h ')} – {h['closes'].replace(':', ' h ')}</p>" for h in D.HOURS).replace(" h 00", " h")
+    hours = "".join(f"<p>{e(h['label'])} : {fmt_hours(h)}</p>" for h in D.HOURS)
     return f"""<footer class="site-footer">
   <img class="deco deco--footer" src="assets/img/deco/bamboo-grove.svg" alt="" aria-hidden="true" loading="lazy">
   <div class="shell">
@@ -132,7 +179,7 @@ def footer():
         <div class="social"><a href="{D.SOCIAL['Facebook']}" aria-label="Facebook" target="_blank" rel="noopener">{ICON['fb']}</a><a href="{D.SOCIAL['Instagram']}" aria-label="Instagram" target="_blank" rel="noopener">{ICON['ig']}</a></div>
       </div>
     </div>
-    <div class="footer-bottom"><span>© <span data-year>2026</span> Graya Holistic®. Labellisé ÉCO BMT™.</span><span>Bien manger, bien vivre, bien-être</span></div>
+    <div class="footer-bottom"><span>© <span data-year>2026</span> Graya Holistic®. Labellisé ÉCO BMT™. <a href="confidentialite.html">Confidentialité</a></span><span>Bien manger, bien vivre, bien-être</span></div>
   </div>
 </footer>
 <script src="assets/js/data.js?v={V}" defer></script>
@@ -184,8 +231,13 @@ def restaurant_ld():
         "address": {"@type": "PostalAddress", "addressLocality": D.CITY, "addressRegion": D.REGION, "addressCountry": "CI"},
         "areaServed": [z for z, _ in D.ZONES],
         "openingHoursSpecification": [{"@type": "OpeningHoursSpecification", "dayOfWeek": [days[d] for d in h["days"]], "opens": h["opens"], "closes": h["closes"]} for h in D.HOURS],
-        "telephone": D.PHONES[0][0], "email": D.EMAIL, "sameAs": list(D.SOCIAL.values()),
+        "telephone": D.PHONES[0][0], "email": D.EMAIL,
+        **({"sameAs": list(D.SOCIAL.values())} if D.SOCIAL_CONFIRMED else {}),
     }
+
+def website_ld():
+    return {"@context": "https://schema.org", "@type": "WebSite", "@id": D.BASE_URL + "#website", "url": D.BASE_URL,
+            "name": "Graya Holistic", "inLanguage": "fr", "publisher": {"@id": D.BASE_URL + "#restaurant"}}
 
 
 # ------------------------------------------------------------------ blocks
@@ -209,13 +261,35 @@ def carte_item(it):
         </li>"""
 
 def hours_dl():
-    rows = "".join(f"<dt>{e(h['label'])}</dt><dd>{h['opens'].replace(':', ' h ')} – {h['closes'].replace(':', ' h ')}</dd>" for h in D.HOURS)
-    return f'<dl class="hours">{rows.replace(" h 00", " h")}<dt>Traiteur</dt><dd>Sur demande</dd></dl>'
+    rows = "".join(f"<dt>{e(h['label'])}</dt><dd>{fmt_hours(h)}</dd>" for h in D.HOURS)
+    return f'<dl class="hours">{rows}<dt>Traiteur</dt><dd>Sur demande</dd></dl>'
 
 def zones_ul():
     return '<ul class="zones">' + "".join(f"<li>{e(z)}</li>" for z, _ in D.ZONES) + "</ul>"
 
-GALLERY = '<div class="gallery" data-gallery{attrs}></div><noscript><p class="lead">Activez JavaScript pour voir la galerie.</p></noscript>'
+def gallery_block(stems=None):
+    """The photo grid, rendered here (not by JavaScript) so it is in the HTML, indexable, and each
+    <img> carries its real size: no layout shift. Source: assets/img/gallery/manifest.json."""
+    manifest = json.loads((ROOT / "assets/img/gallery/manifest.json").read_text(encoding="utf-8"))
+    by_file = {m["file"]: m for m in manifest}
+    items = [by_file[s] for s in stems] if stems else manifest
+    cards = []
+    for m in items:
+        w, h = jpeg_size(ROOT / f"assets/img/gallery/{m['file']}.jpg")
+        cap = m.get("caption", "")
+        cards.append(
+            f'<figure class="gallery-card" data-category="{e(m.get("category", "autres"))}">'
+            f'<a class="gallery-link" href="assets/img/gallery/{m["file"]}.jpg" aria-label="{e("Agrandir : " + (cap or m["alt"]))}">'
+            f'<picture><source srcset="assets/img/gallery/{m["file"]}.webp" type="image/webp">'
+            f'<img src="assets/img/gallery/{m["file"]}.jpg" alt="{e(m["alt"])}" width="{w}" height="{h}" loading="lazy" decoding="async"></picture></a>'
+            f'{f"<figcaption>{e(cap)}</figcaption>" if cap else ""}</figure>')
+    return '<div class="gallery" data-gallery>' + "".join(cards) + "</div>"
+
+def hours_facts():
+    first, rest = D.HOURS[0], D.HOURS[1:]
+    short = first["label"].replace("Lundi", "Lun").replace("Samedi", "Sam")
+    return (f"<strong>{e(short)}, {fmt_hours(first)}</strong>"
+            + " · ".join(f"{e(h['label'])} {fmt_hours(h)}" for h in rest))
 
 
 # ------------------------------------------------------------------ pages
@@ -237,10 +311,11 @@ def page_index():
         <a href="menu.html" class="btn btn--gold">Voir la carte</a>
         <a href="{wa('Bonjour Graya Holistic, je souhaite passer une commande.')}" class="btn btn--ghost">{ICON['wa']}Commander sur WhatsApp</a>
       </div>
+      <p class="status" data-status><i aria-hidden="true"></i><span></span></p>
     </div>
   </div>
   <div class="shell hero-facts">
-    <span><strong>Lun – Sam, 11 h – 21 h 30</strong>Dimanche 12 h – 20 h</span>
+    <span>{hours_facts()}</span>
     <span><strong>{len(D.ZONES)} zones livrées</strong>de Bingerville à Yopougon</span>
     <span><strong>Labellisé ÉCO BMT™</strong>Restauration responsable</span>
   </div>
@@ -307,7 +382,7 @@ def page_index():
 <section class="band" data-stalk="Galerie">
   <div class="shell">
     <div class="section-head"><div><p class="kicker">En images</p><h2>La galerie gourmande</h2></div><p>Saveurs, couleurs et gestes conscients, tels qu'ils sortent de notre cuisine.</p></div>
-    {GALLERY.format(attrs=' data-limit="8"')}
+    {gallery_block(D.GALLERY_HOME)}
     <div class="actions mt-xl"><a href="notre-cuisine.html#galerie" class="btn btn--ghost">Voir toute la galerie</a></div>
   </div>
 </section>
@@ -504,7 +579,7 @@ def page_cuisine():
       <div class="chips" role="group" aria-label="Filtrer la galerie" data-gallery-filters>
         <button type="button" class="chip" data-gfilter="all" aria-pressed="true">Tout</button><button type="button" class="chip" data-gfilter="poulet" aria-pressed="false">Poulet</button><button type="button" class="chip" data-gfilter="boeuf" aria-pressed="false">Bœuf</button><button type="button" class="chip" data-gfilter="poisson-vege" aria-pressed="false">Poisson &amp; végé</button><button type="button" class="chip" data-gfilter="autres" aria-pressed="false">Autres</button>
       </div></div>
-    {GALLERY.format(attrs='')}
+    {gallery_block()}
   </div>
 </section>
 
@@ -684,7 +759,14 @@ def page_contact():
 <section class="band band--canopee" data-stalk="Zones">
   <div class="shell info">
     <div><p class="kicker">Zones de livraison</p><h2>Depuis Bingerville, vers tout le grand Abidjan</h2>{zones_ul()}</div>
-    <div class="map"><iframe src="https://maps.google.com/maps?q=Bingerville%2C%20C%C3%B4te%20d%27Ivoire&z=12&output=embed" title="Carte : Bingerville et la zone de livraison" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
+    <div class="map" data-map data-src="https://maps.google.com/maps?q=Bingerville%2C%20C%C3%B4te%20d%27Ivoire&z=12&output=embed">
+      <div class="map-facade">
+        <p class="h3">Bingerville, Abidjan</p>
+        <p>Notre cuisine est à Bingerville ; nous livrons dans tout le grand Abidjan.</p>
+        <div class="actions"><button type="button" class="btn btn--ghost btn--sm" data-map-load hidden>Afficher la carte</button><a class="btn btn--ghost btn--sm" href="https://www.google.com/maps/search/?api=1&amp;query=Bingerville%2C%20C%C3%B4te%20d%27Ivoire" target="_blank" rel="noopener">Ouvrir dans Google Maps</a></div>
+        <small>La carte est fournie par Google : elle ne se charge que si vous l'affichez.</small>
+      </div>
+    </div>
   </div>
 </section>
 {cta("Envie de passer commande ?", "La carte est à un clic.")}
@@ -699,6 +781,37 @@ def page_faq():
   <div class="shell narrow faq">{items}</div>
 </section>
 {cta("Vous ne trouvez pas votre réponse ?", "Écrivez-nous, nous répondons rapidement.")}
+</main>
+"""
+
+def page_privacy():
+    phones = " ou ".join(f'<a href="tel:{t}">{e(d)}</a>' for t, d in D.PHONES)
+    return f"""<main id="main">
+{page_hero("Confidentialité", "Ce que ce site enregistre, ce qu'il n'enregistre pas, et comment effacer vos informations.", "Confidentialité")}
+<section class="band" data-stalk="Vos données">
+  <div class="shell narrow prose">
+    <h2>En bref</h2>
+    <p>Ce site n'utilise ni cookies publicitaires, ni outil de mesure d'audience, ni compte client. Il n'a pas de base de données : vos commandes et demandes de devis ne sont pas enregistrées sur un serveur, elles partent sur WhatsApp quand vous les envoyez.</p>
+
+    <h2>Ce qui est gardé sur votre appareil</h2>
+    <p>Pour vous éviter de tout ressaisir, le site garde dans votre navigateur (stockage local) : le contenu de votre panier, ainsi que la zone, l'adresse, le nom et l'horaire de livraison que vous avez saisis. Ces informations restent sur votre appareil et ne nous sont jamais transmises automatiquement.</p>
+    <p><button type="button" class="btn btn--ghost btn--sm" data-clear-data>Effacer mes informations enregistrées</button></p>
+    <p class="form-ok" data-clear-done role="status" hidden>C'est fait : votre panier et vos informations de livraison ont été effacés de cet appareil.</p>
+
+    <h2>Ce qui nous est transmis</h2>
+    <p>Quand vous appuyez sur « Envoyer sur WhatsApp » (commande, devis traiteur ou message), le site ouvre WhatsApp avec un message prêt à envoyer. Il contient ce que vous avez saisi : plats, adresse de livraison, nom, téléphone pour un devis. Rien n'est envoyé tant que vous n'avez pas validé l'envoi dans WhatsApp. Nous utilisons ces informations uniquement pour préparer et livrer votre commande, ou répondre à votre demande. Les échanges passent par WhatsApp, dont les règles de confidentialité s'appliquent.</p>
+
+    <h2>Services tiers</h2>
+    <p>Les polices et images sont hébergées avec le site. La carte de la page Contact est fournie par Google et ne se charge que si vous cliquez sur « Afficher la carte ». Le site est hébergé sur GitHub Pages, qui peut enregistrer des données techniques de connexion (adresse IP) comme tout hébergeur.</p>
+
+    <h2>Vos droits</h2>
+    <p>Conformément à la réglementation ivoirienne sur la protection des données à caractère personnel, vous pouvez nous demander d'accéder aux informations que vous nous avez transmises, de les corriger ou de les supprimer. Écrivez-nous sur <a href="{wa('Bonjour Graya Holistic, je souhaite exercer mes droits sur mes données personnelles.')}">WhatsApp</a>, par téléphone au {phones}, ou par e-mail à <a href="mailto:{D.EMAIL}">{e(D.EMAIL)}</a>.</p>
+
+    <h2>Éditeur du site</h2>
+    <p>Graya Holistic®, cuisine holistique consciente, {e(D.AREA_LABEL)}, Côte d'Ivoire.</p>
+  </div>
+</section>
+{cta("Une question sur vos données ?", "Écrivez-nous, nous répondons rapidement.", primary=("contact.html", "Nous contacter"))}
 </main>
 """
 
@@ -740,56 +853,67 @@ def service_ld():
 
 
 PAGES = [
-    {"file": "index.html", "title": "Graya Holistic — Cuisine holistique consciente à Bingerville, Abidjan",
-     "desc": "Cuisine holistique consciente cuisinée à Bingerville et livrée dans tout Abidjan : brochettes signature, soupes, jus thérapeutiques Nectar d'Eden, traiteur. Commande sur WhatsApp.",
-     "body": page_index, "ld": [restaurant_ld()]},
-    {"file": "menu.html", "title": "La carte & les prix — livraison à Abidjan | Graya Holistic",
-     "desc": "La carte Graya Holistic : brochettes signature, poulet braisé au feu de bois, Kedjenou, soupe du pêcheur, attiéké, aloko, jus Nectar d'Eden. Prix en FCFA, commande en ligne.",
-     "body": page_menu, "ld": [menu_ld(), crumbs_ld("La carte", "menu.html")]},
-    {"file": "traiteur.html", "title": "Traiteur événementiel à Abidjan — devis en ligne | Graya Holistic",
+    {"file": "index.html", "title": "Graya Holistic — Cuisine holistique à Bingerville, Abidjan",
+     "desc": "Cuisine holistique consciente cuisinée à Bingerville, livrée dans tout Abidjan : brochettes, soupes, jus Nectar d'Eden, traiteur. Commande sur WhatsApp.",
+     "body": page_index, "hero_img": "bamboo-sunlit-path", "ld": [restaurant_ld(), website_ld()]},
+    {"file": "menu.html", "title": "La carte et les prix, livraison à Abidjan | Graya Holistic",
+     "desc": "Brochettes signature, poulet braisé au feu de bois, Kedjenou, soupe du pêcheur, jus Nectar d'Eden. Prix en FCFA, commande en ligne, livraison à Abidjan.",
+     "body": page_menu, "hero_img": "bamboo-stalks-vivid", "ld": [menu_ld(), crumbs_ld("La carte", "menu.html")]},
+    {"file": "traiteur.html", "title": "Traiteur à Abidjan : devis en ligne | Graya Holistic",
      "desc": "Traiteur pour mariages, anniversaires, séminaires et réceptions à Abidjan : menus sur mesure, sains et généreux. Demandez votre devis en deux minutes.",
-     "body": page_traiteur, "ld": [service_ld(), crumbs_ld("Traiteur", "traiteur.html")]},
-    {"file": "notre-cuisine.html", "title": "Notre cuisine holistique : plats, jus & desserts | Graya Holistic",
-     "desc": "Cuisine Holistique Consciente™ : des plats équilibrés, des jus bien-être Nectar d'Eden et des desserts sains, préparés avec des ingrédients locaux et de saison.",
-     "body": page_cuisine, "ld": [crumbs_ld("Notre cuisine", "notre-cuisine.html")]},
-    {"file": "services.html", "title": "Livraison, traiteur & cures à Abidjan | Graya Holistic",
+     "body": page_traiteur, "hero_img": "bamboo-grove-golden", "ld": [service_ld(), crumbs_ld("Traiteur", "traiteur.html")]},
+    {"file": "notre-cuisine.html", "title": "Cuisine holistique : plats, jus et desserts | Graya Holistic",
+     "desc": "Cuisine Holistique Consciente™ : des plats équilibrés, des jus bien-être Nectar d'Eden et des desserts sains, préparés avec des ingrédients locaux.",
+     "body": page_cuisine, "hero_img": "bamboo-sunlit-path", "ld": [crumbs_ld("Notre cuisine", "notre-cuisine.html")]},
+    {"file": "services.html", "title": "Livraison, traiteur et cures à Abidjan | Graya Holistic",
      "desc": "Livraison express, traiteur événementiel et cures holistiques : les services de Graya Holistic, atelier culinaire à Bingerville.",
-     "body": page_services, "ld": [crumbs_ld("Nos services", "services.html")]},
-    {"file": "a-propos.html", "title": "Qui sommes-nous — cuisine consciente à Bingerville | Graya Holistic",
+     "body": page_services, "hero_img": "bamboo-sunlit-path", "ld": [crumbs_ld("Nos services", "services.html")]},
+    {"file": "a-propos.html", "title": "Qui sommes-nous ? Cuisine consciente | Graya Holistic",
      "desc": "Graya Holistic® transforme l'alimentation en un acte de soin, de conscience et de dignité. Notre vision, notre mission et nos racines.",
-     "body": page_apropos, "ld": [crumbs_ld("Qui sommes-nous", "a-propos.html")]},
+     "body": page_apropos, "hero_img": "bamboo-grove-golden", "ld": [crumbs_ld("Qui sommes-nous", "a-propos.html")]},
     {"file": "engagement.html", "title": "Engagement éco-responsable, label ÉCO BMT™ | Graya Holistic",
      "desc": "Plantes et épices locales, producteurs ivoiriens, alimentation consciente : les engagements de Graya Holistic, labellisé ÉCO BMT™.",
-     "body": page_engagement, "ld": [crumbs_ld("Engagement", "engagement.html")]},
-    {"file": "contact.html", "title": "Contact & commande WhatsApp — Bingerville | Graya Holistic",
+     "body": page_engagement, "hero_img": "bamboo-sunlit-path", "ld": [crumbs_ld("Engagement", "engagement.html")]},
+    {"file": "contact.html", "title": "Contact et commande WhatsApp, Bingerville | Graya Holistic",
      "desc": "Contactez Graya Holistic à Bingerville : WhatsApp, téléphone, e-mail, horaires et zones de livraison dans le grand Abidjan.",
-     "body": page_contact, "ld": [crumbs_ld("Contact", "contact.html")]},
-    {"file": "faq.html", "title": "Questions fréquentes — commande & livraison | Graya Holistic",
+     "body": page_contact, "hero_img": "bamboo-sunlit-path", "ld": [crumbs_ld("Contact", "contact.html")]},
+    {"file": "faq.html", "title": "Questions fréquentes : commande et livraison | Graya Holistic",
      "desc": "Comment commander, zones et horaires de livraison, traiteur, jus Nectar d'Eden, label ÉCO BMT™ : les réponses aux questions fréquentes.",
-     "body": page_faq, "ld": [faq_ld(), crumbs_ld("Questions fréquentes", "faq.html")]},
+     "body": page_faq, "hero_img": "bamboo-sunlit-path", "ld": [faq_ld(), crumbs_ld("Questions fréquentes", "faq.html")]},
+    {"file": "confidentialite.html", "title": "Confidentialité et données personnelles | Graya Holistic",
+     "desc": "Ce que le site Graya Holistic enregistre sur votre appareil, ce qui part sur WhatsApp, et comment effacer vos informations.",
+     "body": page_privacy, "hero_img": "bamboo-sunlit-path", "ld": [crumbs_ld("Confidentialité", "confidentialite.html")]},
     {"file": "404.html", "title": "Page introuvable — Graya Holistic", "desc": "Cette page n'existe pas.",
      "body": page_404, "noindex": True},
 ]
 
 
 def data_js():
-    items = {}
+    items, prices = {}, {}
     for s in D.MENU:
         for it in s["items"]:
             items[it["id"]] = {"name": it["name"], "cat": s["id"]}
-    data = {"whatsapp": D.WHATSAPP, "zones": [{"name": z, "fee": f} for z, f in D.ZONES], "hours": D.HOURS, "dishes": items}
+            if "sizes" in it:
+                for k, _, price in it["sizes"]:
+                    prices[f'{it["id"]}-{k}'] = price
+            else:
+                prices[it["id"]] = it["price"]
+    data = {"whatsapp": D.WHATSAPP, "zones": [{"name": z, "fee": f} for z, f in D.ZONES], "hours": D.HOURS,
+            "dishes": items, "prices": prices}
     return "/* Generated by tools/build.py from tools/site_data.py — do not edit by hand. */\nwindow.GRAYA = " + json.dumps(data, ensure_ascii=False, indent=1) + ";\n"
 
 
 def main():
+    global V
+    (ROOT / "assets/js/data.js").write_text(data_js(), encoding="utf-8")
+    V = content_hash("assets/css/style.css", "assets/js/data.js", "assets/js/main.js")
     for p in PAGES:
         active = p["file"]
         out = head(p) + header(active) + p["body"]() + footer()
         (ROOT / p["file"]).write_text(out, encoding="utf-8")
-    (ROOT / "assets/js/data.js").write_text(data_js(), encoding="utf-8")
     urls = "".join(f"  <url><loc>{D.BASE_URL}{'' if p['file'] == 'index.html' else p['file']}</loc></url>\n" for p in PAGES if not p.get("noindex"))
     (ROOT / "sitemap.xml").write_text(f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{urls}</urlset>\n', encoding="utf-8")
-    print("built", len(PAGES), "pages")
+    print("built", len(PAGES), "pages, assets version", V)
 
 if __name__ == "__main__":
     main()

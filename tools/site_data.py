@@ -13,6 +13,10 @@ PHONES = [("+2250101736812", "01\u00a001\u00a073\u00a068\u00a012"), ("+225077777
 # TODO client: this email and the social links below belong to BMT Green Academy.
 EMAIL = "bmtgreenacademy@gmail.com"
 SOCIAL = {"Facebook": "https://facebook.com/bmtgreenacademy", "Instagram": "https://instagram.com/bmtgreenacademy"}
+# Set to True once EMAIL and SOCIAL are Graya Holistic's own. Until then the social links are
+# NOT declared as the restaurant's profiles in the structured data (sameAs), so search engines
+# do not attach another business's accounts to this brand.
+SOCIAL_CONFIRMED = False
 
 # Opening hours — weekday numbers follow JavaScript (0 = Sunday).
 HOURS = [
@@ -65,8 +69,12 @@ MENU = [
         {"id": "consolateur", "name": "Le Consolateur", "sub": "Thé thérapeutique", "desc": "Infusion douce et digestive, qui apaise l'estomac et rééquilibre le corps.", "price": 500, "img": None},
     ]},
 ]
-# Shown on the home page.
-SIGNATURE = ["kedjenou", "soupe-pecheur", "rivage", "baoule"]
+# Shown on the home page ("Quatre plats pour commencer"): dishes that have a photo.
+SIGNATURE = ["kedjenou", "soupe-pecheur", "rivage", "poisson-graya"]
+
+# Photos shown on the home page gallery (stems in assets/img/gallery/, see manifest.json):
+# a mix of poultry, beef, fish, wraps and salad rather than the first eight of the file.
+GALLERY_HOME = ["plat-03", "plat-12", "plat-09", "plat-07", "plat-27", "plat-18", "plat-28", "plat-31"]
 
 FAQ = [
     ("Comment passer commande ?",
